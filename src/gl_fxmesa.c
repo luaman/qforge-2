@@ -40,11 +40,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <signal.h>
 #include <dlfcn.h>
 
-#include "../ref_gl/gl_local.h"
-#include "../client/keys.h"
-#include "../linux/rw_linux.h"
+#include "gl_local.h"
+#include "keys.h"
+#include "rw.h"
 
-#include "../linux/glw_linux.h"
+#include "glw.h"
 
 #include <GL/fxmesa.h>
 
