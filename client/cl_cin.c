@@ -170,7 +170,7 @@ void SCR_StopCinematic (void)
 	}
 	if (cl.cinematic_file)
 	{
-		Qclose (cl.cinematic_file);
+		fclose (cl.cinematic_file);
 		cl.cinematic_file = NULL;
 	}
 	if (cin.hnodes1)
@@ -436,11 +436,11 @@ byte *SCR_ReadNextFrame (void)
 	int		start, end, count;
 
 	// read the next frame
-	r = Qread (cl.cinematic_file, &command, 4);
+	r = fread (&command, 4, 1, cl.cinematic_file);
 	if (r == 0)		// we'll give it one more chance
-		r = Qread (cl.cinematic_file, &command, 4);
+		r = fread (&command, 4, 1, cl.cinematic_file);
 
-	if (r != 4)
+	if (r != 1)
 		return NULL;
 	command = LittleLong(command);
 	if (command == 2)

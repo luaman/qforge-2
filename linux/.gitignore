@@ -1,6 +1,5 @@
 *.d
 *.map
-.vimrc
 debugi386
 debugi386-glibc
 releasei386

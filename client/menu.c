@@ -2031,13 +2031,13 @@ qboolean	m_savevalid[MAX_SAVEGAMES];
 void Create_Savestrings (void)
 {
 	int		i;
-	QFile	*f;
+	FILE	*f;
 	char	name[MAX_OSPATH];
 
 	for (i=0 ; i<MAX_SAVEGAMES ; i++)
 	{
 		Com_sprintf (name, sizeof(name), "%s/save/save%i/server.ssv", FS_Gamedir(), i);
-		f = Qopen (name, "rbz");
+		f = fopen (name, "rb");
 		if (!f)
 		{
 			strcpy (m_savestrings[i], "<EMPTY>");
@@ -2046,7 +2046,7 @@ void Create_Savestrings (void)
 		else
 		{
 			FS_Read (m_savestrings[i], sizeof(m_savestrings[i]), f);
-			Qclose (f);
+			fclose (f);
 			m_savevalid[i] = true;
 		}
 	}
@@ -2514,13 +2514,13 @@ void StartServer_MenuInit( void )
 	char *s;
 	int length;
 	int i;
-	QFile *fp;
+	FILE *fp;
 
 	/*
 	** load the list of map names
 	*/
 	Com_sprintf( mapsname, sizeof( mapsname ), "%s/maps.lst", FS_Gamedir() );
-	if ( ( fp = Qopen( mapsname, "rbz" ) ) == 0 )
+	if ( ( fp = fopen( mapsname, "rb" ) ) == 0 )
 	{
 		if ( ( length = FS_LoadFile( "maps.lst", ( void ** ) &buffer ) ) == -1 )
 			Com_Error( ERR_DROP, "couldn't find maps.lst\n" );
@@ -2530,12 +2530,12 @@ void StartServer_MenuInit( void )
 #ifdef _WIN32
 		length = filelength( fileno( fp  ) );
 #else
-		Qseek(fp, 0, SEEK_END);
-		length = Qtell(fp);
-		Qseek(fp, 0, SEEK_SET);
+		fseek(fp, 0, SEEK_END);
+		length = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
 #endif
 		buffer = malloc( length );
-		Qread (fp ,  buffer, length);
+		fread( buffer, length, 1, fp );
 	}
 
 	s = buffer;

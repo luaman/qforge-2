@@ -144,7 +144,7 @@ void Con_Dump_f (void)
 {
 	int		l, x;
 	char	*line;
-	QFile	*f;
+	FILE	*f;
 	char	buffer[1024];
 	char	name[MAX_OSPATH];
 
@@ -158,7 +158,7 @@ void Con_Dump_f (void)
 
 	Com_Printf ("Dumped console text to %s.\n", name);
 	FS_CreatePath (name);
-	f = Qopen (name, "w");
+	f = fopen (name, "w");
 	if (!f)
 	{
 		Com_Printf ("ERROR: couldn't open.\n");
@@ -192,10 +192,10 @@ void Con_Dump_f (void)
 		for (x=0; buffer[x]; x++)
 			buffer[x] &= 0x7f;
 
-		Qprintf (f, "%s\n", buffer);
+		fprintf (f, "%s\n", buffer);
 	}
 
-	Qclose (f);
+	fclose (f);
 }
 
 						

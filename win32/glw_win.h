@@ -39,7 +39,7 @@ typedef struct
 	qboolean allowdisplaydepthchange;
 	qboolean mcd_accelerated;
 
-	QFile *log_fp;
+	FILE *log_fp;
 } glwstate_t;
 
 extern glwstate_t glw_state;

@@ -430,18 +430,18 @@ void Cvar_WriteVariables (char *path)
 {
 	cvar_t	*var;
 	char	buffer[1024];
-	QFile	*f;
+	FILE	*f;
 
-	f = Qopen (path, "a");
+	f = fopen (path, "a");
 	for (var = cvar_vars ; var ; var = var->next)
 	{
 		if (var->flags & CVAR_ARCHIVE)
 		{
 			Com_sprintf (buffer, sizeof(buffer), "set %s \"%s\"\n", var->name, var->string);
-			Qprintf (f, "%s", buffer);
+			fprintf (f, "%s", buffer);
 		}
 	}
-	Qclose (f);
+	fclose (f);
 }
 
 /*

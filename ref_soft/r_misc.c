@@ -550,7 +550,7 @@ void WritePCXfile (char *filename, byte *data, int width, int height,
 	int			i, j, length;
 	pcx_t		*pcx;
 	byte		*pack;
-	QFile		*f;
+	FILE		*f;
 
 	pcx = (pcx_t *)malloc (width*height*2+1000);
 	if (!pcx)
@@ -598,13 +598,13 @@ void WritePCXfile (char *filename, byte *data, int width, int height,
 		
 // write output file 
 	length = pack - (byte *)pcx;
-	f = Qopen (filename, "wb");
+	f = fopen (filename, "wb");
 	if (!f)
 		ri.Con_Printf (PRINT_ALL, "Failed to open to %s\n", filename);
 	else
 	{
-		Qwrite (f, (void *)pcx, length);
-		Qclose (f);
+		fwrite ((void *)pcx, 1, length, f);
+		fclose (f);
 	}
 
 	free (pcx);
@@ -622,7 +622,7 @@ void R_ScreenShot_f (void)
 	int			i; 
 	char		pcxname[80]; 
 	char		checkname[MAX_OSPATH];
-	QFile		*f;
+	FILE		*f;
 	byte		palette[768];
 
 	// create the scrnshots directory if it doesn't exist
@@ -639,10 +639,10 @@ void R_ScreenShot_f (void)
 		pcxname[5] = i/10 + '0'; 
 		pcxname[6] = i%10 + '0'; 
 		Com_sprintf (checkname, sizeof(checkname), "%s/scrnshot/%s", ri.FS_Gamedir(), pcxname);
-		f = Qopen (checkname, "r");
+		f = fopen (checkname, "r");
 		if (!f)
 			break;	// file doesn't exist
-		Qclose (f);
+		fclose (f);
 	} 
 	if (i==100) 
 	{

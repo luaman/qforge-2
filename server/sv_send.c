@@ -441,7 +441,7 @@ void SV_DemoCompleted (void)
 {
 	if (sv.demofile)
 	{
-		Qclose (sv.demofile);
+		fclose (sv.demofile);
 		sv.demofile = NULL;
 	}
 	SV_Nextserver ();
@@ -505,8 +505,8 @@ void SV_SendClientMessages (void)
 		else
 		{
 			// get the next message
-			r = Qread (sv.demofile, &msglen, 4);
-			if (r != 4)
+			r = fread (&msglen, 4, 1, sv.demofile);
+			if (r != 1)
 			{
 				SV_DemoCompleted ();
 				return;
@@ -519,8 +519,8 @@ void SV_SendClientMessages (void)
 			}
 			if (msglen > MAX_MSGLEN)
 				Com_Error (ERR_DROP, "SV_SendClientMessages: msglen > MAX_MSGLEN");
-			r = Qread (sv.demofile, msgbuf, msglen);
-			if (r != msglen)
+			r = fread (msgbuf, msglen, 1, sv.demofile);
+			if (r != 1)
 			{
 				SV_DemoCompleted ();
 				return;

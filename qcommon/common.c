@@ -34,7 +34,7 @@ int		realtime;
 jmp_buf abortframe;		// an ERR_DROP occured, exit the entire frame
 
 
-QFile	*log_stats_file;
+FILE	*log_stats_file;
 
 cvar_t	*host_speeds;
 cvar_t	*log_stats;
@@ -45,7 +45,7 @@ cvar_t	*logfile_active;	// 1 = buffer log, 2 = flush after each print
 cvar_t	*showtrace;
 cvar_t	*dedicated;
 
-QFile	*logfile;
+FILE	*logfile;
 
 int			server_state;
 
@@ -132,14 +132,14 @@ void Com_Printf (char *fmt, ...)
 		{
 			Com_sprintf (name, sizeof(name), "%s/qconsole.log", FS_Gamedir ());
 			if (logfile_active->value > 2)
-				logfile = Qopen (name, "a");
+				logfile = fopen (name, "a");
 			else
-				logfile = Qopen (name, "w");
+				logfile = fopen (name, "w");
 		}
 		if (logfile)
-			Qprintf (logfile, "%s", msg);
+			fprintf (logfile, "%s", msg);
 		if (logfile_active->value > 1)
-			Qflush (logfile);		// force it to save every time
+			fflush (logfile);		// force it to save every time
 	}
 }
 
@@ -211,7 +211,7 @@ void Com_Error (int code, char *fmt, ...)
 
 	if (logfile)
 	{
-		Qclose (logfile);
+		fclose (logfile);
 		logfile = NULL;
 	}
 
@@ -234,7 +234,7 @@ void Com_Quit (void)
 
 	if (logfile)
 	{
-		Qclose (logfile);
+		fclose (logfile);
 		logfile = NULL;
 	}
 
@@ -1506,18 +1506,18 @@ void Qcommon_Frame (volatile int msec)
 		{
 			if ( log_stats_file )
 			{
-				Qclose( log_stats_file );
+				fclose( log_stats_file );
 				log_stats_file = 0;
 			}
-			log_stats_file = Qopen( "stats.log", "w" );
+			log_stats_file = fopen( "stats.log", "w" );
 			if ( log_stats_file )
-				Qprintf( log_stats_file, "entities,dlights,parts,frame time\n" );
+				fprintf( log_stats_file, "entities,dlights,parts,frame time\n" );
 		}
 		else
 		{
 			if ( log_stats_file )
 			{
-				Qclose( log_stats_file );
+				fclose( log_stats_file );
 				log_stats_file = 0;
 			}
 		}

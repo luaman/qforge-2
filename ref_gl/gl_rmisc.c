@@ -119,7 +119,7 @@ void GL_ScreenShot_f (void)
 	char		picname[80]; 
 	char		checkname[MAX_OSPATH];
 	int			i, c, temp;
-	QFile		*f;
+	FILE		*f;
 
 	// create the scrnshots directory if it doesn't exist
 	Com_sprintf (checkname, sizeof(checkname), "%s/scrnshot", ri.FS_Gamedir());
@@ -135,10 +135,10 @@ void GL_ScreenShot_f (void)
 		picname[5] = i/10 + '0'; 
 		picname[6] = i%10 + '0'; 
 		Com_sprintf (checkname, sizeof(checkname), "%s/scrnshot/%s", ri.FS_Gamedir(), picname);
-		f = Qopen (checkname, "rb");
+		f = fopen (checkname, "rb");
 		if (!f)
 			break;	// file doesn't exist
-		Qclose (f);
+		fclose (f);
 	} 
 	if (i==100) 
 	{
@@ -167,9 +167,9 @@ void GL_ScreenShot_f (void)
 		buffer[i+2] = temp;
 	}
 
-	f = Qopen (checkname, "wb");
-	Qwrite (f, buffer, c);
-	Qclose (f);
+	f = fopen (checkname, "wb");
+	fwrite (buffer, 1, c, f);
+	fclose (f);
 
 	free (buffer);
 	ri.Con_Printf (PRINT_ALL, "Wrote %s\n", picname);

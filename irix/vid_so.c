@@ -215,7 +215,7 @@ qboolean VID_LoadRefresh( char *name )
 	char	fn[MAX_OSPATH];
 	struct stat st;
 	extern uid_t saved_euid;
-	QFile *fp;
+	FILE *fp;
 	char	*path;
 	char	curpath[MAX_OSPATH];
 

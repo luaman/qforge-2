@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qcommon.h -- definitions common between client and server, but not game.dll
 
 #include "../game/q_shared.h"
-#include "../qcommon/quakeio.h"
+
 
 #define	VERSION		3.21
 
@@ -667,8 +667,8 @@ qboolean	CM_AreasConnected (int area1, int area2);
 int			CM_WriteAreaBits (byte *buffer, int area);
 qboolean	CM_HeadnodeVisible (int headnode, byte *visbits);
 
-void		CM_WritePortalState (QFile *f);
-void		CM_ReadPortalState (QFile *f);
+void		CM_WritePortalState (FILE *f);
+void		CM_ReadPortalState (FILE *f);
 
 /*
 ==============================================================
@@ -698,15 +698,15 @@ char	*FS_Gamedir (void);
 char	*FS_NextPath (char *prevpath);
 void	FS_ExecAutoexec (void);
 
-int		FS_FOpenFile (char *filename, QFile **file);
-void	FS_FCloseFile (QFile *f);
+int		FS_FOpenFile (char *filename, FILE **file);
+void	FS_FCloseFile (FILE *f);
 // note: this can't be called from another DLL, due to MS libc issues
 
 int		FS_LoadFile (char *path, void **buffer);
 // a null buffer will just return the file length without loading
 // a -1 length is not present
 
-void	FS_Read (void *buffer, int len, QFile *f);
+void	FS_Read (void *buffer, int len, FILE *f);
 // properly handles partial reads
 
 void	FS_FreeFile (void *buffer);
@@ -755,7 +755,7 @@ extern	cvar_t	*dedicated;
 extern	cvar_t	*host_speeds;
 extern	cvar_t	*log_stats;
 
-extern	QFile *log_stats_file;
+extern	FILE *log_stats_file;
 
 // host_speeds times
 extern	int		time_before_game;

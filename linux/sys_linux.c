@@ -250,7 +250,7 @@ void *Sys_GetGameAPI (void *parms)
 			Com_DPrintf ("LoadLibrary (%s)\n",name);
 			break;
 		} else {
-			Com_DPrintf ("LoadLibrary (%s) failed %s\n", name, dlerror());
+			Com_DPrintf ("LoadLibrary (%s) failed\n", name, dlerror());
 		}
 	}
 
@@ -324,7 +324,7 @@ int main (int argc, char **argv)
 #if 0
 void Sys_CopyProtect(void)
 {
-	QFile *mnt;
+	FILE *mnt;
 	struct mntent *ent;
 	char path[MAX_OSPATH];
 	struct stat st;
