@@ -17,6 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -40,15 +45,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static int audio_fd = -1;
 static int snd_inited;
 
-static cvar_t *sndbits;
-static cvar_t *sndspeed;
-static cvar_t *sndchannels;
-static cvar_t *snddevice;
-
-
 static int tryrates[] = { 11025, 22051, 44100, 8000 };
 
 #define	QSND_NUM_CHUNKS	2
+
+static struct sndinfo * si;
 
 /*
 ==================
@@ -59,7 +60,7 @@ Returns false if nothing is found.
 Returns true and fills in the "dma" structure with information for the mixer.
 ==================
 */
-qboolean SNDDMA_Init(void)
+qboolean SNDDMA_Init(struct sndinfo * s)
 {
     int i;
     int samples;
@@ -68,36 +69,33 @@ qboolean SNDDMA_Init(void)
     if (snd_inited)
 	return 1;
 
-    if (!snddevice) {
-	sndbits = Cvar_Get("sndbits", "16", CVAR_ARCHIVE);
-	sndspeed = Cvar_Get("sndspeed", "0", CVAR_ARCHIVE);
-	sndchannels = Cvar_Get("sndchannels", "2", CVAR_ARCHIVE);
-	snddevice = Cvar_Get("snddevice", "/dev/audio", CVAR_ARCHIVE);
-    }
+    snd_inited = 0;
+
+    si = s;
 
 // open /dev/audio
 
     if (audio_fd < 0) {
 
-	audio_fd = open(snddevice->string, O_WRONLY);
+	audio_fd = open(si->device->string, O_WRONLY);
 
 	if (audio_fd < 0) {
-	    Com_Printf("Could not open %s: %s\n", snddevice->string, strerror(errno));
+	    Com_Printf("Could not open %s: %s\n", si->device->string, strerror(errno));
 	    return 0;
 		}
 	}
 
 // set sample bits & speed
 
-    if ((int)sndspeed->value > 0) {
+    if ((int)si->speed->value > 0) {
 	AUDIO_INITINFO(&au_info);
 
-	au_info.play.precision = (int)sndbits->value;
+	au_info.play.precision = (int)si->bits->value;
 	au_info.play.encoding =
 	    ( au_info.play.precision == 8
 	      ? AUDIO_ENCODING_LINEAR8
 	      : AUDIO_ENCODING_LINEAR ); 
-	au_info.play.sample_rate = (int)sndspeed->value;
+	au_info.play.sample_rate = (int)si->speed->value;
 	au_info.play.channels = (int)sndchannels->value;
 
 	if (ioctl(audio_fd, AUDIO_SETINFO, &au_info) == -1) {
@@ -108,7 +106,7 @@ qboolean SNDDMA_Init(void)
 	for (i=0 ; i<sizeof(tryrates)/sizeof(tryrates[0]) ; i++) {
 	    AUDIO_INITINFO(&au_info);
 
-	    au_info.play.precision = (int)sndbits->value;
+	    au_info.play.precision = (int)si->bits->value;
 	    au_info.play.encoding =
 		( au_info.play.precision == 8
 		  ? AUDIO_ENCODING_LINEAR8

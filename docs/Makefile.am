@@ -1,0 +1,3 @@
+SUBDIRS = ctf
+
+EXTRA_DIST = README.* *.txt

@@ -7,7 +7,8 @@ bin_PROGRAMS = quake2
 pkglib_LTLIBRARIES = @VID_REFS@ @SNDDRIVERS@
 EXTRA_LTLIBRARIES = ref_soft.la ref_softx.la ref_softsdl.la \
 		ref_glx.la ref_sdlgl.la ref_tdfx.la \
-		snd_oss.la snd_alsa.la snd_ao.la
+		snd_oss.la snd_alsa.la snd_ao.la snd_sdl.la \
+		snd_solaris.la
 
 # Common source files
 REF_GL_COMMON = q_sh.c q_shared.c q_glob.c qgl.c \
@@ -80,12 +81,13 @@ EXTRA_ref_softx_la_SOURCES = rw_x11.c
 EXTRA_quake2_SOURCES = snd_mixa.S cd_sdl.c snd_sdl.c snd_dma.c \
 			snd_mix.c snd_mem.c cd.c \
 			snd_oss.c snd_ao.c snd_alsa.c
+			snd_solaris.c
 
 quake2_CFLAGS = $(std_cflags)
 quake2_LDADD = @DL_LIBS@ @SYSTEM_LIBS@ -lm
 
 # oss sound driver
-if BUILD_OSS
+if BUILD_SNDOSS
 snd_oss_la_SOURCES = snd_oss.c
 snd_oss_la_CFLAGS = $(std_cflags) -fPIC @OSS_CFLAGS@
 snd_oss_la_LIBADD = @OSS_LIBS@
@@ -93,7 +95,7 @@ snd_oss_la_LDFLAGS = $(module_ldflags)
 endif
 
 # alsa sound driver
-if BUILD_ALSA
+if BUILD_SNDALSA
 snd_alsa_la_SOURCES = snd_alsa.c
 snd_alsa_la_CFLAGS = $(std_cflags) -fPIC @ALSA_CFLAGS@
 snd_alsa_la_LIBADD = @ALSA_LIBS@
@@ -101,11 +103,27 @@ snd_alsa_la_LDFLAGS = $(module_ldflags)
 endif
 
 # libao sound driver
-if BUILD_AO
+if BUILD_SNDAO
 snd_ao_la_SOURCES = snd_ao.c
 snd_ao_la_CFLAGS = $(std_cflags) -fPIC @AO_CFLAGS@
 snd_ao_la_LIBADD = @AO_LIBS@
 snd_ao_la_LDFLAGS = $(module_ldflags)
+endif
+
+# sdl sound driver
+if BUILD_SNDSDL
+snd_sdl_la_SOURCES = snd_sdl.c
+snd_sdl_la_CFLAGS = $(std_cflags) -fPIC @SDL_CFLAGS@
+snd_sdl_la_LIBADD = @SDL_LIBS@
+snd_sdl_la_LDFLAGS = $(module_ldflags)
+endif
+
+# solaris sound driver
+if BUILD_SNDSOLARIS
+snd_solaris_la_SOURCES = snd_solaris.c
+snd_solaris_la_CFLAGS = $(std_cflags) -fPIC
+snd_solaris_la_LIBADD = @SOLARIS_LIBS@
+snd_solaris_la_LDFLAGS = $(module_ldflags)
 endif
 
 # ref_glx

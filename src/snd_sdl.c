@@ -25,6 +25,10 @@
 	$Id$
 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <SDL.h>
 
 #include "client.h"
@@ -33,6 +37,8 @@
 static int  snd_inited;
 static dma_t *shm;
 
+struct sndinfo * si;
+
 static void
 paint_audio (void *unused, Uint8 * stream, int len)
 {
@@ -40,15 +46,20 @@ paint_audio (void *unused, Uint8 * stream, int len)
 		shm->buffer = stream;
 		shm->samplepos += len / (shm->samplebits / 4);
 		// Check for samplepos overflow?
-		S_PaintChannels (shm->samplepos);
+		si->S_PaintChannels (shm->samplepos);
 	}
 }
 
 qboolean
-SNDDMA_Init (void)
+SNDDMA_Init (struct sndinfo * s)
 {
 	SDL_AudioSpec desired, obtained;
 	int desired_bits, freq;
+
+	if (snd_inited)
+	    return 1;
+
+	snd_inited = 0;
 	
 	if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0) {
 		if (SDL_Init(SDL_INIT_AUDIO) < 0) {
@@ -61,12 +72,13 @@ SNDDMA_Init (void)
 			return 0;
 		}
 	}
+
+	si = s;
 	
-	snd_inited = 0;
-	desired_bits = (Cvar_Get("sndbits", "16", CVAR_ARCHIVE))->value;
+	desired_bits = si->bits->value;
 
 	/* Set up the desired format */
-	freq = (Cvar_Get("s_khz", "0", CVAR_ARCHIVE))->value;
+	freq = si->s_khz->value;
 	if (freq == 44)
 		desired.freq = 44100;
 	else if (freq == 22)
@@ -88,7 +100,7 @@ SNDDMA_Init (void)
 			Com_Printf ("Unknown number of audio bits: %d\n", desired_bits);
 			return 0;
 	}
-	desired.channels = (Cvar_Get("sndchannels", "2", CVAR_ARCHIVE))->value;
+	desired.channels = si->channels->value;
 	
 	if (desired.freq == 44100)
 		desired.samples = 2048;
@@ -133,7 +145,7 @@ SNDDMA_Init (void)
 	SDL_PauseAudio (0);
 
 	/* Fill the audio DMA information block */
-	shm = &dma;
+	shm = si->dma;
 	shm->samplebits = (obtained.format & 0xFF);
 	shm->speed = obtained.freq;
 	shm->channels = obtained.channels;

@@ -201,7 +201,9 @@ void S_Init (void)
 		si.speed = Cvar_Get("sndspeed", "0", CVAR_ARCHIVE);
 		si.channels = Cvar_Get("sndchannels", "2", CVAR_ARCHIVE);
 		si.device = Cvar_Get("snddevice", "/dev/dsp", CVAR_ARCHIVE);
+		si.s_khz = Cvar_Get("s_khz", "0", CVAR_ARCHIVE);
 		si.Com_Printf = Com_Printf;
+		si.S_PaintChannels = S_PaintChannels;
 
 		if (!SNDDMA_Init(&si))
 			return;

@@ -144,8 +144,10 @@ struct sndinfo {
     cvar_t * speed;
     cvar_t * channels;
     cvar_t * device;
+    cvar_t * s_khz;
 
     void (*Com_Printf)(char * fmt, ...);
+    void (*S_PaintChannels)(int);
 };
 
 
