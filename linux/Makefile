@@ -68,7 +68,7 @@ TARGETS=$(BUILDDIR)/quake2 \
 #	$(BUILDDIR)/xatrix/game$(ARCH).$(SHLIBEXT)
 
 build_debug:
-	@-mkdir $(BUILD_DEBUG_DIR) \
+	@-mkdir -p $(BUILD_DEBUG_DIR) \
 		$(BUILD_DEBUG_DIR)/client \
 		$(BUILD_DEBUG_DIR)/ref_soft \
 		$(BUILD_DEBUG_DIR)/ref_gl \
@@ -78,7 +78,7 @@ build_debug:
 	$(MAKE) targets BUILDDIR=$(BUILD_DEBUG_DIR) CFLAGS="$(DEBUG_CFLAGS)"
 
 build_release:
-	@-mkdir $(BUILD_RELEASE_DIR) \
+	@-mkdir -p $(BUILD_RELEASE_DIR) \
 		$(BUILD_RELEASE_DIR)/client \
 		$(BUILD_RELEASE_DIR)/ref_soft \
 		$(BUILD_RELEASE_DIR)/ref_gl \
