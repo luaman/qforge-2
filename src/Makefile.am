@@ -76,8 +76,8 @@ endif
 # ref_tdfx
 if BUILD_TDFX
 ref_tdfx_la_SOURCES = $(REF_GL_COMMON) rw_in_svgalib.c gl_fxmesa.c
-ref_tdfx_la_CFLAGS = $(std_cflags) -fPIC @GLIDE_CFLAGS@ @X_CFLAGS@ @SVGALIB_CFLAGS@
-ref_tdfx_la_LDADD = @GLIDE_LIBS@ @X_LIBS@ @SVGALIB_LIBS@
+ref_tdfx_la_CFLAGS = $(std_cflags) -fPIC @SVGALIB_CFLAGS@
+ref_tdfx_la_LDADD = @SVGALIB_LIBS@
 ref_tdfx_la_LDFLAGS = $(module_ldflags)
 endif
 

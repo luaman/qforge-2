@@ -176,7 +176,7 @@ static void ApplyChanges( void *unused )
 			vid_ref->modified = true;
 		break;
 	case REF_FXGL:
-		Cvar_Set("vid_ref", "fxgl");
+		Cvar_Set("vid_ref", "tdfx");
 		/* below is wrong if we use different libs for different GL reflibs */
 		Cvar_Set( "gl_driver", "libGL.so.1" );
 		if (gl_driver->modified)

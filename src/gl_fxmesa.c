@@ -61,17 +61,55 @@
 
 #include "glw.h"
 
-#include <GL/fxmesa.h>
-
 /*****************************************************************************/
 
 glwstate_t glw_state;
 
-static qboolean GLimp_SwitchFullscreen( int width, int height );
+//static qboolean GLimp_SwitchFullscreen( int width, int height );
 qboolean GLimp_InitGL (void);
+qboolean have_stencil = false;
 
 extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_ref;
+
+#define GLAPI extern
+#define GLAPIENTRY
+
+#define FXMESA_NONE		0               // to terminate attribList
+#define FXMESA_DOUBLEBUFFER     10
+#define FXMESA_ALPHA_SIZE       11              // followed by an integer
+#define FXMESA_DEPTH_SIZE	12              // followed by an integer
+
+
+typedef struct tfxMesaContext *fxMesaContext;
+
+typedef long    FxI32;
+typedef FxI32   GrScreenResolution_t;
+typedef FxI32   GrDitherMode_t;
+typedef FxI32   GrScreenRefresh_t;
+
+
+#define GR_REFRESH_75Hz                 0x3
+
+#define GR_DITHER_2x2                   0x1
+#define GR_DITHER_4x4                   0x2
+#define GR_RESOLUTION_320x200   0x0
+#define GR_RESOLUTION_320x240   0x1
+#define GR_RESOLUTION_400x256   0x2
+#define GR_RESOLUTION_512x384   0x3
+#define GR_RESOLUTION_640x200   0x4
+#define GR_RESOLUTION_640x350   0x5
+#define GR_RESOLUTION_640x400   0x6
+#define GR_RESOLUTION_640x480   0x7
+#define GR_RESOLUTION_800x600   0x8
+#define GR_RESOLUTION_960x720   0x9
+#define GR_RESOLUTION_856x480   0xA
+#define GR_RESOLUTION_512x256   0xB
+#define GR_RESOLUTION_1024x768  0xC
+#define GR_RESOLUTION_1280x1024 0xD
+#define GR_RESOLUTION_1600x1200 0xE
+#define GR_RESOLUTION_400x300   0xF
+
 
 static fxMesaContext fc = NULL;
 
@@ -86,7 +124,7 @@ void (*qfxMesaSwapBuffers)(void);
 
 #define NUM_RESOLUTIONS 16
 
-static resolutions[NUM_RESOLUTIONS][3]={ 
+static int resolutions[NUM_RESOLUTIONS][3]={ 
 	{ 320,200,  GR_RESOLUTION_320x200 },
 	{ 320,240,  GR_RESOLUTION_320x240 },
 	{ 400,256,  GR_RESOLUTION_400x256 },
@@ -125,7 +163,7 @@ static void signal_handler(int sig)
 {
 	printf("Received signal %d, exiting...\n", sig);
 	GLimp_Shutdown();
-	_exit(0);
+	exit(0);
 }
 
 static void InitSig(void)

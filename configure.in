@@ -92,38 +92,6 @@ AC_SUBST(HAVE_SVGALIB)
 AC_SUBST(SVGALIB_CFLAGS)
 AC_SUBST(SVGALIB_LIBS)
 
-dnl Check for GLIDE
-AC_ARG_WITH(glide,
-	[  --with-glide=DIR        use GLIDE 2.x found in DIR ],
-	HAVE_GLIDE=$withval,
-	HAVE_GLIDE=auto)
-if test "x$HAVE_GLIDE" != xno; then
-	AC_CHECK_LIB(glide, grGammaCorrectionValue,
-		GLIDE_LIBS="-lglide",
-		AC_CHECK_LIB(glide2x, grGammaCorrectionValue,
-			GLIDE_LIBS="-lglide2x",
-			GLIDE_LIBS=""
-		)
-	)
-	if test "x$HAVE_GLIDE" != xauto; then
-		GLIDE_CFLAGS="$GLIDE_CFLAGS -I$withval/include"
-		GLIDE_LIBS="$GLIDE_LIBS -L$withval/lib"
-	else
-		GLIDE_CFLAGS="$GLIDE_CFLAGS -I/usr/include/glide -I/usr/local/include/glide"
-	fi
-	save_CPPFLAGS="$CPPFLAGS"
-	CPPFLAGS="$CPPFLAGS $GLIDE_CFLAGS"
-	AC_CHECK_HEADER(glide.h, HAVE_GLIDE=yes, HAVE_GLIDE=no)
-	if test "x$HAVE_GLIDE" != xyes; then
-		HAVE_GLIDE=no
-	else
-		AC_DEFINE(HAVE_GLIDE, 1, [Define this if you have Glide])
-	fi
-	CPPFLAGS="$save_CPPFLAGS"
-fi
-AC_SUBST(GLIDE_CFLAGS)
-AC_SUBST(GLIDE_LIBS)
-
 dnl Check for X11
 AC_PATH_XTRA
 if test "x$no_x" = x; then
@@ -397,7 +365,7 @@ eval PKGLIBDIR="$libdir/$PACKAGE"
 AC_DEFINE_UNQUOTED(PKGLIBDIR, "$PKGLIBDIR", [Define this to the path containing the dynamic modules (\${exec-prefix}/lib/quake2/)])
 
 eval PKGDATADIR="$datadir/$PACKAGE"
-AC_DEFINE_UNQUOTED(PKGDATADIR, "$PKGDATADIR", [Define this to the path containing the game data (\${prefix}/share/quake2/)])
+AC_DEFINE_UNQUOTED(PKGDATADIR, "$PKGDATADIR", [Define this to the path containing the game data (\${prefix}/share/games/quake2/)])
 
 dnl ---------------------------------
 dnl Work out what refreshers to build
@@ -425,7 +393,7 @@ if test "x$HAVE_X" = xyes -a "x$HAVE_OPENGL" = xyes; then
 	BUILD_GLX="yes"
 fi
 
-if test "x$HAVE_X" = xyes -a "x$HAVE_GLIDE" = xyes -a "x$HAVE_SVGALIB" = xyes; then
+if test "x$HAVE_X" = xyes -a "x$HAVE_OPENGL" = xyes -a "x$HAVE_SVGALIB" = xyes; then
 	VID_REFS="$VID_REFS ref_tdfx.la"
 	BUILD_TDFX="yes"
 fi
