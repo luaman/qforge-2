@@ -524,9 +524,10 @@ void SNDDMA_Shutdown(void) {
 				free(dma.buffer);
 				dma.buffer = 0L;
 			}
+		} else {
+			munmap (dma.buffer, dma.samples *dma.samplebits / 8);
 		}
 
-		/* FIXME: use munmap() ? */
 		close(audio_fd);
 		audio_fd = -1;
 		snd_inited = 0;
