@@ -2,9 +2,9 @@
 
 if DO_XATRIX
 pkglibdir=$(libdir)/@PACKAGE@/xatrix
-pkglib_PROGRAMS = game.so
+pkglib_LTLIBRARIES = game.la
 
-game_so_SOURCES = g_ai.c g_chase.c g_cmds.c g_combat.c g_func.c \
+game_la_SOURCES = g_ai.c g_chase.c g_cmds.c g_combat.c g_func.c \
 		g_items.c g_main.c g_misc.c g_monster.c g_phys.c \
 		g_save.c g_spawn.c g_svcmds.c g_target.c g_trigger.c \
 		g_turret.c g_utils.c g_weapon.c \
@@ -19,5 +19,5 @@ game_so_SOURCES = g_ai.c g_chase.c g_cmds.c g_combat.c g_func.c \
 		q_shared.c
 #game_so_CFLAGS = -fPIC -Wall -Werror -pipe
 game_so_CFLAGS = -I.. -fPIC -pipe
-game_so_LDFLAGS = -shared
+game_so_LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
 endif # DO_XATRIX

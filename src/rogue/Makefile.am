@@ -2,9 +2,9 @@
 
 if DO_ROGUE
 pkglibdir=$(libdir)/@PACKAGE@/rogue
-pkglib_PROGRAMS = game.so
+pkglib_LTLIBRARIES = game.la
 
-game_so_SOURCES = dm_ball.c dm_tag.c \
+game_la_SOURCES = dm_ball.c dm_tag.c \
 		g_ai.c g_chase.c g_cmds.c g_combat.c g_func.c \
 		g_items.c g_main.c g_misc.c g_monster.c g_newai.c \
 		g_newdm.c g_newfnc.c g_newtarg.c g_newtrig.c \
@@ -22,5 +22,5 @@ game_so_SOURCES = dm_ball.c dm_tag.c \
 		q_shared.c
 #game_so_CFLAGS = -fPIC -Wall -Werror -pipe
 game_so_CFLAGS = -I.. -fPIC -pipe
-game_so_LDFLAGS = -shared
+game_so_LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
 endif # DO_ROGUE

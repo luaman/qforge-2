@@ -3,8 +3,8 @@
 # Process this file with automake to create Makefile.in
 
 pkglibdir=$(libdir)/@PACKAGE@/baseq2
-pkglib_PROGRAMS = game.so
-game_so_SOURCES = g_ai.c \
+pkglib_LTLIBRARIES = game.la
+game_la_SOURCES = g_ai.c \
 			p_client.c \
 			g_chase.c \
 			g_cmds.c \
@@ -55,4 +55,4 @@ game_so_SOURCES = g_ai.c \
 
 AM_CFLAGS = -fPIC -Wall -Werror -pipe
 AM_CPPFLAGS = -I..
-LDFLAGS = -shared
+LDFLAGS = -module -avoid-version -rpath $(pkglibdir)

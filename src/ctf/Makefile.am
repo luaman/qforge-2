@@ -1,8 +1,8 @@
 # $Id$
 
 pkglibdir=$(libdir)/@PACKAGE@/ctf
-pkglib_PROGRAMS = game.so
-game_so_SOURCES = \
+pkglib_LTLIBRARIES = game.la
+game_la_SOURCES = \
 			g_ai.c \
 			g_chase.c \
 			g_cmds.c \
@@ -32,4 +32,4 @@ game_so_SOURCES = \
 
 AM_CFLAGS = -fPIC -Wall -Werror -pipe
 AM_CPPFLAGS = -I..
-LDFLAGS = -shared
+LDFLAGS = -module -avoid-version -rpath $(pkglibdir)

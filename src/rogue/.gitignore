@@ -1,3 +1,7 @@
+.vimrc
 Makefile
 Makefile.in
 .deps
+.libs
+*.lo
+*.la
