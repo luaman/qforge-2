@@ -17,7 +17,15 @@ game_la_SOURCES = g_ai.c g_chase.c g_cmds.c g_combat.c g_func.c \
 		m_parasite.c m_soldier.c m_supertank.c m_tank.c \
 		p_client.c p_hud.c p_trail.c p_view.c p_weapon.c \
 		q_shared.c
+
+EXTRA_DIST = g_local.h m_actor.h m_berserk.h m_boss2.h m_boss31.h \
+	m_boss32.h m_brain.h m_chick.h m_fixbot.h m_flipper.h \
+	m_float.h m_flyer.h m_gekk.h m_gladiator.h m_gunner.h \
+	m_hover.h m_infantry.h m_insane.h m_medic.h m_mutant.h \
+	m_parasite.h m_player.h m_rider.h m_soldier.h m_soldierh.h \
+	m_supertank.h m_tank.h q_shared.h
+
 #game_la_CFLAGS = -fPIC -Wall -Werror -pipe @OPT_CFLAGS@
-game_la_CFLAGS = -I.. -fPIC -pipe @OPT_CFLAGS@
+game_la_CFLAGS = -I$(top_srcdir)/src -fPIC -pipe @OPT_CFLAGS@
 game_la_LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
 endif # DO_XATRIX

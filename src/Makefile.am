@@ -22,6 +22,14 @@ REF_SOFT_COMMON = r_aclip.c r_alias.c r_bsp.c r_draw.c r_edge.c \
 		r_sprite.c r_surf.c \
 		q_shared.c q_sh.c glob.c
 
+EXTRA_DIST = adivtab.h anorms.h anormtab.h asm_draw.h asm_i386.h block8.h \
+	block16.h cdaudio.h client.h console.h crc.h d_ifacea.h game.h \
+	gcc_attr.h gl_local.h gl_model.h glob.h glw.h input.h keys.h \
+	mdfour.h q_shared.h qasm.h qcommon.h qfiles.h qgl.h qmenu.h \
+	quakeio.h r_local.h r_model.h rand1k.h ref.h rw.h screen.h \
+	server.h snd_loc.h sound.h uint32.h vid.h warpsin.h \
+	ref_gl.def ref_gl.dsp ref_soft.def ref_soft.dsp
+
 if ASM_ARCH
 REF_SOFT_ASM = r_aclipa.S r_draw16.S r_drawa.S r_edgea.S r_scana.S \
 		r_spr8.S r_surf8.S math.S d_polysa.S r_varsa.S \

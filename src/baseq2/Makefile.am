@@ -16,6 +16,13 @@ game_la_SOURCES = g_ai.c g_chase.c g_cmds.c g_svcmds.c g_combat.c \
 		p_client.c p_hud.c p_trail.c p_view.c p_weapon.c \
 		q_shared.c
 
+EXTRA_DIST = g_local.h m_actor.h m_berserk.h m_boss2.h m_boss31.h \
+	m_boss32.h m_brain.h m_chick.h m_flipper.h m_float.h \
+	m_flyer.h m_gladiator.h m_gunner.h m_hover.h m_infantry.h \
+	m_insane.h m_medic.h m_mutant.h m_parasite.h m_player.h \
+	m_rider.h m_soldier.h m_supertank.h m_tank.h
+
+
 AM_CFLAGS = -fPIC -Wall -Werror -pipe @OPT_CFLAGS@
-AM_CPPFLAGS = -I..
+AM_CPPFLAGS = -I$(top_srcdir)/src
 LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
