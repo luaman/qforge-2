@@ -267,7 +267,7 @@ float Q_fabs (float f)
 #endif
 }
 
-#if defined _M_IX86 && !defined C_ONLY
+#ifdef HAVE_MASM
 #pragma warning (disable:4035)
 __declspec( naked ) long Q_ftol( float f )
 {

@@ -48,11 +48,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 */
 
+/*
 #if defined _M_ALPHA && !defined C_ONLY
 #define idaxp	1
 #else
 #define idaxp	0
 #endif
+*/
 
 typedef unsigned char 		byte;
 typedef enum {false, true}	qboolean;
@@ -145,10 +147,11 @@ extern vec3_t vec3_origin;
 
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
 
+/* FIXME: (jaq) use them C99 functions instead */
 // microsoft's fabs seems to be ungodly slow...
 //float Q_fabs (float f);
 //#define	fabs(f) Q_fabs(f)
-#if !defined C_ONLY && !defined __linux__ && !defined __FreeBSD__ && !defined __sgi
+#ifdef HAVE_MASM
 extern long Q_ftol( float f );
 #else
 #define Q_ftol( f ) ( long ) (f)

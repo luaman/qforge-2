@@ -7,3 +7,4 @@
 - use DATADIR to find game data, rather than in same directory as libraries
   this way, it can follow FHS: libs in /usr/lib/games/quake2 and data in 
   /usr/share/games/quake2, for example
+- go through code and hunt down assert()s
