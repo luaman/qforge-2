@@ -527,7 +527,7 @@ size_t verify_fread(void * ptr, size_t size, size_t nitems, FILE * fp) {
     ret = fread(ptr, size, nitems, fp);
     err = errno;
     if (ret != nitems) {
-	printf("verify_fread(...,%zd,%zd,...): return value: %zd\n", size, nitems, ret);
+	printf("verify_fread(...,%zu,%zu,...): return value: %zu\n", size, nitems, ret);
 	if (ret == 0 && ferror(fp)) {
 	    printf("   error: %s\n", strerror(err));
 	    printf("   fileno=%d\n", fileno(fp));
@@ -545,7 +545,7 @@ size_t verify_fwrite(void * ptr, size_t size, size_t nitems, FILE * fp) {
     ret = fwrite(ptr, size, nitems, fp);
     err = errno;
     if (ret != nitems) {
-	printf("verify_fwrite(...,%zd,%zd,...) = %zd\n", size, nitems, ret);
+	printf("verify_fwrite(...,%zu,%zu,...) = %zu\n", size, nitems, ret);
 	if (ret == 0 && ferror(fp)) {
 	    printf("   error: %s\n", strerror(err));
 	    printf("   fileno=%d\n", fileno(fp));
