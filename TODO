@@ -7,4 +7,6 @@
 - use DATADIR to find game data, rather than in same directory as libraries
   this way, it can follow FHS: libs in /usr/lib/games/quake2 and data in 
   /usr/share/games/quake2, for example
-- go through code and hunt down assert()s
+- the video refresher loader code in src/vid_menu.c needs cleaning up, it's
+  utter bollocks at the moment.  all the structs are very fragile, depending
+  on specific ordering of each element.
