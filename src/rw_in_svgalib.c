@@ -202,13 +202,13 @@ void KBD_Close(void)
 
 static qboolean	UseMouse = true;
 
-static int     mouse_buttons;
-static int     mouse_buttonstate;
-static int     mouse_oldbuttonstate;
-static float   mouse_x, mouse_y;
-static float	old_mouse_x, old_mouse_y;
-static int		mx, my;
-static int	mwheel;
+static int mouse_buttons;
+static int mouse_buttonstate;
+static int mouse_oldbuttonstate;
+static float mouse_x, mouse_y;
+static float old_mouse_x, old_mouse_y;
+static int mx, my;
+static int mwheel;
 
 static cvar_t	*m_filter;
 static cvar_t	*in_mouse;
@@ -250,13 +250,12 @@ static void mousehandler(int buttonstate, int dx, int dy)
 	my += dy;
 }
 #else /* drx is assumed to be the mouse wheel */
-static void mousehandler(int buttonstate, int dx, int dy, int dz, int drx, int dry, int drz)
-{
-	mouse_buttonstate = buttonstate;
-	mx += dx;
-	my += dy;
+static void mousehandler(int buttonstate, int dx, int dy, int dz, int drx, int dry, int drz) {
+    mouse_buttonstate = buttonstate;
+    mx += dx;
+    my += dy;
 	
-	mwheel = drx;
+    mwheel = drx;
 }
 #endif
 
@@ -333,12 +332,12 @@ void RW_IN_Commands (void)
 	mouse_oldbuttonstate = mouse_buttonstate;
 	
 	if (mwheel < 0) {
-		in_state->Key_Event_fp (K_MWHEELUP, true);
-		in_state->Key_Event_fp (K_MWHEELUP, false);
+	    in_state->Key_Event_fp (K_MWHEELUP, true);
+	    in_state->Key_Event_fp (K_MWHEELUP, false);
 	}
 	if (mwheel > 0) {
-		in_state->Key_Event_fp (K_MWHEELDOWN, true);
-		in_state->Key_Event_fp (K_MWHEELDOWN, false);
+	    in_state->Key_Event_fp (K_MWHEELDOWN, true);
+	    in_state->Key_Event_fp (K_MWHEELDOWN, false);
 	}	
 	mwheel = 0;
 }

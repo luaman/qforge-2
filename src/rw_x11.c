@@ -1,5 +1,7 @@
 /* $Id$
  *
+ * all os-specific X11 software refresh code
+ *
  * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) 2002 The Quakeforge Project.
  *
@@ -911,14 +913,14 @@ int XLateKey(XKeyEvent *ev)
 		case 0x03c: key = ',';break;/* [<] */
 #endif
 
-		default:
-			key = *(unsigned char*)buf;
-			if (key >= 'A' && key <= 'Z')
-				key = key - 'A' + 'a';
-			if (key >= 1 && key <= 26) /* ctrl+alpha */
-				key = key + 'a' - 1;
-			break;
-	} 
+	  default:
+	    key = *(unsigned char*)buf;
+	    if (key >= 'A' && key <= 'Z')
+		key = key - 'A' + 'a';
+	    if (key >= 1 && key <= 26) /* ctrl+alpha */
+		key = key + 'a' - 1;
+	    break;
+	}
 
 	return key;
 }
