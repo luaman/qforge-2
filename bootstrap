@@ -18,8 +18,8 @@ fi
 
 # no version checking is done here, it's too hard and not worth the effort
 # when one can just read the README
-aclocal-1.7 && \
+aclocal && \
 autoheader && \
 libtoolize --copy --automake && \
-automake-1.7 --foreign --add-missing --copy && \
+automake --foreign --add-missing --copy && \
 autoconf

@@ -1,10 +1,8 @@
-dnl $Id$
-dnl
 dnl Copyright (c) 2002 The Quakeforge Project.
 
 dnl Checks if function/macro va_copy() is available
 dnl Defines HAVE_VA_COPY on success.
-AC_DEFUN(AC_FUNC_VA_COPY,
+AC_DEFUN([AC_FUNC_VA_COPY],
 	[AC_CACHE_CHECK([for va_copy], ac_cv_func_va_copy,
 		[AC_TRY_LINK([
 #ifdef HAVE_STDARG_H
@@ -23,7 +21,7 @@ fi])
 
 dnl Checks if function/macro __va_copy() is available
 dnl Defines HAVE__VA_COPY on success.
-AC_DEFUN(AC_FUNC__VA_COPY,
+AC_DEFUN([AC_FUNC__VA_COPY],
 	[AC_CACHE_CHECK([for __va_copy], ac_cv_func__va_copy,
 		[AC_TRY_LINK([
 #ifdef HAVE_STDARG_H
@@ -42,7 +40,7 @@ fi])
 
 dnl Checks if va_list is an array
 dnl Devines VA_LIST_IS_ARRAY on success
-AC_DEFUN(AC_TYPE_VA_LIST,
+AC_DEFUN([AC_TYPE_VA_LIST],
 	[AC_CACHE_CHECK([if va_list is an array], ac_cv_type_va_list_array,
 		[AC_TRY_LINK([
 #ifdef HAVE_STDARG_H
@@ -70,7 +68,7 @@ fi])
 dnl AM_PATH_SDL([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
 dnl Test for SDL, and define SDL_CFLAGS and SDL_LIBS
 dnl
-AC_DEFUN(AM_PATH_SDL,
+AC_DEFUN([AM_PATH_SDL],
 [dnl 
 dnl Get the cflags and libraries from the sdl-config script
 dnl
