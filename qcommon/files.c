@@ -311,7 +311,7 @@ int _FS_FOpenFile (char *filename, QFile **file, char *foundname, int zip)
 					Com_DPrintf ("PackFile: %s : %s\n",pak->filename, filename);
 				// open a new file on the pakfile
 					strncpy (foundname, pak->files[i].name, MAX_OSPATH);
-					*file = FS_OpenRead (pak->files[i].name,
+					*file = FS_OpenRead (pak->filename,
 										 pak->files[i].filepos,
 										 pak->files[i].filelen, zip, &size);
 					if (!*file)
