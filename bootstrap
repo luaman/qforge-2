@@ -1,13 +1,9 @@
 #!/bin/sh
 
-# $Id$
-
 # bootstrap the build when checking out from CVS
 
 # dodgy hack to use gmake if we're on bsd systems
-if [ -x /usr/bin/gmake ]; then
-	MAKE=/usr/bin/gmake
-elif [ -x /usr/local/bin/gmake ]; then
+if [ -x /usr/local/bin/gmake ]; then
 	MAKE=/usr/local/bin/gmake
 else
 	MAKE=make
@@ -19,7 +15,7 @@ if [ "$1" = "clean" ]; then
 	if [ -f Makefile ]; then 
 		$MAKE distclean
 	fi
-	find . -name Makefile.in -print0 | xargs -0 rm -f
+	find . -name Makefile.in -print | xargs rm -f
 	rm -f config.h.in aclocal.m4 install-sh missing mkinstalldirs \
 	      stamp-h.in tags configure config.log
 

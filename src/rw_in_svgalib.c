@@ -32,9 +32,11 @@
 #include <signal.h>
 #include <sys/mman.h>
 
+/* seems to work fine without
 #ifdef HAVE_SYS_VT_H
 # include <sys/vt.h>
 #endif
+*/
 
 #include "vga.h"
 #include "vgakeyboard.h"
