@@ -365,7 +365,7 @@ eval PKGLIBDIR="$libdir/$PACKAGE"
 AC_DEFINE_UNQUOTED(PKGLIBDIR, "$PKGLIBDIR", [Define this to the path containing the dynamic modules (\${exec-prefix}/lib/quake2/)])
 
 eval PKGDATADIR="$datadir/$PACKAGE"
-AC_DEFINE_UNQUOTED(PKGDATADIR, "$PKGDATADIR", [Define this to the path containing the game data (\${prefix}/share/games/quake2/)])
+AC_DEFINE_UNQUOTED(PKGDATADIR, "$PKGDATADIR", [Define this to the path containing the game data (\${prefix}/share/quake2/)])
 
 dnl ---------------------------------
 dnl Work out what refreshers to build
