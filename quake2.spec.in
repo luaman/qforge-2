@@ -1,7 +1,7 @@
 Name: @PACKAGE@
 Summary: quake2 - improved version of id Software's classic Quake II engine
 Version: @VERSION@
-Release: 2
+Release: 3
 Group: Amusements/Games
 Copyright: GPL
 Vendor: The QuakeForge Project
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %{prefix}/share/quake2/baseq2/*
 
 %changelog
+* Tue Dec 24 2002 Jamie Wilkinson <jaq@quakeforge.net>
+- Updated description and summary.
+
 * Mon Dec 23 2002 Paul Jenner <psj.home@ntlworld.com>
 - Fixed install path using DESTDIR
 
