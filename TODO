@@ -1,4 +1,8 @@
-* merge net_udp6.c into net_udp.c
-* kill off ctf/q_shared.c, it's identical to src/q_shared.c
-* clean up the #ifdefs that are throughout the code to be has-a
+- merge net_udp6.c into net_udp.c
+- kill off ctf/q_shared.c, it's identical to src/q_shared.c
+- clean up the #ifdefs that are throughout the code to be has-a
   tests instead of is-a. (using HAVE_* from configure instead of __blerg__)
+- separate the video refreshers
+- use DATADIR to find game data, rather than in same directory as libraries
+  this way, it can follow FHS: libs in /usr/lib/games/quake2 and data in 
+  /usr/share/games/quake2, for example
