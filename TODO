@@ -1,0 +1,3 @@
+* merge net_udp6.c into net_udp.c
+* kill off ctf/q_shared.c, it's identical to src/q_shared.c
+

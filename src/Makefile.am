@@ -25,4 +25,4 @@ quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 				\
 				#snd_mixa.S
 				
-CPPFLAGS = -Dstricmp=strcasecmp -Wall -Werror -pipe -DLINUX_VERSION=\"$(VERSION)\"
+AM_CFLAGS = -Wall -Werror -pipe

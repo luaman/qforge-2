@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# $Id$
+
+# bootstrap the build when checking out from CVS
+
+aclocal
+autoheader
+automake --foreign --add-missing --copy
+autoconf
