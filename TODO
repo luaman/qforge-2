@@ -17,6 +17,8 @@ http://gozer.quakeforge.net/list-archives/quakeforge-cvs/2002-April/000151.html
 - split out the sound code into separate modules, like the vid_refs already do
 - dynamically get video resolutions from the X server (or SVGAlib or whatever)
   instead of hardcoding them... or do both
+- have a look at http://bw-admin.sourceforge.net/ and
+  http://www.planetquake.com/q2admin/ and see about merging in these tools.
 
 from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
 (replace - with X when done)
@@ -38,3 +40,4 @@ X Stencil buffered shadows
 - Adding a skybox size variable
 X Adding new video resolutions
 - Drawing alias model bounding boxes
+
