@@ -1,15 +1,9 @@
-- fix up the auto* scripts so that make isntall works, and then we can
-  start looking at making a release
 - merge net_udp6.c into net_udp.c
 - kill off ctf/q_shared.c, it's identical to src/q_shared.c (Actually, work
   out redundant code and merge them... maybe some sort of libshared.a)
 - clean up the #ifdefs that are throughout the code to be has-a
   tests instead of is-a. (using HAVE_* from configure instead of __blerg__)
 - separate the video refreshers
-- check that the parts install into the right places
-- use DATADIR to find game data, rather than in same directory as libraries
-  this way, it can follow FHS: libs in /usr/lib/games/quake2 and data in 
-  /usr/share/games/quake2, for example
 - the video refresher loader code in src/vid_menu.c needs cleaning up, it's
   utter bollocks at the moment.  all the structs are very fragile, depending
   on specific ordering of each element.
@@ -18,7 +12,6 @@ http://gozer.quakeforge.net/list-archives/quakeforge-cvs/2002-April/000151.html
   Everything seems to be fine, someone with a PPC machine will probably want
   to double check this.
 - investigate the possibility of savegames not being tied to a particular build
-- fix software assembler when building without --disable-asm on i386
 - split out assembler per arch/os (we currently have gas i386 and win i386)
 - make sure that we give back the mouse and keyboard if the game crashes
 
