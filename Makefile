@@ -11,7 +11,7 @@
 # Here are your build options, no more will be added!
 # (Note: not all options are available for all platforms).
 # quake2 (uses OSS for sound, cdrom ioctls for cd audio) is automatically built.
-# game{i386,axp,ppc}.so is automatically built.
+# game$(ARCH).so is automatically built.
 BUILD_SDLQUAKE2=YES	# sdlquake2 executable (uses SDL for cdrom and sound)
 BUILD_SVGA=YES		# SVGAlib driver. Seems to work fine.
 BUILD_X11=YES		# X11 software driver. Works somewhat ok.
@@ -22,48 +22,46 @@ BUILD_SDLGL=YES		# SDL OpenGL driver. Works fine for some people.
 BUILD_CTFDLL=YES		# gamei386.so for ctf
 # i can add support for building xatrix and rogue libs if needed
 
+# unportable
 # Check OS type.
-OSTYPE := $(shell uname -s)
-
-ifneq ($(OSTYPE),Linux)
-$(error OS $(OSTYPE) is currently not supported)
-endif
+#OSTYPE := $(shell uname -s)
+#
+#ifneq ($(OSTYPE),Linux)
+#$(error OS $(OSTYPE) is currently not supported)
+#endif
 
 # this nice line comes from the linux kernel makefile
-ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
+ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc/ -e s/sparc64/sparc/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
+#ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
 
-ifneq ($(ARCH),i386)
-ifneq ($(ARCH),axp)
-ifneq ($(ARCH),ppc)
-ifneq ($(ARCH),sparc)
-$(error arch $(ARCH) is currently not supported)
-endif
-endif
-endif
-endif
+# This is preventing builds on sparc and ia64, etc
+#ifneq ($(ARCH),i386)
+#ifneq ($(ARCH),axp)
+#ifneq ($(ARCH),ppc)
+#$(error arch $(ARCH) is currently not supported)
+#endif
+#endif
+#endif
 
 CC=gcc
 
-ifeq ($(ARCH),axp)
-RELEASE_CFLAGS=$(BASE_CFLAGS) -O2 -ffast-math -funroll-loops \
+# make this more port friendly
+#ifeq ($(ARCH),axp)
+RELEASE_CFLAGS=$(BASE_CFLAGS) -ffast-math -funroll-loops \
 	-fomit-frame-pointer -fexpensive-optimizations
-endif
-
-ifeq ($(ARCH),ppc)
-RELEASE_CFLAGS=$(BASE_CFLAGS) -O2 -ffast-math -funroll-loops \
-	-fomit-frame-pointer -fexpensive-optimizations
-endif
-
-ifeq ($(ARCH),sparc)
-RELEASE_CFLAGS=$(BASE_CFLAGS) -O2 -ffast-math -funroll-loops \
-	-fomit-frame-pointer -fexpensive-optimizations
-endif
+#endif
+#
+#ifeq ($(ARCH),ppc)
+#RELEASE_CFLAGS=$(BASE_CFLAGS) -ffast-math -funroll-loops \
+#	-fomit-frame-pointer -fexpensive-optimizations
+#endif
 
 ifeq ($(ARCH),i386)
-RELEASE_CFLAGS=$(BASE_CFLAGS) -O2 -ffast-math -funroll-loops -malign-loops=2 \
-	-malign-jumps=2 -malign-functions=2
+#RELEASE_CFLAGS=$(BASE_CFLAGS) -O2 -ffast-math -funroll-loops -malign-loops=2 \
+#	-malign-jumps=2 -malign-functions=2 -g
+RELEASE_CFLAGS+=-O2 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -g
 # compiler bugs with gcc 2.96 and 3.0.1 can cause bad builds with heavy opts.
-#RELEASE_CFLAGS=$(BASE_CFLAGS) -O6 -march=i686 -ffast-math -funroll-loops \
+#RELEASE_CFLAGS=$(BASE_CFLAGS) -O6 -m486 -ffast-math -funroll-loops \
 #	-fomit-frame-pointer -fexpensive-optimizations -malign-loops=2 \
 #	-malign-jumps=2 -malign-functions=2
 endif
@@ -85,7 +83,11 @@ GAME_DIR=$(MOUNT_DIR)/game
 CTF_DIR=$(MOUNT_DIR)/ctf
 XATRIX_DIR=$(MOUNT_DIR)/xatrix
 
-BASE_CFLAGS=-Dstricmp=strcasecmp -Wall -Werror
+BASE_CFLAGS=-Dstricmp=strcasecmp -Wall -Werror -pipe
+
+ifneq ($(ARCH),i386)
+  BASE_CFLAGS+=-DC_ONLY
+endif
 
 DEBUG_CFLAGS=$(BASE_CFLAGS) -g
 
@@ -114,11 +116,12 @@ SHLIBEXT=so
 SHLIBCFLAGS=-fPIC
 SHLIBLDFLAGS=-shared
 
-DO_CC=$(CC) $(CFLAGS) -o $@ -c $<
-DO_SHLIB_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
-DO_GL_SHLIB_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) $(GLCFLAGS) -o $@ -c $<
-DO_AS=$(CC) $(CFLAGS) -DELF -x assembler-with-cpp -o $@ -c $<
-DO_SHLIB_AS=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -DELF -x assembler-with-cpp -o $@ -c $<
+# added $(ARCH) here as make would munge the quoting in BASE_CFLAGS above
+DO_CC=$(CC) -DARCH=\""$(ARCH)"\" $(CFLAGS) -o $@ -c $<
+DO_SHLIB_CC=$(CC) -DARCH=\""$(ARCH)"\" $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+DO_GL_SHLIB_CC=$(CC) -DARCH=\""$(ARCH)"\" $(CFLAGS) $(SHLIBCFLAGS) $(GLCFLAGS) -o $@ -c $<
+DO_AS=$(CC) -DARCH=\""$(ARCH)"\" $(CFLAGS) -DELF -x assembler-with-cpp -o $@ -c $<
+DO_SHLIB_AS=$(CC) -DARCH=\""$(ARCH)"\" $(CFLAGS) $(SHLIBCFLAGS) -DELF -x assembler-with-cpp -o $@ -c $<
 
 #############################################################################
 # SETUP AND BUILD
@@ -132,74 +135,16 @@ ifeq ($(strip $(BUILD_CTFDLL)),YES)
  TARGETS += $(BUILDDIR)/ctf/game$(ARCH).$(SHLIBEXT)
 endif
 
-ifeq ($(ARCH),axp)
  ifeq ($(strip $(BUILD_SDLQUAKE2)),YES)
   TARGETS += $(BUILDDIR)/sdlquake2
  endif
 
- ifeq ($(strip $(BUILD_SVGA)),YES)
-  $(warning Warning: SVGAlib support not supported for $(ARCH))
- endif
-
- ifeq ($(strip $(BUILD_X11)),YES)
-  $(warning Warning: X11 support not supported for $(ARCH))
- endif
-
- ifeq ($(strip $(BUILD_GLX)),YES)
-  $(warning Warning: support not supported for $(ARCH))
- endif
-
- ifeq ($(strip $(BUILD_FXGL)),YES)
-  $(warning Warning: FXGL support not supported for $(ARCH))
- endif
-
- ifeq ($(strip $(BUILD_SDL)),YES)
-  $(warning Warning: SDL support not supported for $(ARCH))
- endif
-
- ifeq ($(strip $(BUILD_SDLGL)),YES)
-  $(warning Warning: SDLGL support not supported for $(ARCH))
- endif
-endif # ARCH axp
-
-ifeq ($(ARCH),ppc)
- ifeq ($(strip $(BUILD_SDLQUAKE2)),YES)
-  $(warning Warning: SDLQuake2 not supported for $(ARCH))
- endif
- 
- ifeq ($(strip $(BUILD_SVGA)),YES)
-  $(warning Warning: SVGAlib support not supported for $(ARCH))
- endif
-
- ifeq ($(strip $(BUILD_X11)),YES)
-  $(warning Warning: X11 support not supported for $(ARCH))
- endif
-
- ifeq ($(strip $(BUILD_GLX)),YES)
-  $(warning Warning: GLX support not supported for $(ARCH))
- endif
-
- ifeq ($(strip $(BUILD_FXGL)),YES)
-  $(warning Warning: FXGL support not supported for $(ARCH))
- endif
-
- ifeq ($(strip $(BUILD_SDL)),YES)
-  $(warning Warning: SDL support not supported for $(ARCH))
- endif
-
- ifeq ($(strip $(BUILD_SDLGL)),YES)
-  TARGETS += $(BUILDDIR)/ref_sdlgl.$(SHLIBEXT)
- endif
-endif # ARCH ppc
-
+# svgalib just doesn't work with non-i386 at the moment, so don't bother
 ifeq ($(ARCH),i386)
- ifeq ($(strip $(BUILD_SDLQUAKE2)),YES)
-  TARGETS += $(BUILDDIR)/sdlquake2
- endif
-
  ifeq ($(strip $(BUILD_SVGA)),YES)
   TARGETS += $(BUILDDIR)/ref_soft.$(SHLIBEXT)
  endif
+endif
 
  ifeq ($(strip $(BUILD_X11)),YES)
   TARGETS += $(BUILDDIR)/ref_softx.$(SHLIBEXT)
@@ -220,7 +165,6 @@ ifeq ($(ARCH),i386)
  ifeq ($(strip $(BUILD_SDLGL)),YES)
   TARGETS += $(BUILDDIR)/ref_sdlgl.$(SHLIBEXT)
  endif
-endif # ARCH i386
 
 all: build_debug build_release
 
@@ -307,11 +251,11 @@ QUAKE2_SDL_OBJS = \
 	$(BUILDDIR)/client/cd_sdl.o \
 	$(BUILDDIR)/client/snd_sdl.o
 
-ifeq ($(ARCH),axp)
-QUAKE2_AS_OBJS =  #blank
+# more i386 asm
+ifeq ($(ARCH),i386)
+QUAKE2_AS_OBJS = $(BUILDDIR)/client/snd_mixa.o
 else
-QUAKE2_AS_OBJS = \
-	$(BUILDDIR)/client/snd_mixa.o
+QUAKE2_AS_OBJS =  #blank
 endif
 
 $(BUILDDIR)/quake2 : $(QUAKE2_OBJS) $(QUAKE2_LNX_OBJS) $(QUAKE2_AS_OBJS)
@@ -401,7 +345,7 @@ $(BUILDDIR)/client/cvar.o :       $(COMMON_DIR)/cvar.c
 $(BUILDDIR)/client/files.o :      $(COMMON_DIR)/files.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/mdfour.o :     $(COMMON_DIR)/mdfour.c
+$(BUILDDIR)/client/mdfour.o :        $(COMMON_DIR)/mdfour.c
 	$(DO_CC)
 
 $(BUILDDIR)/client/net_chan.o :   $(COMMON_DIR)/net_chan.c
@@ -1020,7 +964,12 @@ REF_SOFT_OBJS = \
 	$(BUILDDIR)/ref_soft/r_scan.o \
 	$(BUILDDIR)/ref_soft/r_sprite.o \
 	$(BUILDDIR)/ref_soft/r_surf.o \
-	\
+	$(BUILDDIR)/ref_soft/q_shared.o \
+	$(BUILDDIR)/ref_soft/q_shlinux.o \
+	$(BUILDDIR)/ref_soft/glob.o
+
+ifeq ($(ARCH),i386)
+REF_SOFT_OBJS += \
 	$(BUILDDIR)/ref_soft/r_aclipa.o \
 	$(BUILDDIR)/ref_soft/r_draw16.o \
 	$(BUILDDIR)/ref_soft/r_drawa.o \
@@ -1031,11 +980,8 @@ REF_SOFT_OBJS = \
 	$(BUILDDIR)/ref_soft/math.o \
 	$(BUILDDIR)/ref_soft/d_polysa.o \
 	$(BUILDDIR)/ref_soft/r_varsa.o \
-	$(BUILDDIR)/ref_soft/sys_dosa.o \
-	\
-	$(BUILDDIR)/ref_soft/q_shared.o \
-	$(BUILDDIR)/ref_soft/q_shlinux.o \
-	$(BUILDDIR)/ref_soft/glob.o
+	$(BUILDDIR)/ref_soft/sys_dosa.o
+endif
 
 REF_SOFT_SVGA_OBJS = \
 	$(BUILDDIR)/ref_soft/rw_svgalib.o \
@@ -1283,6 +1229,6 @@ clean2:
 	$(REF_GL_OBJS)
 
 distclean:
-	@-rm -rf $(BUILD_DEBUG_DIR) $(BUILD_RELEASE_DIR)
-	@-rm -f `find . \( -not -type d \) -and \
+	-rm -rf $(BUILD_DEBUG_DIR) $(BUILD_RELEASE_DIR)
+	-rm -f `find . \( -not -type d \) -and \
 		\( -name '*~' \) -type f -print`

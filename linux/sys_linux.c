@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <dlfcn.h>
 
 #include "../qcommon/qcommon.h"
-
+#include "../game/game.h"
 #include "../linux/rw_linux.h"
 
 cvar_t *nostdout;
@@ -214,22 +214,13 @@ Loads the game dll
 */
 void *Sys_GetGameAPI (void *parms)
 {
-	void	*(*GetGameAPI) (void *);
+	game_export_t *(*GetGameAPI) (game_import_t *);
 
 	char	name[MAX_OSPATH];
 	char	*path;
 	char	*str_p;
-#if defined __i386__
-	const char *gamename = "gamei386.so";
-#elif defined __alpha__
-	const char *gamename = "gameaxp.so";
-#elif defined __powerpc__
-	const char *gamename = "gameppc.so";
-#elif defined __sparc__
-	const char *gamename = "gamesparc.so";
-#else
-#error Unknown arch
-#endif
+
+	const char *gamename = "game"ARCH".so";
 
 	setreuid(getuid(), getuid());
 	setegid(getgid());
@@ -265,7 +256,7 @@ void *Sys_GetGameAPI (void *parms)
 		}
 	}
 
-	GetGameAPI = (void *)dlsym (game_library, "GetGameAPI");
+	GetGameAPI = (game_export_t * (*)(game_import_t *)) dlsym(game_library, "GetGameAPI");
 
 	if (!GetGameAPI)
 	{

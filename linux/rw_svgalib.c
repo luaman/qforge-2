@@ -42,8 +42,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <unistd.h>
 #include <sys/mman.h>
 
-#include <asm/io.h>
-
 #include "vga.h"
 #include "vgakeyboard.h"
 #include "vgamouse.h"
