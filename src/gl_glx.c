@@ -1073,8 +1073,8 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 		mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
 
 	win = XCreateWindow(dpy, root, 0, 0, width, height,
-						0, visinfo->depth, InputOutput,
-						visinfo->visual, mask, &attr);
+			    0, visinfo->depth, InputOutput,
+			    visinfo->visual, mask, &attr);
 	
 	sizehints = XAllocSizeHints();
 	if (sizehints) {
