@@ -291,7 +291,6 @@ void R_TransformPlane (mplane_t *p, float *normal, float *dist)
 /*
 ===============
 R_SetUpFrustumIndexes
-:cn
 */
 void R_SetUpFrustumIndexes (void)
 {
