@@ -16,6 +16,6 @@ game_la_SOURCES = g_ai.c g_chase.c g_cmds.c g_svcmds.c g_combat.c \
 		p_client.c p_hud.c p_trail.c p_view.c p_weapon.c \
 		q_shared.c
 
-AM_CFLAGS = -fPIC -Wall -Werror -pipe
+AM_CFLAGS = -fPIC -Wall -Werror -pipe @OPT_CFLAGS@
 AM_CPPFLAGS = -I..
 LDFLAGS = -module -avoid-version -rpath $(pkglibdir)

@@ -2,7 +2,7 @@
 
 SUBDIRS = . baseq2 ctf xatrix rogue
 
-std_cflags = -Wall -Werror -pipe
+std_cflags = -Wall -Werror -pipe @OPT_CFLAGS@
 module_ldflags = -module -avoid-version -rpath $(pkglibdir)
 
 bin_PROGRAMS = quake2

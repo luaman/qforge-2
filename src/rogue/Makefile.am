@@ -19,7 +19,7 @@ game_la_SOURCES = dm_ball.c dm_tag.c \
 		m_tank.c m_turret.c m_widow.c m_widow2.c \
 		p_client.c p_hud.c p_trail.c p_view.c p_weapon.c \
 		q_shared.c
-#game_la_CFLAGS = -fPIC -Wall -Werror -pipe
-game_la_CFLAGS = -I.. -fPIC -pipe
+#game_la_CFLAGS = -fPIC -Wall -Werror -pipe @OPT_CFLAGS@
+game_la_CFLAGS = -I.. -fPIC -pipe @OPT_CFLAGS@
 game_la_LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
 endif # DO_ROGUE

@@ -16,7 +16,7 @@ game_la_SOURCES = g_ai.c g_chase.c g_cmds.c g_combat.c g_func.c \
 		m_parasite.c m_soldier.c m_supertank.c m_tank.c \
 		p_client.c p_hud.c p_trail.c p_view.c p_weapon.c \
 		q_shared.c
-#game_la_CFLAGS = -fPIC -Wall -Werror -pipe
-game_la_CFLAGS = -I.. -fPIC -pipe
+#game_la_CFLAGS = -fPIC -Wall -Werror -pipe @OPT_CFLAGS@
+game_la_CFLAGS = -I.. -fPIC -pipe @OPT_CFLAGS@
 game_la_LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
 endif # DO_XATRIX
