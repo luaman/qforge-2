@@ -1,13 +1,35 @@
+README for quake2
+=================
+
+Compiling
+---------
+
 If you are checking this out from CVS, run the bootstrap command first to set
 up configure.  Then follow the instructions in INSTALL.
 
 Use --disable-asm on the configure line if you want to use the software
 refreshers on i386, or better yet, fix the bug in the asm!
 
-Note to developers: bsd/, irix/ and solaris/ are NO LONGER PERTINENT!
-The relevant code was merged into src/ along with the linux/ subtree, so do
-your edits there.
-They exist only as reference in case the merge mucked up anything, they will
-be removed as soon as I can be sure that the code merge worked.
+Save Games
+----------
 
- -- Jaq
+Save games are tied to the build of quake2 that they were created with.
+You can *not* use old save games with new versions of the code (well, you
+can hack the savegame loader to allow this, but you may find yourself
+experiencing interesting and obscure segfaults in the game).
+
+The simple workaround is to *not upgrade* if you are in the middle of
+a single player game.
+
+Mission Packs
+-------------
+
+To build the Xatrix and Rogue missionpacks, download the sharballs from id
+Software's FTP site:
+
+ftp://idsoftware.com/idstuff/quake2/sources/
+
+uncompress them, and run them in src/xatrix or src/rogue
+
+In src/Makefile.am, swap the comments on the SUBDIR lines, and run ./bootstrap
+from the top level.  Rerun configure and make.

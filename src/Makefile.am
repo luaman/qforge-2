@@ -1,8 +1,8 @@
 # $Id$
 
 # swap comments to build the modpacks
-#SUBDIRS = . baseq2 ctf
-SUBDIRS = . baseq2 ctf xatrix rogue
+SUBDIRS = . baseq2 ctf
+#SUBDIRS = . baseq2 ctf xatrix rogue
 
 bin_PROGRAMS = quake2 \
 		ref_soft.so ref_softx.so ref_softsdl.so \

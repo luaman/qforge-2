@@ -1,0 +1,15 @@
+HACKING on quake2
+=================
+
+Note to developers: bsd/, irix/ and solaris/ are NO LONGER PERTINENT!
+
+linux/ was renamed src/, so hack in there.  As we port to more arch/os's,
+we'll integrate the old os subdirs into src/, and remove the old trees.
+
+
+If you want to hack on something, but don't know where to start, have a look
+at TODO in the top level source tree, or open a browser at
+
+http://bugs.quakeforge.net/bugs/cgi-bin/pkgreport.cgi?pkg=quake2&archive=no
+
+for the currently open bug reports.
