@@ -45,8 +45,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../client/keys.h"
 
-#include "../linux/rw_linux.h"
-#include "../linux/glw_linux.h"
+#include "rw_linux.h"
+#include "glw_linux.h"
 
 #include <GL/glx.h>
 

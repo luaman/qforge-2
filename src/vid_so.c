@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../client/client.h"
 
-#include "../linux/rw_linux.h"
+#include "rw_linux.h"
 
 // Structure containing functions exported from refresh DLL
 refexport_t	re;
