@@ -175,7 +175,7 @@ Sys_Milliseconds
 int curtime;
 /* FIXME: replace with a configure test for gethrtime() */
 #ifdef __sun__
-extern hrtime_t base_hrtime
+extern hrtime_t base_hrtime;
 
 int Sys_Milliseconds(void) {
     hrtime_t curr_hrtime;
