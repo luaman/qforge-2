@@ -40,7 +40,6 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-/* #include <sys/vt.h> */
 #include <stdarg.h>
 #include <stdio.h>
 #include <signal.h>
@@ -66,10 +65,10 @@
 
 #ifdef HAVE_XF86_DGA
 #include <X11/extensions/xf86dga.h>
-#endif // HAVE_XF86_DGA
+#endif /* HAVE_XF86_DGA */
 #ifdef HAVE_XF86_VIDMODE
 #include <X11/extensions/xf86vmode.h>
-#endif // HAVE_XF86_VIDMODE
+#endif /* HAVE_XF86_VIDMODE */
 
 #ifdef HAVE_JOYSTICK
 #include <sys/types.h>
@@ -1051,7 +1050,7 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 	scrnum = DefaultScreen(dpy);
 	root = RootWindow(dpy, scrnum);
 
-	// Get video mode list
+	/* Get video mode list */
 	MajorVersion = MinorVersion = 0;
 #ifdef HAVE_XF86_VIDMODE
 	if (!XF86VidModeQueryVersion(dpy, &MajorVersion, &MinorVersion)) { 
@@ -1061,7 +1060,7 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 			MajorVersion, MinorVersion);
 		vidmode_ext = true;
 	}
-#endif // HAVE_XF86_VIDMODE
+#endif /* HAVE_XF86_VIDMODE */
 
 	visinfo = qglXChooseVisual(dpy, scrnum, attrib);
 	if (!visinfo) {

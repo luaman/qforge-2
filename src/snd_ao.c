@@ -33,103 +33,95 @@
 static int snd_inited;
 static int samplesize;
 
-cvar_t * sndbits;
-cvar_t * sndspeed;
-cvar_t * sndchannels;
-cvar_t * snddevice;
+struct sndinfo * si;
 
 ao_device * device;
 
 /* SNDDMA_Init: initialises cycling through a DMA bufffer and returns
  *  information on it
  */
-qboolean SNDDMA_Init(void) {
+qboolean SNDDMA_Init(struct sndinfo * s) {
     int driver_id;
     ao_sample_format format;
     ao_option * options = NULL;
 
-    if (!snddevice) {
-	sndbits = Cvar_Get("sndbits", "16", CVAR_ARCHIVE);
-	sndspeed = Cvar_Get("sndspeed", "0", CVAR_ARCHIVE);
-	sndchannels = Cvar_Get("sndchannels", "2", CVAR_ARCHIVE);
-	snddevice = Cvar_Get("snddevice", "/dev/dsp", CVAR_ARCHIVE);
-    }
+    if (snd_inited)
+	return 1;
+
+    snd_inited = 0;
+
+    si = s;
 
     ao_initialize();
 
-#if 1
-    if ((driver_id = ao_default_driver_id()) == -1) {
-#else
-    if ((driver_id = ao_driver_id("wav")) == -1) {
-#endif
-	Com_Printf("Couldn't find a default driver for sound output\n");
-	return 0;
+    if ((driver_id = ao_driver_id(si->device->string)) == -1) {
+	si->Com_Printf("ao: no driver %s found, trying default\n", si->device->string);
+	if ((driver_id = ao_default_driver_id()) == -1) {
+	    Com_Printf("ao: no default driver found\n");
+	    return 0;
+	}
     }
 
-    /*ao_append_option(&options, "debug", "");*/
-
-    format.bits = dma.samplebits = sndbits->value;
-    format.rate = dma.speed = 44100;
-    format.channels = dma.channels = sndchannels->value;
+    format.bits = si->dma->samplebits = si->bits->value;
+    format.rate = si->dma->speed = 44100;
+    format.channels = si->dma->channels = si->channels->value;
     format.byte_format = AO_FMT_NATIVE;
 
-    switch (dma.speed) {
+    switch (si->dma->speed) {
       case 44100:
-	dma.samples = 2048 * dma.channels;
+	si->dma->samples = 2048 * si->dma->channels;
 	break;
       case 22050:
-	dma.samples = 1024 * dma.channels;
+	si->dma->samples = 1024 * si->dma->channels;
 	break;
       default:
-	dma.samples = 512 * dma.channels;
+	si->dma->samples = 512 * si->dma->channels;
 	break;
     }
 
-#if 1
     if ((device = ao_open_live(driver_id, &format, options)) == NULL) {
-#else
-    if ((device = ao_open_file(driver_id, "foo.wav", 1, &format, options)) == NULL) {
-#endif
 	switch (errno) {
 	  case AO_ENODRIVER:
-	    Com_Printf("W: No ao driver for %d\n", driver_id);
+	    Com_Printf("ao: no driver for %d\n", driver_id);
 	    break;
 	  case AO_ENOTLIVE:
-	    Com_Printf("W: Not a valid live output device\n");
+	    Com_Printf("ao: not a valid live output device\n");
 	    break;
 	  case AO_EBADOPTION:
-	    Com_Printf("W: Valid option has invalid key\n");
+	    Com_Printf("ao: valid option has invalid key\n");
 	    break;
 	  case AO_EOPENDEVICE:
-	    Com_Printf("W: Cannot open device\n");
+	    Com_Printf("ao: cannot open device\n");
 	    break;
 	  case AO_EFAIL:
-	    Com_Printf("W: Something broke during ao_open_live\n");
+	    Com_Printf("ao: something broke during ao_open_live\n");
 	    break;
 	  case AO_ENOTFILE:
-	    Com_Printf("W: Not a file\n");
+	    Com_Printf("ao: not a file\n");
 	    break;
 	  case AO_EOPENFILE:
-	    Com_Printf("W: Can't open file\n");
+	    Com_Printf("ao: can't open file\n");
 	    break;
 	  case AO_EFILEEXISTS:
-	    Com_Printf("W: File exists already\n");
+	    Com_Printf("ao: file exists already\n");
 	    break;
 	  default:
-	    Com_Printf("W: whoa, bad trip dude\n");
+	    Com_Printf("ao: whoa, bad trip dude\n");
 	    break;
 	}
 	return 0;
     }
 
-    samplesize = dma.samplebits >> 3;
-    dma.buffer = malloc(dma.samples * samplesize);
-    memset(dma.buffer, 0, dma.samples * samplesize);
+    samplesize = si->dma->samplebits >> 3;
+    si->dma->buffer = malloc(si->dma->samples * samplesize);
+    memset(si->dma->buffer, 0, si->dma->samples * samplesize);
+
+    si->dma->samplepos = 0;
+    si->dma->submission_chunk = 1;
+
+    si->Com_Printf("ao: buffer size is %d, %d samples\n", si->dma->samples * samplesize, si->dma->samples);
 
     snd_inited = 1;
-    dma.samplepos = 0;
-    dma.submission_chunk = 1;
-
     return 1;
 }
 
@@ -137,7 +129,7 @@ qboolean SNDDMA_Init(void) {
  */
 int SNDDMA_GetDMAPos(void) {
     if (snd_inited)
-	return dma.samplepos;
+	return si->dma->samplepos;
     else
 	Com_Printf("Sound not initialised\n");
 
@@ -150,8 +142,8 @@ void SNDDMA_Shutdown(void) {
     if (snd_inited) {
 	ao_close(device);
 	ao_shutdown();
-	free(dma.buffer);
-	dma.buffer = 0;
+	free(si->dma->buffer);
+	si->dma->buffer = 0;
 	snd_inited = 0;
     }
 }
@@ -164,14 +156,14 @@ void SNDDMA_Submit(void) {
 
     /* ao_play returns success, not number of samples successfully output
      * unlike alsa or arts, so we can only assume that the whole buffer
-     * made it out... though this makes updating dma.samplepos easy */
-    if (ao_play(device, dma.buffer, dma.samples * samplesize) == 0) {
+     * made it out... though this makes updating si->dma->samplepos easy */
+    if (ao_play(device, si->dma->buffer, si->dma->samples * samplesize) == 0) {
 	Com_Printf("W: error occurred while playing buffer\n");
 	ao_close(device);
 	ao_shutdown();
 	snd_inited = 0;
     }
-    dma.samplepos += dma.samples;
+    si->dma->samplepos += si->dma->samples;
 }
 
 void SNDDMA_BeginPainting(void) {

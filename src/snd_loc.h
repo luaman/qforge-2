@@ -122,18 +122,32 @@ typedef struct {
 ====================================================================
 */
 
+#if 0
 // initializes cycling through a DMA buffer and returns information on it
-qboolean SNDDMA_Init(void);
+/* qboolean SNDDMA_Init(void); */
 
 // gets the current DMA position
 int		SNDDMA_GetDMAPos(void);
 
 // shutdown the DMA xfer.
-void	SNDDMA_Shutdown(void);
+/* void	SNDDMA_Shutdown(void); */
 
 void	SNDDMA_BeginPainting (void);
 
 void	SNDDMA_Submit(void);
+#endif
+
+/* struct for passing info to the sound driver dlls */
+struct sndinfo {
+    dma_t * dma;
+    cvar_t * bits;
+    cvar_t * speed;
+    cvar_t * channels;
+    cvar_t * device;
+
+    void (*Com_Printf)(char * fmt, ...);
+};
+
 
 //====================================================================
 

@@ -1,0 +1,38 @@
+Quake2Forge sound
+=================
+
+Quake2Forge supports several sound output APIs.
+
+To set your sound output driver, set the snddriver cvar, like so:
+
+  quake2 +set snddriver oss
+
+The currently supported list of drivers are:
+
+  oss  -- OSS from Linux 2.4 and earlier, and some BSDs
+  alsa -- ALSA 0.9 from Linux 2.6 onwards
+  ao   -- libao audio output library
+
+Each driver uses the snddevice cvar in different ways:
+
+  oss uses the device node for the sound card, e.g. /dev/dsp
+  alsa uses the pcm name, e.g. default or plughw:0,0
+  ao uses the name of the backend, e.g. oss or alsa09
+
+e.g.:
+
+  quake2 +set snddriver oss +set snddevice /dev/dsp
+
+  quake2 +set snddriver alsa +set snddevice default
+
+  quake2 +set snddriver ao +set snddevice oss
+
+Unexpected behaviour can usually be attributed to a snddevice setting from
+a previous snddriver.
+
+The sound driver can be changed at run time from within the console by
+setting the two cvars above and calling 'snd_restart':
+
+  ]set snddriver ao
+  ]set snddevice oss
+  ]snd_restart

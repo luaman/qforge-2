@@ -21,6 +21,19 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+
+#ifdef HAVE_DLOPEN
+# include <dlfcn.h>
+#endif
+
 #include "client.h"
 #include "snd_loc.h"
 
@@ -80,10 +93,22 @@ cvar_t		*s_khz;
 cvar_t		*s_show;
 cvar_t		*s_mixahead;
 cvar_t		*s_primary;
-
+cvar_t * snddriver;
 
 int		s_rawend;
 portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
+
+static void * snddriver_library = NULL;
+qboolean snddriver_active = 0;
+
+/* dlsymbols */
+qboolean (*SNDDMA_Init)(struct sndinfo *);
+int (*SNDDMA_GetDMAPos)(void);
+void (*SNDDMA_Shutdown)(void);
+void (*SNDDMA_BeginPainting)(void);
+void (*SNDDMA_Submit)(void);
+
+struct sndinfo si;
 
 
 // ====================================================================
@@ -99,7 +124,7 @@ void S_SoundInfo_f(void)
 		return;
 	}
 	
-    Com_Printf("%5d stereo\n", dma.channels - 1);
+    Com_Printf("%5d channels\n", dma.channels);
     Com_Printf("%5d samples\n", dma.samples);
     Com_Printf("%5d samplepos\n", dma.samplepos);
     Com_Printf("%5d samplebits\n", dma.samplebits);
@@ -134,7 +159,51 @@ void S_Init (void)
 		s_testsound = Cvar_Get ("s_testsound", "0", 0);
 		s_primary = Cvar_Get ("s_primary", "0", CVAR_ARCHIVE);	// win32 specific
 
-		if (!SNDDMA_Init())
+		{
+		    char fn[MAX_OSPATH];
+		    struct stat st;
+
+		    /* load sound driver */
+		    snddriver = Cvar_Get("snddriver", "oss", CVAR_ARCHIVE);
+
+		    Com_Printf("loading %s sound output driver", snddriver->string);
+		    snprintf(fn, MAX_OSPATH, PKGLIBDIR"/snd_%s.so", snddriver->string);
+		    if (stat(fn, &st) == -1) {
+			Com_Printf("\nload %s failed: %s\n", fn, strerror(errno));
+			return;
+		    }
+		    if ((snddriver_library = dlopen(fn, RTLD_LAZY)) == 0) {
+			Com_Printf("\nload %s failed: %s\n", fn, dlerror());
+			return;
+		    }
+		    Com_Printf(", ok\n");
+
+		    if ((SNDDMA_Init = dlsym(snddriver_library, "SNDDMA_Init")) == 0)
+			Com_Error(ERR_FATAL, "dlsym failed loading SNDDMA_Init\n");
+
+		    if ((SNDDMA_Shutdown = dlsym(snddriver_library, "SNDDMA_Shutdown")) == 0)
+			Com_Error(ERR_FATAL, "dlsym failed loading SNDDMA_Shutdown\n");
+
+		    if ((SNDDMA_GetDMAPos = dlsym(snddriver_library, "SNDDMA_GetDMAPos")) == 0)
+			Com_Error(ERR_FATAL, "dlsym failed loading SNDDMA_GetDMAPos\n");
+
+		    if ((SNDDMA_BeginPainting = dlsym(snddriver_library, "SNDDMA_BeginPainting")) == 0)
+			Com_Error(ERR_FATAL, "dlsym failed loading SNDDMA_BeginPainting\n");
+
+		    if ((SNDDMA_Submit = dlsym(snddriver_library, "SNDDMA_Submit")) == 0)
+			Com_Error(ERR_FATAL, "dlsym failed loading SNDDMA_Submit\n");
+
+		    snddriver_active = true;
+		}
+
+		si.dma = &dma;
+		si.bits = Cvar_Get("sndbits", "16", CVAR_ARCHIVE);
+		si.speed = Cvar_Get("sndspeed", "0", CVAR_ARCHIVE);
+		si.channels = Cvar_Get("sndchannels", "2", CVAR_ARCHIVE);
+		si.device = Cvar_Get("snddevice", "/dev/dsp", CVAR_ARCHIVE);
+		si.Com_Printf = Com_Printf;
+
+		if (!SNDDMA_Init(&si))
 			return;
 
 		Cmd_AddCommand("play", S_Play);
@@ -191,6 +260,19 @@ void S_Shutdown(void)
 	}
 
 	num_sfx = 0;
+
+	if (snddriver_library) {
+	    SNDDMA_Init = NULL;
+	    SNDDMA_Shutdown = NULL;
+	    SNDDMA_Submit = NULL;
+	    SNDDMA_GetDMAPos = NULL;
+	    SNDDMA_BeginPainting = NULL;
+	    dlclose(snddriver_library);
+	    memset(&si, 0, sizeof(struct sndinfo));
+	    snddriver_library = NULL;
+	    snddriver_active = false;
+	    memset(&dma, 0, sizeof(dma_t));
+	}
 }
 
 
@@ -776,7 +858,8 @@ void S_ClearBuffer (void)
 	SNDDMA_BeginPainting ();
 	if (dma.buffer) {
 	    /* buffer may be read-only, clear manually */
-	    /* memset(dma.buffer, clear, dma.samples * dma.samplebits/8); */
+	    memset(dma.buffer, clear, dma.samples * dma.samplebits/8);
+	    /*
 	    int i;
 	    unsigned char * ptr = (unsigned char *) dma.buffer;
 
@@ -785,6 +868,7 @@ void S_ClearBuffer (void)
 		*ptr = clear;
 		ptr++;
 	    }
+	    */
 	}
 	SNDDMA_Submit ();
 }

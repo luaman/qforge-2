@@ -4,9 +4,10 @@ std_cflags = -pipe @WARN_CFLAGS@ @OPT_CFLAGS@
 module_ldflags = -module -avoid-version -rpath $(pkglibdir)
 
 bin_PROGRAMS = quake2
-pkglib_LTLIBRARIES = @VID_REFS@
+pkglib_LTLIBRARIES = @VID_REFS@ @SNDDRIVERS@
 EXTRA_LTLIBRARIES = ref_soft.la ref_softx.la ref_softsdl.la \
-		ref_glx.la ref_sdlgl.la ref_tdfx.la
+		ref_glx.la ref_sdlgl.la ref_tdfx.la \
+		snd_oss.la snd_alsa.la snd_ao.la
 
 # Common source files
 REF_GL_COMMON = q_sh.c q_shared.c q_glob.c qgl.c \
@@ -42,19 +43,7 @@ else
 QUAKE2_ASM=
 endif
 
-if USE_ALSA
-SOUND = cd.c snd_alsa.c snd_dma.c snd_mix.c snd_mem.c
-else
-if USE_AO
-SOUND = cd.c snd_ao.c snd_dma.c snd_mix.c snd_mem.c
-else
-if BUILD_SDLQUAKE2
-SOUND = cd_sdl.c snd_sdl.c snd_dma.c snd_mix.c snd_mem.c
-else
-SOUND = cd.c snd_oss.c snd_dma.c snd_mix.c snd_mem.c
-endif
-endif
-endif
+SOUND = cd.c snd_dma.c snd_mix.c snd_mem.c
 
 quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c q_glob.c net_udp.c \
 		\
@@ -92,32 +81,31 @@ EXTRA_quake2_SOURCES = snd_mixa.S cd_sdl.c snd_sdl.c snd_dma.c \
 			snd_mix.c snd_mem.c cd.c \
 			snd_oss.c snd_ao.c snd_alsa.c
 
-if USE_ALSA
-quake2_CFLAGS = $(std_cflags) @ALSA_CFLAGS@
-else
-if USE_AO
-quake2_CFLAGS = $(std_cflags) @AO_CFLAGS@
-else
-if BUILD_SDLQUAKE2
-quake2_CFLAGS = $(std_cflags) @SDL_CFLAGS@
-else
-quake2_CFLAGS = $(std_cflags) @OSS_CFLAGS@
-endif
-endif
+quake2_CFLAGS = $(std_cflags)
+quake2_LDADD = @DL_LIBS@ @SYSTEM_LIBS@ -lm
+
+# oss sound driver
+if BUILD_OSS
+snd_oss_la_SOURCES = snd_oss.c
+snd_oss_la_CFLAGS = $(std_cflags) -fPIC @OSS_CFLAGS@
+snd_oss_la_LIBADD = @OSS_LIBS@
+snd_oss_la_LDFLAGS = $(module_ldflags)
 endif
 
-if USE_ALSA
-quake2_LDADD = @DL_LIBS@ @ALSA_LIBS@ @SYSTEM_LIBS@ -lm
-else
-if USE_AO
-quake2_LDADD = @DL_LIBS@ @AO_LIBS@ @SYSTEM_LIBS@ -lm
-else
-if BUILD_SDLQUAKE2
-quake2_LDADD = @DL_LIBS@ @SDL_LIBS@ @SYSTEM_LIBS@ -lm
-else
-quake2_LDADD = @DL_LIBS@ @OSS_LIBS@ @SYSTEM_LIBS@ -lm
+# alsa sound driver
+if BUILD_ALSA
+snd_alsa_la_SOURCES = snd_alsa.c
+snd_alsa_la_CFLAGS = $(std_cflags) -fPIC @ALSA_CFLAGS@
+snd_alsa_la_LIBADD = @ALSA_LIBS@
+snd_alsa_la_LDFLAGS = $(module_ldflags)
 endif
-endif
+
+# libao sound driver
+if BUILD_AO
+snd_ao_la_SOURCES = snd_ao.c
+snd_ao_la_CFLAGS = $(std_cflags) -fPIC @AO_CFLAGS@
+snd_ao_la_LIBADD = @AO_LIBS@
+snd_ao_la_LDFLAGS = $(module_ldflags)
 endif
 
 # ref_glx
