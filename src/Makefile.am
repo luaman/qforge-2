@@ -68,8 +68,10 @@ quake2_LDADD = @PTHREAD_LIBS@ @LIBLTDL@ @OSS_LIBS@ -lm
 # ref_glx
 if BUILD_GLX
 ref_glx_la_SOURCES = $(REF_GL_COMMON) gl_glx.c
-ref_glx_la_CFLAGS = $(std_cflags) -fPIC @X_CFLAGS@ @OPENGL_CFLAGS@
-ref_glx_la_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @OPENGL_LIBS@ @DL_LIBS@
+#ref_glx_la_CFLAGS = $(std_cflags) -fPIC @X_CFLAGS@ @OPENGL_CFLAGS@
+ref_glx_la_CFLAGS = $(std_cflags) -fPIC @X_CFLAGS@
+#ref_glx_la_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @OPENGL_LIBS@ @DL_LIBS@
+ref_glx_la_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @DL_LIBS@
 ref_glx_la_LDFLAGS = $(module_ldflags)
 endif
 
@@ -85,7 +87,9 @@ endif
 if BUILD_SDLGL
 ref_sdlgl_la_SOURCES = $(REF_GL_COMMON) rw_sdl.c
 ref_sdlgl_la_CFLAGS = $(std_cflags) -fPIC -DOPENGL @SDL_CFLAGS@ @OPENGL_CFLAGS@
+#ref_sdlgl_la_CFLAGS = $(std_cflags) -fPIC -DOPENGL @SDL_CFLAGS@
 ref_sdlgl_la_LDADD = @SDL_LIBS@ @OPENGL_LIBS@
+#ref_sdlgl_la_LDADD = @SDL_LIBS@
 ref_sdlgl_la_LDFLAGS = $(module_ldflags)
 endif
 
