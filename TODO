@@ -25,7 +25,7 @@ http://gozer.quakeforge.net/list-archives/quakeforge-cvs/2002-April/000151.html
 from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
 (replace - with X when done)
 
-- Removing shadows on certain objects
+X Removing shadows on certain objects
 - Fixing dlight shine trough
 - Fix for left over icons on windows taskbar
 - Adding a clock to the console

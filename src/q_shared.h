@@ -1,5 +1,7 @@
 /* $Id$
  *
+ * included first by ALL program modules
+ *
  * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) 2002 The Quakeforge Project.
  *
@@ -20,8 +22,6 @@
  */
 
 #include "gcc_attr.h"
-	
-// q_shared.h -- included first by ALL program modules
 
 #ifdef _WIN32
 // unknown pragmas are SUPPOSED to be ignored, but....
@@ -611,6 +611,7 @@ typedef struct
 #define RF_SHELL_RED		1024
 #define	RF_SHELL_GREEN		2048
 #define RF_SHELL_BLUE		4096
+#define RF_NOSHADOW			8192	/* don't draw a shadow */
 
 //ROGUE
 #define RF_IR_VISIBLE		0x00008000		// 32768

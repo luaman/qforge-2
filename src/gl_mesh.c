@@ -857,8 +857,8 @@ void R_DrawAliasModel (entity_t *e)
 		qglDepthRange (gldepthmin, gldepthmax);
 
 //#if 1
-	if (gl_shadows->value && !(currententity->flags & (RF_TRANSLUCENT | RF_WEAPONMODEL)))
-	{
+	if (gl_shadows->value && 
+		!(currententity->flags & (RF_TRANSLUCENT|RF_WEAPONMODEL|RF_NOSHADOW))) {
 		qglPushMatrix ();
 
 		/* don't rotate shadows on ungodly axes */
