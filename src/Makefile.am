@@ -1,8 +1,8 @@
 # $Id$
 
 # swap comments to build the modpacks
-#SUBDIRS = . baseq2 ctf
-SUBDIRS = . baseq2 ctf xatrix rogue
+SUBDIRS = . baseq2 ctf
+#SUBDIRS = . baseq2 ctf xatrix rogue
 
 bin_PROGRAMS = quake2 \
 		ref_soft.so ref_softx.so ref_softsdl.so \
@@ -101,14 +101,22 @@ AM_CFLAGS = -Wall -Werror -pipe -I/usr/X11R6/include $(shell sdl-config --cflags
 
 quake2_LDFLAGS = -lm -ldl -lpthread
 
-ref_glx_so_LDFLAGS = -shared -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
+ref_glx_so_LDFLAGS = -shared
+ref_glx_so_LDADD = -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm -lGL
 
 #ref_gl_so_LDFLAGS = -shared -L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXext -lGL -lvga
+#ref_gl_so_LDFADD = -L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXext -lGL -lvga
 
-ref_sdlgl_so_LDFLAGS = -shared $(shell sdl-config --libs)
+sdl_flags = @SDL_FLAGS@
 
-ref_soft_so_LDFLAGS = -shared -lvga
+ref_sdlgl_so_LDFLAGS = -shared
+ref_sdlgl_so_LDADD = $(sdl_flags)
 
-ref_softx_so_LDFLAGS = -shared -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
+ref_soft_so_LDFLAGS = -shared
+ref_soft_so_LDADD = -lvga
 
-ref_softsdl_so_LDFLAGS = -shared $(shell sdl-config --libs)
+ref_softx_so_LDFLAGS = -shared
+ref_softx_so_LDADD = -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
+
+ref_softsdl_so_LDFLAGS = -shared
+ref_softsdl_so_LDADD = $(sdl_flags)

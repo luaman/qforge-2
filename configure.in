@@ -75,6 +75,9 @@ ASFLAGS="\$(DEFS) \$(CFLAGS) \$(CPPFLAGS) \$(DEFAULT_INCLUDES) \$(INCLUDES)"
 AC_SUBST(AS)
 AC_SUBST(ASFLAGS)
 
+SDL_FLAGS=`sdl-config --libs`
+AC_SUBST(SDL_FLAGS)
+
 AC_CONFIG_FILES([Makefile
 				 src/Makefile
 				 src/baseq2/Makefile
