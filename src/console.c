@@ -1,30 +1,31 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-// console.c
+/* $Id$
+ *
+ * console display
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002,2003 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "client.h"
-
 
 console_t	con;
 
@@ -581,6 +582,12 @@ void Con_DrawConsole (float frac)
 	char			version[64];
 	char			dlbar[1024];
 
+	/* added for console clock */
+	time_t time_of_day;
+	char timebuf[26], *tmpbuf;
+	time_of_day = time (NULL);
+	tmpbuf = ctime( &time_of_day) ;
+
 	lines = viddef.height * frac;
 	if (lines <= 0)
 		return;
@@ -593,9 +600,13 @@ void Con_DrawConsole (float frac)
 	SCR_AddDirtyPoint (0,0);
 	SCR_AddDirtyPoint (viddef.width-1,lines-1);
 
-	Com_sprintf (version, sizeof(version), "v%s", VERSION);
-	for (x=0 ; x<5 ; x++)
-		re.DrawChar (viddef.width-44+x*8, lines-12, 128 + version[x] );
+	Com_sprintf(version, sizeof(version), "v%s", VERSION);
+	for (x = 0; x < 5; x++)
+	    re.DrawChar(viddef.width-44+x*8, lines-12, 128 + version[x]);
+	/* console clock */
+	Com_sprintf(timebuf, sizeof(timebuf), "%s", timebuf);
+	for (x = 0; x < 24; ++x)
+	    re.DrawChar(viddef.width-153+x*8, lines-25, 128 + tmpbuf[x]);
 
 // draw the text
 	con.vislines = lines;

@@ -1375,8 +1375,9 @@ void SCR_UpdateScreen (void)
 			SCR_DrawNet ();
 			SCR_CheckDrawCenterString ();
 
-			// FPS counter hack
-			// http://www.quakesrc.org/?Page=tutorials&What=./tutorials/Quake2/misc/fps.txt
+			/* FPS counter hack
+			 * http://www.quakesrc.org/?Page=tutorials&What=./tutorials/Quake2/misc/fps.txt
+			 */
 			if (cl_drawfps->value) {
 				char	s[8];
 
