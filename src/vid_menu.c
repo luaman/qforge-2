@@ -19,8 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "../client/client.h"
-#include "../client/qmenu.h"
+#include "client.h"
+#include "qmenu.h"
 
 /* irix/vid_menu.c defines only REF_SOFT and REF_OPENGL, we'll use REF_GLX */
 #define REF_SOFT	0

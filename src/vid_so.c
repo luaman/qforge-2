@@ -47,8 +47,7 @@
 #define dlsym(X, Y) dlsym(X, "_"##Y)
 #endif
 
-#include "../client/client.h"
-
+#include "client.h"
 #include "rw.h"
 
 // Structure containing functions exported from refresh DLL

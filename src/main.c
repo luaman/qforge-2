@@ -61,7 +61,7 @@
 #define dlsym(X, Y) dlsym(X, "_"##Y)
 #endif
 
-#include "../qcommon/qcommon.h"
+#include "qcommon.h"
 #include "../game/game.h"
 #include "rw.h"
 
@@ -244,7 +244,7 @@ void *Sys_GetGameAPI (void *parms)
 	/* relnev 0.9 added -- jaq */
 	FILE * fp;
 
-	const char * gamename = "game"ARCH".so";
+	const char * gamename = "game.so";
 
 	setreuid(getuid(), getuid());
 	setegid(getgid());
