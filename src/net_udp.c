@@ -21,7 +21,7 @@
 
 // net_wins.c
 
-#include "../qcommon/qcommon.h"
+#include "qcommon.h"
 
 #include <unistd.h>
 #include <sys/socket.h>

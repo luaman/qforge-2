@@ -33,7 +33,7 @@
 
 #include "glob.h"
 
-#include "../qcommon/qcommon.h"
+#include "qcommon.h"
 
 #if defined(__FreeBSD__)
 #include <machine/param.h>

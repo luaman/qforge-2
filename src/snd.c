@@ -45,8 +45,8 @@
 #include <dmedia/audio.h>
 #endif /* __sgi */
 
-#include "../client/client.h"
-#include "../client/snd_loc.h"
+#include "client.h"
+#include "snd_loc.h"
 
 #define FRAGSIZEEXP 9
 #define FRAGSIZE    (1<<FRAGSIZEEXP)

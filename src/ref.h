@@ -20,8 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __REF_H
 #define __REF_H
 
-#include "../qcommon/qcommon.h"
-#include "../qcommon/gcc_attr.h"
+#include "qcommon.h"
+#include "gcc_attr.h"
 
 #define	MAX_DLIGHTS		32
 #define	MAX_ENTITIES	128

@@ -47,7 +47,7 @@
 	#include <sys/disklabel.h>
 #endif
 
-#include "../client/client.h"
+#include "client.h"
 
 static qboolean cdValid = false;
 static qboolean	playing = false;

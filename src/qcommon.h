@@ -17,11 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "../qcommon/gcc_attr.h"
+#include "gcc_attr.h"
 
 // qcommon.h -- definitions common between client and server, but not game.dll
 
-#include "../game/q_shared.h"
+#include "q_shared.h"
 
 
 #define	VERSION		3.21
@@ -651,7 +651,7 @@ CMODEL
 */
 
 
-#include "../qcommon/qfiles.h"
+#include "qfiles.h"
 
 cmodel_t	*CM_LoadMap (char *name, qboolean clientload, unsigned *checksum);
 cmodel_t	*CM_InlineModel (char *name);	// *1, *2, etc

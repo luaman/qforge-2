@@ -68,7 +68,7 @@ PACKAGE = quake2
 VERSION = 0.1
 
 bin_PROGRAMS = quake2
-quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c 								cl_cin.c cl_ents.c cl_fx.c cl_input.c cl_inv.c 				cl_main.c cl_parse.c cl_pred.c cl_tent.c cl_scrn.c cl_view.c 				cl_newfx.c console.c keys.c menu.c snd_dma.c snd_mem.c 				snd_mix.c qmenu.c 								checksum.c cmd.c cmodel.c common.c crc.c cvar.c files.c 				mdfour.c net_chan.c 								sv_ccmds.c sv_ents.c sv_game.c sv_init.c sv_main.c 				sv_user.c sv_world.c 								q_shared.c pmove.c 								cd.c snd.c
+quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c 								cl_cin.c cl_ents.c cl_fx.c cl_input.c cl_inv.c 				cl_main.c cl_parse.c cl_pred.c cl_tent.c cl_scrn.c cl_view.c 				cl_newfx.c console.c keys.c menu.c qmenu.c 								snd_dma.c snd_mix.c snd_mem.c 								checksum.c cmd.c cmodel.c common.c crc.c cvar.c files.c 				mdfour.c net_chan.c 								sv_ccmds.c sv_ents.c sv_game.c sv_init.c sv_main.c 				sv_send.c sv_user.c sv_world.c 								cd.c snd.c 								q_shared.c pmove.c 								m_flash.c 								#snd_mixa.S
 
 
 CPPFLAGS = -Dstricmp=strcasecmp -Wall -Werror -pipe -DLINUX_VERSION=\"$(VERSION)\"
@@ -84,10 +84,10 @@ LIBS = -lpthread -lm -ldl -lGL
 quake2_OBJECTS =  main.o q_sh.o vid_menu.o vid_so.o glob.o net_udp.o \
 cl_cin.o cl_ents.o cl_fx.o cl_input.o cl_inv.o cl_main.o cl_parse.o \
 cl_pred.o cl_tent.o cl_scrn.o cl_view.o cl_newfx.o console.o keys.o \
-menu.o snd_dma.o snd_mem.o snd_mix.o qmenu.o checksum.o cmd.o cmodel.o \
+menu.o qmenu.o snd_dma.o snd_mix.o snd_mem.o checksum.o cmd.o cmodel.o \
 common.o crc.o cvar.o files.o mdfour.o net_chan.o sv_ccmds.o sv_ents.o \
-sv_game.o sv_init.o sv_main.o sv_user.o sv_world.o q_shared.o pmove.o \
-cd.o snd.o
+sv_game.o sv_init.o sv_main.o sv_send.o sv_user.o sv_world.o cd.o snd.o \
+q_shared.o pmove.o m_flash.o
 quake2_LDADD = $(LDADD)
 quake2_DEPENDENCIES = 
 quake2_LDFLAGS = 
@@ -107,12 +107,12 @@ DEP_FILES =  .deps/cd.P .deps/checksum.P .deps/cl_cin.P .deps/cl_ents.P \
 .deps/cl_newfx.P .deps/cl_parse.P .deps/cl_pred.P .deps/cl_scrn.P \
 .deps/cl_tent.P .deps/cl_view.P .deps/cmd.P .deps/cmodel.P \
 .deps/common.P .deps/console.P .deps/crc.P .deps/cvar.P .deps/files.P \
-.deps/glob.P .deps/keys.P .deps/main.P .deps/mdfour.P .deps/menu.P \
-.deps/net_chan.P .deps/net_udp.P .deps/pmove.P .deps/q_sh.P \
-.deps/q_shared.P .deps/qmenu.P .deps/snd.P .deps/snd_dma.P \
+.deps/glob.P .deps/keys.P .deps/m_flash.P .deps/main.P .deps/mdfour.P \
+.deps/menu.P .deps/net_chan.P .deps/net_udp.P .deps/pmove.P \
+.deps/q_sh.P .deps/q_shared.P .deps/qmenu.P .deps/snd.P .deps/snd_dma.P \
 .deps/snd_mem.P .deps/snd_mix.P .deps/sv_ccmds.P .deps/sv_ents.P \
-.deps/sv_game.P .deps/sv_init.P .deps/sv_main.P .deps/sv_user.P \
-.deps/sv_world.P .deps/vid_menu.P .deps/vid_so.P
+.deps/sv_game.P .deps/sv_init.P .deps/sv_main.P .deps/sv_send.P \
+.deps/sv_user.P .deps/sv_world.P .deps/vid_menu.P .deps/vid_so.P
 SOURCES = $(quake2_SOURCES)
 OBJECTS = $(quake2_OBJECTS)
 
@@ -325,7 +325,6 @@ uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
-				#m_flash.c
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
