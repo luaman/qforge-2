@@ -10,3 +10,5 @@ releasei386-glibc
 Makefile.in
 Makefile
 quake2
+*.la
+*.lo
