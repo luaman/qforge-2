@@ -18,3 +18,4 @@ compile
 libltdl
 ltmain.sh
 quake2-*
+quake2.spec
