@@ -257,6 +257,7 @@ extern	int		gl_tex_alpha_format;
 
 extern	int		c_visible_lightmaps;
 extern	int		c_visible_textures;
+extern cvar_t *skydistance; /* skybox size change */
 
 extern	float	r_world_matrix[16];
 

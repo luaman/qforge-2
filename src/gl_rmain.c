@@ -143,6 +143,7 @@ cvar_t	*gl_3dlabs_broken;
 cvar_t	*vid_fullscreen;
 cvar_t	*vid_gamma;
 cvar_t	*vid_ref;
+cvar_t *skydistance;
 
 /*
 =================
@@ -716,6 +717,9 @@ void R_SetupGL (void)
 	float	screenaspect;
 //	float	yfov;
 	int		x, x2, y2, y, w, h;
+	/* skybox vars */
+	static GLdouble farz;
+	GLdouble boxsize;
 
 	//
 	// set up viewport
@@ -730,6 +734,23 @@ void R_SetupGL (void)
 
 	qglViewport (x, y2, w, h);
 
+	/* block of code for SkyBox Size change */
+	if (skydistance->modified) {
+	    skydistance->modified = false;
+	    boxsize = skydistance->value;
+	    boxsize -= 252 * ceil(boxsize / 2300);
+	    farz = 1.0;
+	    while (farz < boxsize) { /* make this value a power-of-2 */
+		farz *= 2.0;
+		if (farz >= 65536.0)  /* don't make it larger than this */
+		    break;
+	    }
+	    /* double since boxsize is distance from camera to
+	     * edge of skybox - not total size of skybox */
+	    farz *= 2.0;
+	    ri.Con_Printf(PRINT_DEVELOPER, "farz now set to %g\n", farz);
+	}
+
 	//
 	// set up projection matrix
 	//
@@ -737,7 +758,7 @@ void R_SetupGL (void)
 //	yfov = 2*atan((float)r_newrefdef.height/r_newrefdef.width)*180/M_PI;
 	qglMatrixMode(GL_PROJECTION);
     qglLoadIdentity ();
-    MYgluPerspective (r_newrefdef.fov_y,  screenaspect,  4,  4096);
+    MYgluPerspective(r_newrefdef.fov_y, screenaspect, 4, farz);
 
 	qglCullFace(GL_FRONT);
 
@@ -1064,6 +1085,7 @@ void R_Register( void )
 	vid_fullscreen = ri.Cvar_Get( "vid_fullscreen", "0", CVAR_ARCHIVE );
 	vid_gamma = ri.Cvar_Get( "vid_gamma", "1.0", CVAR_ARCHIVE );
 	vid_ref = ri.Cvar_Get( "vid_ref", "soft", CVAR_ARCHIVE );
+	skydistance = ri.Cvar_Get("skydistance", "2300", CVAR_ARCHIVE);
 
 	ri.Cmd_AddCommand( "imagelist", GL_ImageList_f );
 	ri.Cmd_AddCommand( "screenshot", GL_ScreenShot_f );
@@ -1090,7 +1112,7 @@ qboolean R_SetMode (void)
 	}
 #endif
 	fullscreen = vid_fullscreen->value;
-
+	skydistance->modified = true;
 	vid_fullscreen->modified = false;
 	gl_mode->modified = false;
 
