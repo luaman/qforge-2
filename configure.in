@@ -26,7 +26,7 @@ AC_PROG_RANLIB
 #AC_PROG_LIBTOOL
 
 # Checks for libraries.
-AC_CHECK_LIB(GL, glBegin)
+#AC_CHECK_LIB(GL, glBegin)
 # FIXME: Replace `main' with a function in `-lX11':
 #AC_CHECK_LIB(X11, [main])
 # FIXME: Replace `main' with a function in `-lXext':
@@ -35,12 +35,12 @@ AC_CHECK_LIB(GL, glBegin)
 #AC_CHECK_LIB([Xxf86dga], [main])
 # FIXME: Replace `main' with a function in `-lXxf86vm':
 #AC_CHECK_LIB([Xxf86vm], [main])
-AC_CHECK_LIB(dl, dlopen)
-AC_CHECK_LIB(m, sin)
+#AC_CHECK_LIB(dl, dlopen)
+#AC_CHECK_LIB(m, sin)
 # FIXME: Replace `main' with a function in `-lossaudio':
 #AC_CHECK_LIB([ossaudio], [main])
 # FIXME: Replace `main' with a function in `-lpthread':
-AC_CHECK_LIB([pthread], [main])
+#AC_CHECK_LIB([pthread], [main])
 # FIXME: Replace `main' with a function in `-lvga':
 #AC_CHECK_LIB([vga], [main])
 

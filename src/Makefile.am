@@ -97,6 +97,8 @@ ref_softx_so_SOURCES = $(REF_SOFT_COMMON) rw_x11.c
 AM_CFLAGS = -Wall -Werror -pipe
 AM_CPPFLAGS = -I../game
 
+quake2_LDFLAGS = -lm -ldl -lpthread
+
 ref_glx_so_CFLAGS = -fPIC -I/usr/X11R6/include
 ref_glx_so_LDFLAGS = -shared -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
 
