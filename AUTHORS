@@ -1,10 +1,9 @@
-AUTHORS for quake2
-==================
+quake2 AUTHORS
+==============
 
-Jamie 'Jaq' Wilkinson
-Bill 'taniwha' Currie
-Jeff 'Deek' Teunissen
+The following people are the primary authors of QuakeForge's quake2. See also
+the file THANKS for a list of all contributors.  Discussion of development
+occurs on the quake2-devel@lists.quakeforge.net mailing list (also an easy way
+to reach the authors).
 
-Thanks go to:
-Steven Fuller
-Ryan C. Gordon
+Jamie Wilkinson		<jaq@quakeforge.net>

@@ -1,0 +1,20 @@
+NEWS for quake2
+===============
+
+
+0.1
+---
+
+* SDL support for software and OpenGL modes.
+* Quake2 no longer is dependent on architecture.  Heavy use of autoconf to
+  configure the code for your architecture.
+* Linux FHS compliant through the use of automake to install dynamically
+  libraries into the right place, data files loaded from the share directory.
+* Mouse wheel support, mouse buttons 4 and 5 supported under SDL.
+* Big Gun and savegame crashes fixed.
+* Sony VAIO Picturebook and Apple Titanium Powerbook video resolution support.
+* Support for the Xatrix and Rogue missionpacks (separate source download
+  required).
+* OpenGL stencilbuffer shadows.
+* Fixed macro expansion rcon_password server exploit.
+* Miscellaneous bugfixes.
