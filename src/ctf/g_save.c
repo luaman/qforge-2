@@ -329,10 +329,11 @@ void ReadField (FILE *f, field_t *field, byte *base)
 		len = *(int *)p;
 		if (!len)
 			*(char **)p = NULL;
-		else
-		{
-			*(char **)p = gi.TagMalloc (len, TAG_LEVEL);
-			fread (*(char **)p, len, 1, f);
+		else {
+		    /* FIXME -- 32 extra bytes alloc'd since the saved string
+		       might not be long enough */
+		    *(char **) p = gi.TagMalloc(len+32, TAG_LEVEL);
+		    fread(*(char **) p, len, 1, f);
 		}
 		break;
 	case F_GSTRING:
