@@ -82,7 +82,7 @@ BASE_CFLAGS=-Dstricmp=strcasecmp -Wall -Werror
 
 DEBUG_CFLAGS=$(BASE_CFLAGS) -g
 
-LDFLAGS=-lz -lm -ldl
+LDFLAGS=-lz -lm -ldl -export-dynamic
 
 SVGALDFLAGS=-lvga
 
