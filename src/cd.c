@@ -326,6 +326,10 @@ void CDAudio_RandomPlay(void)
 	}
 	while (free_tracks > 0);
 }
+#else /* let the others compile at least */
+void CDAudio_RandomPlay(void) {
+	Com_DPrintf("CDAudio_RandomPlay: Not yet supported on your platform");
+}
 #endif
 
 void CDAudio_Stop(void)
