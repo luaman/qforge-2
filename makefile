@@ -3,6 +3,8 @@ MAKEDEPS=$(CC) -MM $(CPPFLAGS) $< | sed -e 's!$*\.o:*!$*\.o $@:!g' > $@
 %.d: %.c
 	$(MAKEDEPS)
 
+CPPFLAGS=-DELF
+
 sources=\
 	client/cl_cin.c		\
 	client/cl_ents.c	\
@@ -27,9 +29,11 @@ sources=\
 	game/m_flash.c		\
 	game/q_shared.c		\
 	linux/cd_linux.c	\
+	linux/glob.c		\
 	linux/net_udp.c		\
 	linux/q_shlinux.c	\
 	linux/snd_linux.c	\
+	linux/snd_mixa.S	\
 	linux/sys_linux.c	\
 	linux/vid_so.c		\
 	linux/vid_menu.c	\
@@ -51,7 +55,7 @@ sources=\
 	server/sv_user.c	\
 	server/sv_world.c
 
-objects=$(patsubst %.s,%.o,\
+objects=$(patsubst %.S,%.o,\
 		$(patsubst %.c,%.o,\
 		$(patsubst %.cc,%.o,\
 		  $(sources))))
