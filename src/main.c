@@ -49,7 +49,6 @@
 	#include <mntent.h>
 #elif defined(__FreeBSD__) || defined(__bsd__) || defined (__NetBSD__)
 	#include <fstab.h>
-	#include <pthread.h>
 #elif defined(__sun__)
 	#include <sys/file.h>
 #endif
@@ -327,7 +326,6 @@ XilSystemState xil_state;
 
 int main (int argc, char **argv) {
     int time, oldtime, newtime;
-    sigset_t sigs;
 
 #ifdef SOL8_XIL_WORKAROUND
     {
@@ -352,11 +350,6 @@ int main (int argc, char **argv) {
 	    strncpy(display_name, tmp_name, sizeof(display_name));
 	}
     }
-
-    /* block the SIGPOLL signal so that only the audio thread gets it */
-    sigemptyset(&sigs);
-    sigaddset(&sigs, SIGPOLL);
-    pthread_sigmask(SIG_BLOCK, &sigs, NULL);
 
     /* go back to real user for config loads */
     saved_euid = geteuid();

@@ -76,9 +76,6 @@ OSS_LIBS=""
 AC_CHECK_LIB([ossaudio], [_oss_ioctl], [OSS_LIBS="-lossaudio"])
 AC_SUBST(OSS_LIBS)
 
-dnl Check for POSIX threads
-ACX_PTHREAD(,AC_MSG_ERROR(["POSIX threads required!"]))
-
 dnl -----------------
 dnl Check for SVGAlib
 dnl -----------------
@@ -310,6 +307,64 @@ dnl Check for zip library
 dnl ---------------------
 
 HAVE_ZIP=disabled
+
+dnl ---------------
+dnl Check for libao
+dnl ---------------
+
+HAVE_AO=no
+AC_ARG_WITH(ao,
+	AC_HELP_STRING([--with-ao(=DIR)],
+		[use libao (optionally, found in DIR)]),
+	dnl argument was given, check for --without
+	if test "x${with_ao}" != xno ; then
+		ac_with_ao=yes
+	else
+		ac_with_ao=no
+	fi,
+	ac_with_ao=auto
+)
+if test "x${ac_with_ao}" != xno ; then
+	dnl --with-ao was explicitly given, so look in the given dir
+	if test "x${ac_with_ao}" != xauto ; then
+		AO_CFLAGS="$AO_CFLAGS -I$withval/include"
+		AO_LIBS="$AO_LIBS -L$withval/lib"
+	fi
+	dnl set CPPFLAGS for coming tests
+	save_CPPFLAGS="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS $AO_CFLAGS"
+	dnl test for installed library first, for people who may have
+	dnl the libs installed by no headers
+	AC_CHECK_LIB(ao, ao_initialize,
+		AO_LIBS="$AO_LIBS -lao"
+		HAVE_AO=maybe,
+		HAVE_AO=no,
+		[$AO_LIBS])
+	dnl check the header
+	if test "x$HAVE_AO" = xmaybe ; then
+		AC_CHECK_HEADER(ao/ao.h,
+			HAVE_AO=yes,
+			HAVE_AO=no
+		)
+	fi
+	dnl sum up
+	if test "x$HAVE_AO" = xyes ; then
+		AC_DEFINE(HAVE_AO, 1, [Define this if you have libao])
+		AC_SUBST(AO_LIBS)
+		AC_SUBST(AO_CFLAGS)
+	else
+		dnl if we were explicitly told to use ao and it's not there
+		if test "x${ac_with_ao}" = xyes ; then
+			AC_MSG_WARN([
+*** You have explicitly asked for libao support, but the required libraries
+*** and development files could not be found.])
+		fi
+	fi
+	dnl clean up
+	CPPFLAGS="$save_CPPFLAGS"
+else
+	HAVE_AO=disabled
+fi
 
 dnl -----------------------
 dnl Checks for header files
@@ -699,6 +754,8 @@ fi
 AC_MSG_RESULT([      SDL: ............. $HAVE_SDL])
 dnl AC_MSG_RESULT([   Framebuffer: ..... $HAVE_FB])
 dnl AC_MSG_RESULT([   AAlib: ........... $HAVE_AA])
+
+AC_MSG_RESULT([    libao .............. $HAVE_AO])
 
 AC_MSG_RESULT([
   Installation directories:

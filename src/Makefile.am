@@ -47,7 +47,7 @@ endif
 if BUILD_SDLQUAKE2
 SOUND = cd_sdl.c snd_sdl.c snd_dma.c snd_mix.c snd_mem.c
 else
-SOUND = cd.c snd.c snd_dma.c snd_mix.c snd_mem.c
+SOUND = cd.c snd_ao.c snd_dma.c snd_mix.c snd_mem.c
 endif
 
 quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c q_glob.c net_udp.c \
@@ -83,21 +83,17 @@ EXTRA_ref_tdfx_la_SOURCES =  rw_in_svgalib.c gl_fxmesa.c
 EXTRA_ref_softx_la_SOURCES = rw_x11.c
 
 EXTRA_quake2_SOURCES = snd_mixa.S cd_sdl.c snd_sdl.c snd_dma.c \
-			snd_mix.c snd_mem.c cd.c snd.c
+			snd_mix.c snd_mem.c cd.c snd_ao.c
 
 if BUILD_SDLQUAKE2
-quake2_CFLAGS = $(std_cflags) @PTHREAD_CFLAGS@ @SDL_CFLAGS@
+quake2_CFLAGS = $(std_cflags) @SDL_CFLAGS@
 else
-quake2_CFLAGS = $(std_cflags) @PTHREAD_CFLAGS@
+quake2_CFLAGS = $(std_cflags)
 endif
-# the macro puts -pthread into cflags, but we want to link
-# with this flag too, so stick it into the ldflags if it's there...
-# extra cflags at link time can't hurt
-quake2_LDFLAGS = @PTHREAD_CFLAGS@
 if BUILD_SDLQUAKE2
-quake2_LDADD = @PTHREAD_LIBS@ @DL_LIBS@ @OSS_LIBS@ @SDL_LIBS@ @SYSTEM_LIBS@ -lm
+quake2_LDADD = @DL_LIBS@ @AO_LIBS@ @SDL_LIBS@ @SYSTEM_LIBS@ -lm
 else
-quake2_LDADD = @PTHREAD_LIBS@ @DL_LIBS@ @OSS_LIBS@ @SYSTEM_LIBS@ -lm
+quake2_LDADD = @DL_LIBS@ @AO_LIBS@ @SYSTEM_LIBS@ -lm
 endif
 
 # ref_glx
