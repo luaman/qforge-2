@@ -20,6 +20,8 @@ http://gozer.quakeforge.net/list-archives/quakeforge-cvs/2002-April/000151.html
   instead of hardcoding them... or do both
 - have a look at http://bw-admin.sourceforge.net/ and
   http://www.planetquake.com/q2admin/ and see about merging in these tools.
+- volumtric lighting?
+  http://www.planetgloom.com/mapping/gmg_vml.html
 
 from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
 (replace - with X when done)
