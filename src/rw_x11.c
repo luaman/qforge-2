@@ -620,7 +620,7 @@ static void IN_ActivateMouse( void )
 		install_grabs();
 		mouse_active = true;
 	}
-#ifdef Joystick
+#ifdef HAVE_JOYSTICK
 	if (joystick_avail)
 	  if (close(joy_fd))
 	    ri.Con_Printf(PRINT_ALL, "Error, Problem closing joystick.");

@@ -126,18 +126,7 @@ static cvar_t *m_pitch;
 static cvar_t *m_forward;
 static cvar_t *my_freelook;
 
-/************************
- * Joystick
- ************************/
-#ifdef Joystick
-static cvar_t   *in_joystick;
-static cvar_t   *j_invert_y;
-static qboolean joystick_avail;
-static SDL_Joystick *joy;
-static int joy_oldbuttonstate;
-static int joy_numbuttons;
-static int jx, jy, jt;
-
+#ifdef HAVE_JOYSTICK
 /************************
  * Joystick
  ************************/
@@ -149,7 +138,7 @@ static int joy_oldbuttonstate;
 static int joy_numbuttons;
 static int jx, jy, jt;
 static int lr_axis, ud_axis, throttle_axis;
-#endif
+#endif /* HAVE_JOYSTICK */
 
 static void Force_CenterView_f (void)
 {
@@ -1081,7 +1070,7 @@ void KBD_Update(void)
 	if (!mx && !my)
 		SDL_GetRelativeMouseState(&mx, &my);
 	
-#ifdef Joystick
+#ifdef HAVE_JOYSTICK
 	if (joystick_avail && joy) {
 	  jx = SDL_JoystickGetAxis(joy, lr_axis);
 	  jy = SDL_JoystickGetAxis(joy, ud_axis);

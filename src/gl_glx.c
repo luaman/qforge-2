@@ -147,14 +147,7 @@ void init_joystick() {
 }
 #endif
 
-#ifdef Joystick
-static cvar_t   *in_joystick;
-static qboolean joystick_avail = false;
-static int joy_fd, jx, jy, jt;
-static cvar_t   *j_invert_y;
-#endif
-
-#ifdef Joystick
+#ifdef HAVE_JOYSTICK
 void InitJoystick() {
   int i, err;
   glob_t pglob;
@@ -537,7 +530,7 @@ static void IN_DeactivateMouse( void )
 		mouse_active = false;
 	}
 
-#ifdef Joystick
+#ifdef HAVE_JOYSTICK
 	if (joystick_avail)
 	  if (close(joy_fd))
 	    ri.Con_Printf(PRINT_ALL, "Error, Problem closing joystick.");
@@ -559,7 +552,7 @@ static void IN_ActivateMouse( void )
 void RW_IN_Frame (void)
 {
 	int i;
-#ifdef Joystick
+#ifdef HAVE_JOYSTICK
 	struct js_event e;
 	int key_index;
 #endif
@@ -573,7 +566,7 @@ void RW_IN_Frame (void)
 	  }
 	  mouse_oldbuttonstate = mouse_buttonstate;
 	}
-#ifdef Joystick
+#ifdef HAVE_JOYSTICK
 	if (joystick_avail) {
 	  while (read(joy_fd, &e, sizeof(struct js_event))!=-1) {
 	    if (JS_EVENT_BUTTON & e.type) {
