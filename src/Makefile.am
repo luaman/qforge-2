@@ -75,6 +75,7 @@ REF_SOFT_COMMON = \
 		q_sh.c \
 		glob.c
 
+if ASM_ARCH
 REF_SOFT_ASM = \
 		r_aclipa.S \
 		r_draw16.S \
@@ -87,9 +88,16 @@ REF_SOFT_ASM = \
 		d_polysa.S \
 		r_varsa.S \
 		sys_dosa.S
+else
+REF_SOFT_ASM =
+endif
 
 # SVGAlib
+if ASM_ARCH
 ref_soft_so_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_svgalib.c rw_in_svgalib.c d_copy.S
+else
+ref_soft_so_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_svgalib.c rw_in_svgalib.c
+endif
 
 # X11
 ref_softx_so_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_x11.c
