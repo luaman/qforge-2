@@ -4,7 +4,7 @@
 
 # bootstrap the build when checking out from CVS
 
-if [ "$1" == "clean" ]; then
+if [ "$1" = "clean" ]; then
 	# clean up junk
 	
 	if [ -f Makefile ]; then 
