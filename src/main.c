@@ -234,8 +234,9 @@ void Sys_UnloadGame(void) {
 /* Loads the game dll */
 void *Sys_GetGameAPI (void *parms) {
     gameapi_t * GetGameAPI;
-    cvar_t * gamename;
+    cvar_t * game;
     char path[MAX_OSPATH];
+    char name[MAX_OSPATH];
     char * str_p;
     
     setreuid(getuid(), getuid());
@@ -244,21 +245,24 @@ void *Sys_GetGameAPI (void *parms) {
     if (game_library)
 	Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
-    gamename = Cvar_Get("gamedir", BASEDIRNAME, CVAR_LATCH|CVAR_SERVERINFO);
+    game = Cvar_Get("game", "", CVAR_LATCH|CVAR_SERVERINFO);
 
-    Com_Printf("------- Loading %s -------\n", gamename->string);
+    Com_Printf("------- Loading %s -------\n", game->string);
     
     /* set the module search path */
-    snprintf(path, MAX_OSPATH, ".:"PKGLIBDIR"/%s", gamename->string);
+    snprintf(name, MAX_OSPATH, "%s",
+	     game->string[0]?game->string:BASEDIRNAME);
+    snprintf(path, MAX_OSPATH, "./%s:"PKGLIBDIR"/%s", name, name);
+    Com_Printf("searchpath: %s\n", path);
     lt_dlsetsearchpath(path);
         
     /* load the module */
     game_library = lt_dlopenext("game.so");
     
     if (game_library) {
-	Com_MDPrintf("LoadLibrary (%s)\n", gamename->string);
+	Com_MDPrintf("LoadLibrary (%s)\n", name);
     } else {
-	Com_MDPrintf("LoadLibrary (%s)\n", gamename->string);
+	Com_MDPrintf("LoadLibrary (%s)\n", name);
 	//str_p = strchr(lt_dlerror(), ':'); // skip the path (already shown)
 	str_p = (char *) lt_dlerror();
 	if (str_p != NULL) {
