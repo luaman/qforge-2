@@ -61,7 +61,7 @@ ACX_PTHREAD(,AC_MSG_ERROR(["POSIX threads required!"]))
 
 dnl Check for SVGAlib
 AC_ARG_WITH(svgalib,
-	[  --with-svgalib=DIR      use SVGAlib found in DIR],
+	[  --with-svgalib=DIR      use SVGAlib found in DIR ],
 	HAVE_SVGALIB=$withval, HAVE_SVGALIB=auto)
 if test "x$HAVE_SVGALIB" != xno; then
 	if test "x$HAVE_SVGALIB" != xauto; then
@@ -94,7 +94,7 @@ AC_SUBST(SVGALIB_LIBS)
 
 dnl Check for GLIDE
 AC_ARG_WITH(glide,
-	[  --with-glide=DIR        use GLIDE 2.x found in DIR],
+	[  --with-glide=DIR        use GLIDE 2.x found in DIR ],
 	HAVE_GLIDE=$withval,
 	HAVE_GLIDE=auto)
 if test "x$HAVE_GLIDE" != xno; then
@@ -203,7 +203,7 @@ AC_SUBST(OPENGL_CFLAGS)
 
 dnl Check for SDL
 AC_ARG_ENABLE(sdl,
-[  --disable-sdl           disable checking for SDL],
+[  --disable-sdl           disable checking for SDL ],
 )
 if test "x$enable_sdl" != xno; then
 	AM_PATH_SDL(1.2.0,

@@ -4,9 +4,18 @@ README for quake2
 Compiling
 ---------
 
-If you are checking this out from CVS, run the bootstrap command first to set
-up configure.  You will need autoconf 2.50, automake 1.6, libtool 1.4, or
-greater.  Then follow the instructions in INSTALL.
+If you are checking this out from CVS, run the bootstrap command first to
+set up configure.  You will need autoconf 2.50, automake 1.6, libtool 1.4,
+or greater.  Then follow the instructions in INSTALL.
+
+When specifying locations to arguments like --with-svgalib (i.e. all the
+options that can take a DIR argument as shown by ./configure --help), use
+the directory that contains the lib/ and include/ directories; e.g:
+	./configure --with-svgalib=/usr/local
+instead of
+	./configure --with-svgalib=/usr/local/lib
+as configure will automatically look for the libraries and headers in
+the paths relative to the given path.
 
 Save Games
 ----------
