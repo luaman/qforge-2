@@ -1,25 +1,19 @@
-dnl stick the revision info into the resulting configure script
-AC_REVISION($Revision$) dnl
 AC_PREREQ(2.50)
 
-AC_INIT(quake2, 0.3, quake2-devel@lists.quakeforge.net)
+AC_INIT(quake2, 0.3.1, quake2-devel@lists.quakeforge.net)
 AC_CONFIG_AUX_DIR(.)
 AC_CONFIG_SRCDIR(src/main.c)
 AM_CONFIG_HEADER(config.h)
 
-dnl get the build and target hosts
 AC_CANONICAL_SYSTEM
-
-AM_INIT_AUTOMAKE([foreign dist-bzip2 dist-zip])
-
-dnl configure --enable-maintainer-mode gets some extra targets
-AM_MAINTAINER_MODE
-
-dnl set some macros
 AC_DEFINE_UNQUOTED(BUILDHOST, "${target_cpu}-${target_os}", 
 	[Set to the canonical name of the target machine])
 AC_SUBST(PROGRAM)
 AC_SUBST(VERSION)
+
+AM_INIT_AUTOMAKE([foreign dist-bzip2 dist-zip])
+
+AM_MAINTAINER_MODE
 
 dnl ----------------------------------
 dnl Overall configuration success flag
@@ -498,7 +492,6 @@ if test "x$HAVE_SOLARIS" = xyes ; then
 fi
 AM_CONDITIONAL(BUILD_SNDSOLARIS, test "x$BUILD_SNDSOLARIS" = xyes)
 
-	
 dnl -------------------------------------------------------------
 dnl Checks for typedefs, structures, and compiler characteristics
 dnl -------------------------------------------------------------
@@ -794,9 +787,9 @@ AC_MSG_RESULT([
 Quake2Forge $VERSION: Automatic configuration OK.
 
   Configuration summary:
-
     Platform: .......... ${host}
-    Video refreshers: .. ${VID_REFS- none}])
+
+    Dependent libraries:])
 
 AC_MSG_RESULT([      SVGAlib: ......... $HAVE_SVGALIB])
 if test "x${ac_with_svgalib}" = xyes; then
@@ -812,6 +805,7 @@ if test "x${ac_with_svgalib}" = xyes; then
 fi
 
 AC_MSG_RESULT([      X11: ............. $HAVE_X])
+
 AC_MSG_RESULT([      OpenGL: .......... $HAVE_OPENGL])
 if test "x${ac_with_opengl}" = xyes ; then
 	if test "x${HAVE_OPENGL}" != xyes ; then
@@ -826,11 +820,13 @@ if test "x${ac_with_opengl}" = xyes ; then
 fi
 
 AC_MSG_RESULT([      SDL: ............. $HAVE_SDL])
+
 dnl AC_MSG_RESULT([   Framebuffer: ..... $HAVE_FB])
+
 dnl AC_MSG_RESULT([   AAlib: ........... $HAVE_AA])
 
-AC_MSG_RESULT([    Sound drivers: ..... ${SNDDRIVERS- none}])
 AC_MSG_RESULT([      OSS: ............. $HAVE_OSS])
+
 AC_MSG_RESULT([      ALSA: ............ $HAVE_ALSA])
 if test "x${ac_with_alsa}" = xyes ; then
 	if test "x${HAVE_ALSA}" != xyes ; then
@@ -843,6 +839,7 @@ if test "x${ac_with_alsa}" = xyes ; then
 		fi
 	fi
 fi
+
 AC_MSG_RESULT([      libao: ........... $HAVE_AO])
 if test "x${ac_with_ao}" = xyes ; then
 	if test "x${HAVE_AO}" != xyes ; then
@@ -855,9 +852,13 @@ if test "x${ac_with_ao}" = xyes ; then
 		fi
 	fi
 fi
-AC_MSG_RESULT([      solaris: ......... $HAVE_SOLARIS])
+
+AC_MSG_RESULT([      solaris audioio: . $HAVE_SOLARIS])
 
 AC_MSG_RESULT([
+    Video refreshers: .. ${VID_REFS- none}
+    Sound drivers: ..... ${SNDDRIVERS- none}
+
   Installation directories:
 
     Program: ........... $BINDIR
