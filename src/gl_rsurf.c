@@ -1,23 +1,25 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-// GL_RSURF.C: surface-related refresh code
+/* $Id$
+ *
+ * surface related OpenGL refresh code
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
 #include <ctype.h>
 
@@ -744,7 +746,7 @@ dynamic:
 			R_BuildLightMap( surf, (void *)temp, smax*4 );
 			R_SetCacheState( surf );
 
-			GL_MBind( GL_Texture1, gl_state.lightmap_textures + surf->lightmaptexturenum );
+			GL_MBind( QGL_TEXTURE1, gl_state.lightmap_textures + surf->lightmaptexturenum );
 
 			lmtex = surf->lightmaptexturenum;
 
@@ -762,7 +764,7 @@ dynamic:
 
 			R_BuildLightMap( surf, (void *)temp, smax*4 );
 
-			GL_MBind( GL_Texture1, gl_state.lightmap_textures + 0 );
+			GL_MBind( QGL_TEXTURE1, gl_state.lightmap_textures + 0 );
 
 			lmtex = 0;
 
@@ -776,8 +778,8 @@ dynamic:
 
 		c_brush_polys++;
 
-		GL_MBind( GL_Texture0, image->texnum );
-		GL_MBind( GL_Texture1, gl_state.lightmap_textures + lmtex );
+		GL_MBind( QGL_TEXTURE0, image->texnum );
+		GL_MBind( QGL_TEXTURE1, gl_state.lightmap_textures + lmtex );
 
 //==========
 //PGM
@@ -795,8 +797,8 @@ dynamic:
 				qglBegin (GL_POLYGON);
 				for (i=0 ; i< nv; i++, v+= VERTEXSIZE)
 				{
-					qglMTexCoord2fSGIS( GL_Texture0, (v[3]+scroll), v[4]);
-					qglMTexCoord2fSGIS( GL_Texture1, v[5], v[6]);
+					qglMTexCoord2fSGIS( QGL_TEXTURE0, (v[3]+scroll), v[4]);
+					qglMTexCoord2fSGIS( QGL_TEXTURE1, v[5], v[6]);
 					qglVertex3fv (v);
 				}
 				qglEnd ();
@@ -810,8 +812,8 @@ dynamic:
 				qglBegin (GL_POLYGON);
 				for (i=0 ; i< nv; i++, v+= VERTEXSIZE)
 				{
-					qglMTexCoord2fSGIS( GL_Texture0, v[3], v[4]);
-					qglMTexCoord2fSGIS( GL_Texture1, v[5], v[6]);
+					qglMTexCoord2fSGIS( QGL_TEXTURE0, v[3], v[4]);
+					qglMTexCoord2fSGIS( QGL_TEXTURE1, v[5], v[6]);
 					qglVertex3fv (v);
 				}
 				qglEnd ();
@@ -824,8 +826,8 @@ dynamic:
 	{
 		c_brush_polys++;
 
-		GL_MBind( GL_Texture0, image->texnum );
-		GL_MBind( GL_Texture1, gl_state.lightmap_textures + lmtex );
+		GL_MBind( QGL_TEXTURE0, image->texnum );
+		GL_MBind( QGL_TEXTURE1, gl_state.lightmap_textures + lmtex );
 
 //==========
 //PGM
@@ -843,8 +845,8 @@ dynamic:
 				qglBegin (GL_POLYGON);
 				for (i=0 ; i< nv; i++, v+= VERTEXSIZE)
 				{
-					qglMTexCoord2fSGIS( GL_Texture0, (v[3]+scroll), v[4]);
-					qglMTexCoord2fSGIS( GL_Texture1, v[5], v[6]);
+					qglMTexCoord2fSGIS( QGL_TEXTURE0, (v[3]+scroll), v[4]);
+					qglMTexCoord2fSGIS( QGL_TEXTURE1, v[5], v[6]);
 					qglVertex3fv (v);
 				}
 				qglEnd ();
@@ -860,8 +862,8 @@ dynamic:
 				qglBegin (GL_POLYGON);
 				for (i=0 ; i< nv; i++, v+= VERTEXSIZE)
 				{
-					qglMTexCoord2fSGIS( GL_Texture0, v[3], v[4]);
-					qglMTexCoord2fSGIS( GL_Texture1, v[5], v[6]);
+					qglMTexCoord2fSGIS( QGL_TEXTURE0, v[3], v[4]);
+					qglMTexCoord2fSGIS( QGL_TEXTURE1, v[5], v[6]);
 					qglVertex3fv (v);
 				}
 				qglEnd ();
@@ -1013,9 +1015,9 @@ e->angles[0] = -e->angles[0];	// stupid quake bug
 e->angles[2] = -e->angles[2];	// stupid quake bug
 
 	GL_EnableMultitexture( true );
-	GL_SelectTexture( GL_Texture0);
+	GL_SelectTexture( QGL_TEXTURE0);
 	GL_TexEnv( GL_REPLACE );
-	GL_SelectTexture( GL_Texture1);
+	GL_SelectTexture( QGL_TEXTURE1);
 	GL_TexEnv( GL_MODULATE );
 
 	R_DrawInlineBModel ();
@@ -1227,9 +1229,9 @@ void R_DrawWorld (void)
 	{
 		GL_EnableMultitexture( true );
 
-		GL_SelectTexture( GL_Texture0);
+		GL_SelectTexture( QGL_TEXTURE0);
 		GL_TexEnv( GL_REPLACE );
-		GL_SelectTexture( GL_Texture1);
+		GL_SelectTexture( QGL_TEXTURE1);
 
 		if ( gl_lightmap->value )
 			GL_TexEnv( GL_REPLACE );
@@ -1577,7 +1579,7 @@ void GL_BeginBuildingLightmaps (model_t *m)
 	r_framecount = 1;		// no dlightcache
 
 	GL_EnableMultitexture( true );
-	GL_SelectTexture( GL_Texture1);
+	GL_SelectTexture( QGL_TEXTURE1);
 
 	/*
 	** setup the base lightstyles so the lightmaps won't have to be regenerated

@@ -18,8 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
- * 02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #ifndef __QGL_H__
@@ -492,7 +491,6 @@ extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
 
 #endif // HAVE_OPENGL_GLEXT, end of glext.h defines
 
-
-extern int GL_Texture0, GL_Texture1;
+extern int QGL_TEXTURE0, QGL_TEXTURE1;
 
 #endif /* __QGL_H__ */
