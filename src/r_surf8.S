@@ -1,14 +1,15 @@
-//
-// surf8.s
-// x86 assembly-language 8 bpp surface block drawing code.
-//
+/* $Id$
+ *
+ * x86 assembly-language 8 bpp surface block drawing code.
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include "../src/qasm.h"
 
-#if	id386
+#include "qasm.h"
+
+#ifdef USE_ASM
 
 	.data
 
@@ -762,4 +763,4 @@ LPatchLoop8:
 
 	ret
 
-#endif	// id386
+#endif /* USE_ASM */

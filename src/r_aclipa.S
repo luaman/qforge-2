@@ -1,15 +1,16 @@
-//
-// r_aliasa.s
-// x86 assembly-language Alias model transform and project code.
-//
+/* $Id$
+ *
+ * x86 assembly-language Alias model transform and project code.
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include "../src/qasm.h"
+
+#include "qasm.h"
 #include "d_ifacea.h"
 
-#if id386
+#ifdef USE_ASM
 
 	.data
 Ltemp0:	.long	0
@@ -194,5 +195,5 @@ C(R_Alias_clip_left):
 	jmp		LRightLeftEntry
 
 
-#endif	// id386
+#endif	/* USE_ASM */
 

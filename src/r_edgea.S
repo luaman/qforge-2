@@ -1,14 +1,16 @@
-//
-// r_edgea.s
-// x86 assembly-language edge-processing code.
-//
+/* $Id$
+ *
+ *
+ * x86 assembly-language edge-processing code.
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include "../src/qasm.h"
 
-#if	id386
+#include "qasm.h"
+
+#ifdef USE_ASM
 
 	.data
 Ltemp:					.long	0
@@ -728,5 +730,5 @@ C(R_SurfacePatch):
 
 	ret
 
-#endif	// id386
+#endif	/* USE_ASM */
 

@@ -1,15 +1,33 @@
-//
-// d_polysa.s
-// x86 assembly-language polygon model drawing code
-//
+/* $Id$
+ *
+ * x86 assembly-language polygon model drawing code
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include "../src/qasm.h"
+
+#include "qasm.h"
 #include "d_ifacea.h"
 
-#if	id386
+#if	USE_ASM
 
 // !!! if this is changed, it must be changed in d_polyse.c too !!!
 #define DPS_MAXSPANS			MAXHEIGHT+1	
@@ -1249,5 +1267,5 @@ LSkip2:
 	popl	%ebp
 	ret
 
-#endif	// id386
+#endif	/* USE_ASM */
 

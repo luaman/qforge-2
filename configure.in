@@ -4,6 +4,8 @@ AC_INIT(src/main.c)
 AC_REVISION($Revision$) dnl
 AM_CONFIG_HEADER(config.h)
 
+AC_CANONICAL_SYSTEM
+
 AM_INIT_AUTOMAKE(quake2, 0.1)
 
 AM_MAINTAINER_MODE
@@ -19,7 +21,18 @@ AC_PROG_CC
 #AC_PROG_RANLIB
 #AC_PROG_LIBTOOL
 
+HAVE_MASM=""
+AC_SUBST(HAVE_MASM)
+
+AS="$CC"
+ASFLAGS="\$(DEFS) \$(CFLAGS) \$(CPPFLAGS) \$(DEFAULT_INCLUDES) \$(INCLUDES)"
+AC_SUBST(AS)
+AC_SUBST(ASFLAGS)
+
+dnl ---------------------
 dnl Checks for libraries.
+dnl ---------------------
+
 #AC_CHECK_LIB(GL, glBegin)
 # FIXME: Replace `main' with a function in `-lX11':
 #AC_CHECK_LIB(X11, [main])
@@ -38,20 +51,35 @@ dnl Checks for libraries.
 # FIXME: Replace `main' with a function in `-lvga':
 #AC_CHECK_LIB([vga], [main])
 
-# Checks for header files.
+dnl ------------------------
+dnl Checks for header files.
+dnl ------------------------
+
 #AC_PATH_X
 #AC_HEADER_DIRENT
 #AC_HEADER_STDC
 dnl AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([ sys/soundcard.h ])
 
-# Checks for typedefs, structures, and compiler characteristics.
+dnl --------------------------------------------------------------
+dnl Checks for typedefs, structures, and compiler characteristics.
+dnl --------------------------------------------------------------
+
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 AC_HEADER_TIME
 AC_STRUCT_TM
 AC_TYPE_UID_T
+
+AC_MSG_CHECKING(for underscore prefix in names)
+AC_TRY_LINK(
+	[asm(".long _bar");
+	int bar;],
+	[],
+	AC_DEFINE(HAVE_SYM_PREFIX_UNDERSCORE, 1, [Define this if C symbols are prefixed with an underscore]) AC_MSG_RESULT(yes),
+	AC_MSG_RESULT(no)
+)
 
 dnl -----------------------------
 dnl Checks for library functions.
@@ -77,22 +105,35 @@ if test "x$ac_cv_func_dlopen" != "xyes"; then
 fi
 AC_SUBST(DL_LIBS)
 
-AS="$CC"
-ASFLAGS="\$(DEFS) \$(CFLAGS) \$(CPPFLAGS) \$(DEFAULT_INCLUDES) \$(INCLUDES)"
-AC_SUBST(AS)
-AC_SUBST(ASFLAGS)
-
 SDL_FLAGS=`sdl-config --libs`
 AC_SUBST(SDL_FLAGS)
 
-AC_MSG_CHECKING(for underscore prefix in names)
-AC_TRY_LINK(
-	[asm(".long _bar");
-	int bar;],
-	[],
-	AC_DEFINE(HAVE_SYM_PREFIX_UNDERSCORE, 1, [Define this if C symbols are prefixed with an underscore]) AC_MSG_RESULT(yes),
-	AC_MSG_RESULT(no)
-)
+dnl -------------------
+dnl Checks for asm junk
+dnl -------------------
+
+AC_MSG_CHECKING(to see if assembler can be used)
+case "${host}" in
+	i?86-*-*)
+		AC_MSG_RESULT(yes)
+		AC_MSG_CHECKING(to see if asm is disabled)
+		AC_ARG_ENABLE(asm,
+					[  --disable-asm           disable assembler optimisation ],
+					AC_MSG_RESULT(yes),
+					AC_DEFINE(USE_ASM, 1, [Define this if you want to use assembler optimised code])
+					ASM_ARCH=yes
+					AC_MSG_RESULT(no)
+		)
+		;;
+	*)
+		AC_MSG_RESULT(no)
+		;;
+esac
+AM_CONDITIONAL(ASM_ARCH, test "$ASM_ARCH" = "yes")
+
+dnl -----------
+dnl Dump it out
+dnl -----------
 
 AC_CONFIG_FILES([Makefile
 				 src/Makefile

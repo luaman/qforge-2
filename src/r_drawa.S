@@ -1,15 +1,16 @@
-//
-// r_drawa.s
-// x86 assembly-language edge clipping and emission code
-//
+/* $Id$
+ *
+ * x86 assembly-language edge clipping and emission code
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include "../src/qasm.h"
+
+#include "qasm.h"
 #include "d_ifacea.h"
 
-#if	id386
+#ifdef USE_ASM
 
 // !!! if these are changed, they must be changed in r_draw.c too !!!
 #define FULLY_CLIPPED_CACHED	0x80000000
@@ -816,5 +817,5 @@ LClampP2:
 LClampP3:
 	ret
 
-#endif	// id386
+#endif	/* USE_ASM */
 

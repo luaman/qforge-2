@@ -97,9 +97,11 @@ void Sys_Quit (void)
 
 void Sys_Init(void)
 {
+/*
 #if id386
 //	Sys_SetFPCW();
 #endif
+*/
 }
 
 void Sys_Error (char *error, ...)

@@ -1,15 +1,16 @@
-//
-// d_scana.s
-// x86 assembly-language turbulent texture mapping code
-//
+/* $Id$
+ *
+ * x86 assembly-language turbulent texture mapping code
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include "../src/qasm.h"
+
+#include "qasm.h"
 #include "d_ifacea.h"
 
-#if id386
+#ifdef USE_ASM
 
 	.data
 
@@ -67,5 +68,5 @@ Llp:
 	popl	%ebp				// restore caller's stack frame pointer
 	ret
 
-#endif	// id386
+#endif	/* USE_ASM */
 

@@ -1,22 +1,24 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * 
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 // r_main.c
 
 #include "r_local.h"
@@ -143,7 +145,7 @@ cvar_t	*sw_lockpvs;
 #define	STRINGER(x) "x"
 
 
-#if	!id386
+#ifndef USE_ASM
 
 // r_vars.c
 
@@ -184,7 +186,7 @@ unsigned int	d_zrowbytes;
 unsigned int	d_zwidth;
 
 
-#endif	// !id386
+#endif /* !USE_ASM */
 
 byte	r_notexture_buffer[1024];
 
@@ -317,11 +319,11 @@ qboolean R_Init( void *hInstance, void *wndProc )
 	r_refdef.yOrigin = YCENTERING;
 
 // TODO: collect 386-specific code in one place
-#if	id386
+#ifdef USE_ASM
 	Sys_MakeCodeWriteable ((long)R_EdgeCodeStart,
 					     (long)R_EdgeCodeEnd - (long)R_EdgeCodeStart);
 	Sys_SetFPCW ();		// get bit masks for FPCW	(FIXME: is this id386?)
-#endif	// id386
+#endif /* USE_ASM */
 
 	r_aliasuvscale = 1.0;
 

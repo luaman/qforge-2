@@ -1,16 +1,17 @@
-//
-// d_draw16.s
-// x86 assembly-language horizontal 8-bpp span-drawing code, with 16-pixel
-// subdivision.
-//
+/* $Id$
+ *
+ * x86 assembly-language horizontal 8-bpp span-drawing code, with 16-pixel
+ * subdivision.
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include "../src/qasm.h"
+
+#include "qasm.h"
 #include "d_ifacea.h"
 
-#if	id386
+#ifdef USE_ASM
 
 //----------------------------------------------------------------------
 // 8-bpp horizontal span drawing code for polygons, with no transparency and
@@ -1226,5 +1227,5 @@ LFDone:
 	popl	%ebp				// restore the caller's stack frame
 	ret
 
-#endif	// id386
+#endif	/* USE_ASM */
 

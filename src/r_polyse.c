@@ -1,24 +1,30 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * routines for drawing sets of polygons sharing the same texture
+ * (used for Alias models)
+ * 
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * 
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-// d_polyset.c: routines for drawing sets of polygons sharing the same
-// texture (used for Alias models)
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
 #include "r_local.h"
 
@@ -411,7 +417,7 @@ void R_PolysetSetUpForLineScan(fixed8_t startvertu, fixed8_t startvertv,
 R_PolysetCalcGradients
 ================
 */
-#if id386 && !defined __linux__ && !defined __FreeBSD__
+#ifdef HAVE_MASM
 void R_PolysetCalcGradients( int skinwidth )
 {
 	static float xstepdenominv, ystepdenominv, t0, t1;
@@ -716,7 +722,7 @@ void R_PolysetCalcGradients (int skinwidth)
 			ystepdenominv);
 
 //#if	id386ALIAS
-#if id386
+#if USE_ASM
 	if ( d_pdrawspans == R_PolysetDrawSpans8_Opaque )
 	{
 		a_sstepxfrac = r_sstepx << 16;
@@ -1034,7 +1040,7 @@ void R_PolysetDrawSpansConstant8_66( spanpackage_t *pspanpackage)
 	} while (pspanpackage->count != -999999);
 }
 
-#if !id386
+#ifndef USE_ASM
 void R_PolysetDrawSpans8_Opaque (spanpackage_t *pspanpackage)
 {
 	int		lcount;
@@ -1183,7 +1189,7 @@ void R_RasterizeAliasPolySmooth (void)
 	d_ptex = (byte *)r_affinetridesc.pskin + (plefttop[2] >> 16) +
 			(plefttop[3] >> 16) * r_affinetridesc.skinwidth;
 //#if	id386ALIAS
-#if id386
+#ifdef USE_ASM
 	if ( d_pdrawspans == R_PolysetDrawSpans8_Opaque )
 	{
 		d_sfrac = (plefttop[2] & 0xFFFF) << 16;
@@ -1226,7 +1232,7 @@ void R_RasterizeAliasPolySmooth (void)
 							  pleftbottom[0], pleftbottom[1]);
 
 //#if	id386ALIAS
-#if id386
+#ifdef USE_ASM
 		if ( d_pdrawspans == R_PolysetDrawSpans8_Opaque )
 		{
 			d_pzbasestep = (d_zwidth + ubasestep) << 1;
@@ -1259,7 +1265,7 @@ void R_RasterizeAliasPolySmooth (void)
 				((r_tstepy + r_tstepx * ubasestep) >> 16) *
 				r_affinetridesc.skinwidth;
 //#if	id386ALIAS
-#if id386
+#ifdef USE_ASM
 		if ( d_pdrawspans == R_PolysetDrawSpans8_Opaque )
 		{
 			d_sfracbasestep = (r_sstepy + r_sstepx * ubasestep) << 16;
@@ -1280,7 +1286,7 @@ void R_RasterizeAliasPolySmooth (void)
 				((r_tstepy + r_tstepx * d_countextrastep) >> 16) *
 				r_affinetridesc.skinwidth;
 //#if	id386ALIAS
-#if id386
+#ifdef USE_ASM
 		if ( d_pdrawspans == R_PolysetDrawSpans8_Opaque )
 		{
 			d_sfracextrastep = (r_sstepy + r_sstepx*d_countextrastep) << 16;
@@ -1297,7 +1303,7 @@ void R_RasterizeAliasPolySmooth (void)
 		d_lightextrastep = d_lightbasestep + working_lstepx;
 		d_ziextrastep = d_zibasestep + r_zistepx;
 
-#if id386
+#ifdef USE_ASM
 		if ( d_pdrawspans == R_PolysetDrawSpans8_Opaque )
 		{
 			R_PolysetScanLeftEdge (initialleftheight);
@@ -1360,7 +1366,7 @@ void R_RasterizeAliasPolySmooth (void)
 			d_pdestextrastep = d_pdestbasestep + 1;
 
 //#if	id386ALIAS
-#if id386
+#ifdef USE_ASM
 			if ( d_pdrawspans == R_PolysetDrawSpans8_Opaque )
 			{
 				d_pzbasestep = (d_zwidth + ubasestep) << 1;
@@ -1385,7 +1391,7 @@ void R_RasterizeAliasPolySmooth (void)
 					((r_tstepy + r_tstepx * ubasestep) >> 16) *
 					r_affinetridesc.skinwidth;
 //#if	id386ALIAS
-#if id386
+#ifdef USE_ASM
 			if ( d_pdrawspans == R_PolysetDrawSpans8_Opaque )
 			{
 				d_sfracbasestep = (r_sstepy + r_sstepx * ubasestep) << 16;
@@ -1406,7 +1412,7 @@ void R_RasterizeAliasPolySmooth (void)
 					((r_tstepy + r_tstepx * d_countextrastep) >> 16) *
 					r_affinetridesc.skinwidth;
 //#if	id386ALIAS
-#if id386
+#ifdef USE_ASM
 			if ( d_pdrawspans == R_PolysetDrawSpans8_Opaque )
 			{
 				d_sfracextrastep = ((r_sstepy+r_sstepx*d_countextrastep) & 0xFFFF)<<16;
@@ -1423,7 +1429,7 @@ void R_RasterizeAliasPolySmooth (void)
 			d_lightextrastep = d_lightbasestep + working_lstepx;
 			d_ziextrastep = d_zibasestep + r_zistepx;
 
-#if id386
+#ifdef USE_ASM
 			if ( d_pdrawspans == R_PolysetDrawSpans8_Opaque )
 			{
 				R_PolysetScanLeftEdge (height);

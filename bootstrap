@@ -16,8 +16,8 @@ if [ "$1" = "clean" ]; then
 		$MAKE distclean
 	fi
 	find . -name Makefile.in -print | xargs rm -f
-	rm -f config.h.in aclocal.m4 install-sh missing mkinstalldirs \
-	      stamp-h.in tags configure config.log
+	rm -f aclocal.m4 install-sh missing mkinstalldirs \
+	      stamp-h.in tags configure config.*
 
 else
 

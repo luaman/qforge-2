@@ -1,22 +1,28 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * 
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 #include "r_local.h"
 
 vec3_t r_pright, r_pup, r_ppn;
@@ -34,7 +40,7 @@ typedef struct
 
 static partparms_t partparms;
 
-#if id386 && !defined __linux__ && !defined __FreeBSD__
+#ifdef HAVE_MASM
 
 static unsigned s_prefetch_address;
 
@@ -583,7 +589,7 @@ void R_DrawParticle( void )
     }
 }
 
-#endif	// !id386
+#endif /* USE_ASM */
 
 /*
 ** R_DrawParticles
@@ -597,7 +603,7 @@ void R_DrawParticles (void)
 {
 	particle_t *p;
 	int         i;
-#if id386 && !defined __linux__ && !defined __FreeBSD__
+#ifdef HAVE_MASM
 	extern unsigned long fpu_sp24_cw, fpu_chop_cw;
 #endif
 
@@ -605,7 +611,7 @@ void R_DrawParticles (void)
 	VectorScale( vup, yscaleshrink, r_pup );
 	VectorCopy( vpn, r_ppn );
 
-#if id386 && !defined __linux__ && !defined __FreeBSD__
+#ifdef HAVE_MASM
 	__asm fldcw word ptr [fpu_sp24_cw]
 #endif
 
@@ -622,7 +628,7 @@ void R_DrawParticles (void)
 		partparms.particle = p;
 		partparms.color    = p->color;
 
-#if id386 && !defined __linux__ && !defined __FreeBSD__
+#ifdef HAVE_MASM
 		if ( i < r_newrefdef.num_particles-1 )
 			s_prefetch_address = ( unsigned int ) ( p + 1 );
 		else
@@ -632,7 +638,7 @@ void R_DrawParticles (void)
 		R_DrawParticle();
 	}
 
-#if id386 && !defined __linux__ && !defined __FreeBSD__
+#ifdef HAVE_MASM
 	__asm fldcw word ptr [fpu_chop_cw]
 #endif
 

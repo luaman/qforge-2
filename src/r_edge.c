@@ -1,27 +1,33 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * 
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 // r_edge.c
 
 #include "r_local.h"
 
-#ifndef id386
+#ifndef USE_ASM
 void R_SurfacePatch (void)
 {
 }
@@ -140,7 +146,7 @@ void R_BeginEdgeFrame (void)
 }
 
 
-#if	!id386
+#ifndef USE_ASM
 
 /*
 ==============
@@ -183,10 +189,10 @@ addedge:
 	} while ((edgestoadd = next_edge) != NULL);
 }
 
-#endif	// !id386
+#endif /* !USE_ASM */
 	
 
-#if	!id386
+#ifndef USE_ASM
 
 /*
 ==============
@@ -203,10 +209,10 @@ void R_RemoveEdges (edge_t *pedge)
 	} while ((pedge = pedge->nextremove) != NULL);
 }
 
-#endif	// !id386
+#endif /* !USE_ASM */
 
 
-#if	!id386
+#ifndef USE_ASM
 
 /*
 ==============
@@ -273,7 +279,7 @@ pushback:
 	}
 }
 
-#endif	// !id386
+#endif /* !USE_ASM */
 
 
 /*
@@ -429,7 +435,7 @@ void R_TrailingEdge (surf_t *surf, edge_t *edge)
 }
 
 
-#if	!id386
+#ifndef USE_ASM
 
 /*
 ==============
@@ -590,7 +596,7 @@ void R_GenerateSpans (void)
 	R_CleanupSpan ();
 }
 
-#endif	// !id386
+#endif /* !USE_ASM */
 
 
 /*

@@ -1,15 +1,17 @@
-//
-// math.s
-// x86 assembly-language math routines.
+/* $Id$
+ *
+ * x86 assembly-language math routines.
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
 #define GLQUAKE	1	// don't include unneeded defs
-#include "../src/qasm.h"
+#include "qasm.h"
 
 
-#if	id386
+#if	USE_ASM
 
 	.data
 
@@ -403,4 +405,4 @@ Lerror:
 
 #endif
 
-#endif	// id386
+#endif	/* USE_ASM */

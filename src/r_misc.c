@@ -1,22 +1,28 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * 
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 // r_misc.c
 
 #include "r_local.h"
@@ -49,7 +55,7 @@ D_Patch
 */
 void D_Patch (void)
 {
-#if id386
+#ifdef USE_ASM
 	extern void D_Aff8Patch( void );
 	static qboolean protectset8 = false;
 	extern void D_PolysetAff8Start( void );
@@ -205,26 +211,13 @@ void R_TransformFrustum (void)
 	}
 }
 
-
-#if !(defined __linux__ && defined __i386__)
-#if !id386
-
 /*
 ================
 TransformVector
 ================
 */
-void TransformVector (vec3_t in, vec3_t out)
-{
-	out[0] = DotProduct(in,vright);
-	out[1] = DotProduct(in,vup);
-	out[2] = DotProduct(in,vpn);		
-}
-
-#else
-
-__declspec( naked ) void TransformVector( vec3_t vin, vec3_t vout )
-{
+#ifdef HAVE_MASM
+__declspec( naked ) void TransformVector( vec3_t vin, vec3_t vout ) {
 	__asm mov eax, dword ptr [esp+4]
 	__asm mov edx, dword ptr [esp+8]
 
@@ -267,9 +260,16 @@ __declspec( naked ) void TransformVector( vec3_t vin, vec3_t vout )
 
 	__asm ret
 }
-
-#endif
-#endif
+#else
+# ifndef USE_ASM
+void TransformVector (vec3_t in, vec3_t out)
+{
+	out[0] = DotProduct(in,vright);
+	out[1] = DotProduct(in,vup);
+	out[2] = DotProduct(in,vpn);		
+}
+# endif /* USE_ASM */
+#endif /* HAVE_MASM */
 
 
 /*
@@ -291,7 +291,7 @@ void R_TransformPlane (mplane_t *p, float *normal, float *dist)
 /*
 ===============
 R_SetUpFrustumIndexes
-===============
+:cn
 */
 void R_SetUpFrustumIndexes (void)
 {
@@ -515,19 +515,20 @@ void R_SetupFrame (void)
 }
 
 
-#if	!id386
+#ifndef USE_ASM
 
 /*
 ================
 R_SurfacePatch
 ================
 */
+/* conflicts with r_edge.c
 void R_SurfacePatch (void)
 {
 	// we only patch code on Intel
 }
-
-#endif	// !id386
+*/
+#endif /* !USE_ASM */
 
 
 /* 
