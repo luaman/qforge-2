@@ -7,7 +7,7 @@ SUBDIRS = . baseq2 ctf xatrix rogue
 bin_PROGRAMS = quake2 \
 		ref_soft.so ref_softx.so ref_softsdl.so \
 		ref_glx.so ref_sdlgl.so
-		# ref_gl.so
+#		ref_gl.so
 
 quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 				\
