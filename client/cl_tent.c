@@ -1673,6 +1673,8 @@ void CL_AddExplosions (void)
 			ent->skinnum = 0;
 			ent->flags |= RF_TRANSLUCENT;
 			break;
+		default:
+			break;
 		}
 
 		if (ex->type == ex_free)
