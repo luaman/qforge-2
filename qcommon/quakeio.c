@@ -408,7 +408,7 @@ Qgetline (QFile *file)
 	}
 	return buf;
 }
-
+#if 0
 int
 Qgetpos (QFile *file, fpos_t * pos)
 {
@@ -430,3 +430,4 @@ Qsetpos (QFile *file, fpos_t * pos)
 	return Qseek (file, *pos, 0);
 #endif
 }
+#endif
