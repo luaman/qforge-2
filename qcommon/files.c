@@ -282,6 +282,7 @@ int _FS_FOpenFile (char *filename, QFile **file, char *foundname, int zip)
 #endif
 			if (*file)
 			{		
+				strncpy (foundname, netpath, MAX_OSPATH);
 				Com_DPrintf ("link file: %s\n",netpath);
 				return size;
 			}
@@ -314,7 +315,7 @@ int _FS_FOpenFile (char *filename, QFile **file, char *foundname, int zip)
 										 pak->files[i].filepos,
 										 pak->files[i].filelen, zip, &size);
 					if (!*file)
-						Com_Error (ERR_FATAL, "Couldn't reopen %s", pak->filename);	
+						Com_Error (ERR_FATAL, "Couldn't open %s", foundname);	
 					return size;
 				}
 		}
@@ -334,6 +335,7 @@ int _FS_FOpenFile (char *filename, QFile **file, char *foundname, int zip)
 			if (!*file)
 				continue;
 			
+			strncpy (foundname, netpath, MAX_OSPATH);
 			Com_DPrintf ("FindFile: %s\n",netpath);
 
 			return size;
