@@ -848,14 +848,12 @@ void R_DrawAliasModel (entity_t *e)
 		R_RotateForEntity (e);
 		qglDisable (GL_TEXTURE_2D);
 		qglEnable (GL_BLEND);
-		qglColor4f (0,0,0,0.5);
+		qglColor4ubv (color_black);
 		GL_DrawAliasShadow (paliashdr, currententity->frame );
 		qglEnable (GL_TEXTURE_2D);
 		qglDisable (GL_BLEND);
 		qglPopMatrix ();
 	}
 #endif
-	qglColor4f (1,1,1,1);
+	qglColor4ubv (color_white);
 }
-
-

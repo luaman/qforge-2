@@ -52,6 +52,8 @@ int			r_framecount;		// used for dlight push checking
 int			c_brush_polys, c_alias_polys;
 
 float		v_blend[4];			// final blending color
+byte		color_white[4] = {255, 255, 255, 255};
+byte		color_black[4] = {0, 0, 0, 128};
 
 void GL_Strings_f( void );
 
@@ -226,10 +228,11 @@ void R_DrawSpriteModel (entity_t *e)
 	if ( e->flags & RF_TRANSLUCENT )
 		alpha = e->alpha;
 
-	if ( alpha != 1.0F )
-		qglEnable( GL_BLEND );
-
-	qglColor4f( 1, 1, 1, alpha );
+	if (alpha != 1.0F) {
+		qglEnable (GL_BLEND);
+		color_white[3] = alpha * 255;
+	}
+	qglColor4ubv (color_white);
 
     GL_Bind(currentmodel->skins[e->frame]->texnum);
 
@@ -267,10 +270,11 @@ void R_DrawSpriteModel (entity_t *e)
 	qglDisable (GL_ALPHA_TEST);
 	GL_TexEnv( GL_REPLACE );
 
-	if ( alpha != 1.0F )
-		qglDisable( GL_BLEND );
-
-	qglColor4f( 1, 1, 1, 1 );
+	if (alpha != 1.0F) {
+		qglDisable (GL_BLEND);
+		color_white[3] = 255;
+	}
+	qglColor4ubv (color_white);
 }
 
 //==================================================================================
@@ -308,7 +312,7 @@ void R_DrawNullModel (void)
 		qglVertex3f (16*cos(i*M_PI/2), 16*sin(i*M_PI/2), 0);
 	qglEnd ();
 
-	qglColor3f (1,1,1);
+	qglColor3ubv (color_white);
 	qglPopMatrix ();
 	qglEnable (GL_TEXTURE_2D);
 }
@@ -413,7 +417,7 @@ void GL_DrawParticles (void)
 {
 	const particle_t *p;
 	int				i;
-	vec3_t			up, right;
+	vec3_t			up, right, up_right_scale, down_right_scale, VA[4];
 	float			scale;
 	byte			color[4];
 
@@ -421,10 +425,7 @@ void GL_DrawParticles (void)
 	qglDepthMask( GL_FALSE );		// no z buffering
 	qglEnable( GL_BLEND );
 	GL_TexEnv( GL_MODULATE );
-	qglBegin( GL_TRIANGLES );
-
-	VectorScale (vup, 1.5, up);
-	VectorScale (vright, 1.5, right);
+	qglBegin( GL_QUADS );
 
 	for (p = r_newrefdef.particles, i = 0; i < r_newrefdef.num_particles;
 		  i++, p++)
@@ -435,32 +436,38 @@ void GL_DrawParticles (void)
 			    ( p->origin[2] - r_origin[2] ) * vpn[2];
 
 		if (scale < 20)
-			scale = 1;
+			scale = 0.75;
 		else
-			scale = 1 + scale * 0.004;
-
+			scale = 0.75 + scale * 0.003;
+		VectorScale (vup, scale, up);
+		VectorScale (vright, scale, right);
+		VectorAdd (up, right, up_right_scale);
+		VectorSubtract (right, up, down_right_scale);
+		VectorSubtract (p->origin, down_right_scale, VA[0]);
+		VectorAdd (p->origin, up_right_scale, VA[1]);
+		VectorAdd (p->origin, down_right_scale, VA[2]);
+		VectorSubtract (p->origin, up_right_scale, VA[3]);
+		
 		*(int *)color = d_8to24table[p->color];
 		color[3] = p->alpha*255;
-
 		qglColor4ubv( color );
 
-		qglTexCoord2f( 0.0625, 0.0625 );
-		qglVertex3fv( p->origin );
+		qglTexCoord2f( 0.0, 0.0 );
+		qglVertex3fv( VA[0] );
 
-		qglTexCoord2f( 1.0625, 0.0625 );
-		qglVertex3f( p->origin[0] + up[0]*scale, 
-			         p->origin[1] + up[1]*scale, 
-					 p->origin[2] + up[2]*scale);
+		qglTexCoord2f( 1.0, 0.0 );
+		qglVertex3fv( VA[1] );
 
-		qglTexCoord2f( 0.0625, 1.0625 );
-		qglVertex3f( p->origin[0] + right[0]*scale, 
-			         p->origin[1] + right[1]*scale, 
-					 p->origin[2] + right[2]*scale);
+		qglTexCoord2f( 1.0, 1.0);
+		qglVertex3fv( VA[2] );
+
+		qglTexCoord2f( 0.0, 1.0 );
+		qglVertex3fv( VA[3] );
 	}
 
 	qglEnd ();
 	qglDisable( GL_BLEND );
-	qglColor4f( 1,1,1,1 );
+	qglColor4ubv (color_white);
 	qglDepthMask( 1 );		// back to normal Z buffering
 	GL_TexEnv( GL_REPLACE );
 }
@@ -497,7 +504,7 @@ void R_DrawParticles (void)
 		qglEnd();
 
 		qglDisable( GL_BLEND );
-		qglColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
+		qglColor4ubv (color_white);
 		qglDepthMask( GL_TRUE );
 		qglEnable( GL_TEXTURE_2D );
 
@@ -545,7 +552,7 @@ void R_PolyBlend (void)
 	qglEnable (GL_TEXTURE_2D);
 	qglEnable (GL_ALPHA_TEST);
 
-	qglColor4f(1,1,1,1);
+	qglColor4ubv (color_white);
 }
 
 //=======================================================================
@@ -878,7 +885,7 @@ void	R_SetGL2D (void)
 	qglDisable (GL_CULL_FACE);
 	qglDisable (GL_BLEND);
 	qglEnable (GL_ALPHA_TEST);
-	qglColor4f (1,1,1,1);
+	qglColor4ubv (color_white);
 }
 /*
 static void GL_DrawColoredStereoLinePair( float r, float g, float b, float y )
@@ -886,7 +893,7 @@ static void GL_DrawColoredStereoLinePair( float r, float g, float b, float y )
 	qglColor3f( r, g, b );
 	qglVertex2f( 0, y );
 	qglVertex2f( vid.width, y );
-	qglColor3f( 0, 0, 0 );
+	qglColor3ubv (color_black);
 	qglVertex2f( 0, y + 1 );
 	qglVertex2f( vid.width, y + 1 );
 }
@@ -1502,10 +1509,9 @@ void R_BeginFrame( float camera_separation )
 	qglDisable (GL_CULL_FACE);
 	qglDisable (GL_BLEND);
 	qglEnable (GL_ALPHA_TEST);
-
-	qglDisable (GL_TEXTURE_2D);		//FIXME WTF? why do I need to toggle this?
+	qglDisable (GL_TEXTURE_2D);	// FIXME: WTF? Why do I need to toggle this?
 	qglEnable (GL_TEXTURE_2D);
-	qglColor4f (1,1,1,1);
+	qglColor4ubv (color_white);
 
 	/*
 	** draw buffer stuff

@@ -38,6 +38,32 @@ byte	dottexture[8][8] =
 	{0,0,0,0,0,0,0,0},
 };
 
+void InitDotParticleTexture (void)
+{
+	byte            data[32][32][4];
+	int                     x, y, dx2, dy, d, i;
+
+	for (x = 0; x < 32; x++) {
+		dx2 = x - 16;
+		dx2 *= dx2;
+		for (y = 0; y < 32; y++) {
+			dy = y - 16;
+			d = 255 - (dx2 + (dy * dy));
+			if (d <= 0) {
+				d = 0;
+				for (i = 0; i < 3; i++)
+					data[y][x][i] = 0;
+			} else
+				for (i = 0; i < 3; i++)
+					data[y][x][i] = 255;
+
+			data[y][x][3] = (byte) d;
+		}
+	}
+	r_particletexture = GL_LoadPic ("***particle***", (byte *)data, 32, 32,
+									it_sprite, 32);
+}
+
 void R_InitParticleTexture (void)
 {
 	int		x,y;
@@ -46,20 +72,10 @@ void R_InitParticleTexture (void)
 	//
 	// particle texture
 	//
-	for (x=0 ; x<8 ; x++)
-	{
-		for (y=0 ; y<8 ; y++)
-		{
-			data[y][x][0] = 255;
-			data[y][x][1] = 255;
-			data[y][x][2] = 255;
-			data[y][x][3] = dottexture[x][y]*255;
-		}
-	}
-	r_particletexture = GL_LoadPic ("***particle***", (byte *)data, 8, 8, it_sprite, 32);
+	InitDotParticleTexture ();
 
 	//
-	// also use this for bad textures, but without alpha
+	// dot texture
 	//
 	for (x=0 ; x<8 ; x++)
 	{
@@ -186,7 +202,7 @@ void GL_SetDefaultState( void )
 	qglDisable (GL_CULL_FACE);
 	qglDisable (GL_BLEND);
 
-	qglColor4f (1,1,1,1);
+	qglColor4ubv (color_white);
 
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 	qglShadeModel (GL_FLAT);

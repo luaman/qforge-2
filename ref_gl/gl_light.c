@@ -57,7 +57,7 @@ void R_RenderDlight (dlight_t *light)
 	for (i=0 ; i<3 ; i++)
 		v[i] = light->origin[i] - vpn[i]*rad;
 	qglVertex3fv (v);
-	qglColor3f (0,0,0);
+	qglColor3ubv (color_black);
 	for (i=16 ; i>=0 ; i--)
 	{
 		a = i/16.0 * M_PI*2;
@@ -94,7 +94,7 @@ void R_RenderDlights (void)
 	for (i=0 ; i<r_newrefdef.num_dlights ; i++, l++)
 		R_RenderDlight (l);
 
-	qglColor3f (1,1,1);
+	qglColor3ubv (color_white);
 	qglDisable (GL_BLEND);
 	qglEnable (GL_TEXTURE_2D);
 	qglBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

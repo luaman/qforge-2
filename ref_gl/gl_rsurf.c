@@ -240,7 +240,7 @@ void R_DrawTriangleOutlines (void)
 
 	qglDisable (GL_TEXTURE_2D);
 	qglDisable (GL_DEPTH_TEST);
-	qglColor4f (1,1,1,1);
+	qglColor4ubv (color_white);
 
 	for (i=0 ; i<MAX_LIGHTMAPS ; i++)
 	{
@@ -623,7 +623,7 @@ void R_DrawAlphaSurfaces (void)
 	}
 
 	GL_TexEnv( GL_REPLACE );
-	qglColor4f (1,1,1,1);
+	qglColor4ubv (color_white);
 	qglDisable (GL_BLEND);
 
 	r_alpha_surfaces = NULL;
@@ -902,7 +902,9 @@ void R_DrawInlineBModel (void)
 	if ( currententity->flags & RF_TRANSLUCENT )
 	{
 		qglEnable (GL_BLEND);
-		qglColor4f (1,1,1,0.25);
+		color_white[3] = 64;
+		qglColor4ubv (color_white);
+		color_white[3] = 255;
 		GL_TexEnv( GL_MODULATE );
 	}
 
@@ -946,7 +948,7 @@ void R_DrawInlineBModel (void)
 	else
 	{
 		qglDisable (GL_BLEND);
-		qglColor4f (1,1,1,1);
+		qglColor4ubv (color_white);
 		GL_TexEnv( GL_REPLACE );
 	}
 }
@@ -987,7 +989,7 @@ void R_DrawBrushModel (entity_t *e)
 	if (R_CullBox (mins, maxs))
 		return;
 
-	qglColor3f (1,1,1);
+	qglColor3ubv (color_white);
 	memset (gl_lms.lightmap_surfaces, 0, sizeof(gl_lms.lightmap_surfaces));
 
 	VectorSubtract (r_newrefdef.vieworg, e->origin, modelorg);
@@ -1217,7 +1219,7 @@ void R_DrawWorld (void)
 
 	gl_state.currenttextures[0] = gl_state.currenttextures[1] = -1;
 
-	qglColor3f (1,1,1);
+	qglColor3ubv (color_white);
 	memset (gl_lms.lightmap_surfaces, 0, sizeof(gl_lms.lightmap_surfaces));
 	R_ClearSkyBox ();
 

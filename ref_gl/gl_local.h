@@ -51,6 +51,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // fall over
 #define	ROLL	2
 
+extern byte color_white[4];
+extern byte color_black[4];
 
 #ifndef __VIDDEF_T
 #define __VIDDEF_T

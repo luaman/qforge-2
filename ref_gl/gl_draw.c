@@ -263,9 +263,7 @@ void Draw_Fill (int x, int y, int w, int h, int c)
 	qglDisable (GL_TEXTURE_2D);
 
 	color.c = d_8to24table[c];
-	qglColor3f (color.v[0]/255.0,
-		color.v[1]/255.0,
-		color.v[2]/255.0);
+	qglColor3ubv (color.v);
 
 	qglBegin (GL_QUADS);
 
@@ -275,7 +273,7 @@ void Draw_Fill (int x, int y, int w, int h, int c)
 	qglVertex2f (x, y+h);
 
 	qglEnd ();
-	qglColor3f (1,1,1);
+	qglColor3ubv (color_white);
 	qglEnable (GL_TEXTURE_2D);
 }
 
@@ -300,7 +298,7 @@ void Draw_FadeScreen (void)
 	qglVertex2f (0, vid.height);
 
 	qglEnd ();
-	qglColor4f (1,1,1,1);
+	qglColor4ubv (color_white);
 	qglEnable (GL_TEXTURE_2D);
 	qglDisable (GL_BLEND);
 }
