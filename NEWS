@@ -8,7 +8,7 @@ NEWS for quake2
 * SDL support for software and OpenGL modes.
 * Quake2 no longer is dependent on architecture.  Heavy use of autoconf to
   configure the code for your architecture.
-* Linux FHS compliant through the use of automake to install dynamically
+* Linux FHS compliant through the use of automake to install dynamic
   libraries into the right place, data files loaded from the share directory.
 * Mouse wheel support, mouse buttons 4 and 5 supported under SDL.
 * Big Gun and savegame crashes fixed.
