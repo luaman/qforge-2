@@ -30,7 +30,8 @@
 #ifndef __GLW_H__
 #define __GLW_H__
 
-#if defined __linux__  || defined __bsd__ || defined __sgi || defined __FreeBSD__ || defined __NetBSD__
+/* This is getting silly -- q */
+#if defined __linux__  || defined __bsd__ || defined __sgi || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__
 
 typedef struct
 {

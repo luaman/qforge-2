@@ -3039,7 +3039,7 @@ void QGL_Shutdown( void )
 }
 
 /* merged in from qgl_bsd.c -- jaq */
-#if defined(__linux__) || defined (__FreeBSD__) || defined(__NetBSD__)
+#if defined(__linux__) || defined (__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 #define GPA( a ) dlsym( glw_state.OpenGLLib, a )
 
 void *qwglGetProcAddress(char *symbol)
