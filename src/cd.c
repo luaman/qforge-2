@@ -258,7 +258,7 @@ void CDAudio_RandomPlay(void)
 {
 	int track, i = 0, free_tracks = 0, remap_track;
 	float f;
-	unsigned char track_bools[100];
+	unsigned char * track_bools;
 	struct cdrom_tocentry entry;
 	struct cdrom_ti ti;
 
@@ -266,6 +266,11 @@ void CDAudio_RandomPlay(void)
 		return;
 
 	// create array of available audio tracknumbers
+
+	track_bools = (unsigned char *) malloc(maxTrack * sizeof(unsigned char));
+
+	if (track_bools == 0)
+	    return;
 
 	for (; i < maxTrack; i++)
 	{
@@ -284,7 +289,7 @@ void CDAudio_RandomPlay(void)
 	if (!free_tracks)
 	{
 		Com_DPrintf("CDAudio_RandomPlay: Unable to find and play a random audio track, insert an audio cd please");
-		return;
+		goto free_end;
 	}
 
 	// choose random audio track
@@ -302,7 +307,7 @@ void CDAudio_RandomPlay(void)
 		if (playing)
 		{
 			if (playTrack == remap_track)
-				return;
+			    goto free_end;
 			CDAudio_Stop();
 		}
 
@@ -321,10 +326,13 @@ void CDAudio_RandomPlay(void)
 			playLooping = true;
 			playTrack = remap_track;
 			playing = true;
-			return;
+			break;
 		}
 	}
 	while (free_tracks > 0);
+
+ free_end:
+	free(track_bools);
 }
 #else /* let the others compile at least */
 void CDAudio_RandomPlay(void) {

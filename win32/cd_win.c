@@ -190,7 +190,7 @@ void CDAudio_RandomPlay(void)
 {
 	int					track, i = 0, free_tracks = 0, remap_track;
 	float				f;
-	unsigned char		track_bools[100];
+	unsigned char * track_bools;
 	DWORD				dwReturn;
 	MCI_PLAY_PARMS		mciPlayParms;
 	MCI_STATUS_PARMS	mciStatusParms;
@@ -199,6 +199,12 @@ void CDAudio_RandomPlay(void)
 		return;
 
 	//create array of available audio tracknumbers
+
+	track_bools = (unsigned char *) malloc(maxTrack * sizeof(unsigned char));
+
+	if (track_bools == 0)
+	    return;
+
 	for (; i < maxTrack; i++)
 	{
 		// don't try to play a non-audio track
@@ -218,7 +224,7 @@ void CDAudio_RandomPlay(void)
 	if (!free_tracks)
 	{
 		Com_DPrintf("CDAudio_RandomPlay: Unable to find and play a random audio track, insert an audio cd please");
-		return;
+		goto free_end;
 	}
 
 	//choose random audio track
@@ -240,13 +246,13 @@ void CDAudio_RandomPlay(void)
 		if (dwReturn)
 		{
 			Com_DPrintf("MCI_STATUS failed (%i)\n", dwReturn);
-			return;
+			goto free_end;
 		}
 
 		if (playing)
 		{
 			if (playTrack == remap_track)
-				return;
+				goto free_end;
 			CDAudio_Stop();
 		}
 
@@ -264,9 +270,13 @@ void CDAudio_RandomPlay(void)
 			playLooping = true;
 			playTrack = remap_track;
 			playing = true;
+			break;
 		}
 	}
 	while (free_tracks > 0);
+
+ free_end:
+	free(track_bools);
 }
 
 void CDAudio_Stop(void)
