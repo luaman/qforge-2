@@ -281,7 +281,8 @@ qboolean VID_LoadRefresh( char *name )
 	if (strstr(fn, "softx") == NULL &&
 	    strstr(fn, "glx") == NULL &&
 	    strstr(fn, "softsdl") == NULL &&
-	    strstr(fn, "sdlgl") == NULL) { // softx doesn't require root	
+	    strstr(fn, "sdlgl") == NULL &&
+		strstr(fn, "fxgl") == NULL) { // softx doesn't require root	
 #if 0
 		if (st.st_uid != 0) {
 			Com_Printf( "LoadLibrary(\"%s\") failed: ref is not owned by root\n", name);
