@@ -588,7 +588,7 @@ cmodel_t *CM_LoadMap (char *name, qboolean clientload, unsigned *checksum)
 	//
 	// load the file
 	//
-	length = FS_LoadFile (name, (void **)&buf);
+	length = FS_LoadFile (name, (void **) (char *) &buf);
 	if (!buf)
 		Com_Error (ERR_DROP, "Couldn't load %s", name);
 

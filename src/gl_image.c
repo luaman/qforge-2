@@ -445,7 +445,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *heigh
 	//
 	// load the file
 	//
-	len = ri.FS_LoadFile (filename, (void **)&raw);
+	len = ri.FS_LoadFile (filename, (void **) (char *) &raw);
 	if (!raw)
 	{
 		ri.Con_Printf (PRINT_DEVELOPER, "Bad pcx file %s\n", filename);
@@ -565,7 +565,7 @@ void LoadTGA (char *name, byte **pic, int *width, int *height)
 	//
 	// load the file
 	//
-	length = ri.FS_LoadFile (name, (void **)&buffer);
+	length = ri.FS_LoadFile (name, (void **) (char *) &buffer);
 	if (!buffer)
 	{
 		ri.Con_Printf (PRINT_DEVELOPER, "Bad tga file %s\n", name);
@@ -1336,7 +1336,7 @@ image_t *GL_LoadWal (char *name)
 	int			width, height, ofs;
 	image_t		*image;
 
-	ri.FS_LoadFile (name, (void **)&mt);
+	ri.FS_LoadFile (name, (void **) (char *) &mt);
 	if (!mt)
 	{
 		ri.Con_Printf (PRINT_ALL, "GL_FindImage: can't load %s\n", name);
@@ -1366,7 +1366,7 @@ image_t *GL_LoadWal32 (char *name)
 	int		width, height, ofs;
 	image_t		*image;
 
-	ri.FS_LoadFile (name, (void **)&mt);
+	ri.FS_LoadFile (name, (void **) (char *) &mt);
 	if (!mt)
 	{
 		ri.Con_Printf (PRINT_ALL, "GL_FindImage: Can't Load %s\n", name);

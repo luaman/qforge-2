@@ -149,7 +149,7 @@ sfxcache_t *S_LoadSound (sfx_t *s)
 
 //	Com_Printf ("loading %s\n",namebuffer);
 
-	size = FS_LoadFile (namebuffer, (void **)&data);
+	size = FS_LoadFile (namebuffer, (void **) (char *) &data);
 
 	if (!data)
 	{

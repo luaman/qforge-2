@@ -1165,7 +1165,7 @@ void CL_RequestNextDownload (void)
 				// checking for skins in the model
 				if (!precache_model) {
 
-					FS_LoadFile (cl.configstrings[precache_check], (void **)&precache_model);
+					FS_LoadFile (cl.configstrings[precache_check], (void **) (char *) &precache_model);
 					if (!precache_model) {
 						precache_model_skin = 0;
 						precache_check++;

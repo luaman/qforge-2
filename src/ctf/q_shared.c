@@ -255,9 +255,9 @@ float Q_fabs (float f)
 		return f;
 	return -f;
 #else
-	int tmp = * ( int * ) &f;
+	int tmp = * ( int * )  (char *) &f;
 	tmp &= 0x7FFFFFFF;
-	return * ( float * ) &tmp;
+	return * ( float * )  (char *) &tmp;
 #endif
 }
 

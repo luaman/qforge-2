@@ -1863,7 +1863,7 @@ void M_Menu_Credits_f( void )
 	int		isdeveloper = 0;
 
 	creditsBuffer = NULL;
-	count = FS_LoadFile ("credits", (void **)&creditsBuffer);
+	count = FS_LoadFile ("credits", (void **) (char *) &creditsBuffer);
 	if (count != -1)
 	{
 		p = creditsBuffer;
@@ -2572,7 +2572,7 @@ void StartServer_MenuInit( void )
 	Com_sprintf( mapsname, sizeof( mapsname ), "%s/maps.lst", FS_Gamedir() );
 	if ( ( fp = fopen( mapsname, "rb" ) ) == 0 )
 	{
-		if ( ( length = FS_LoadFile( "maps.lst", ( void ** ) &buffer ) ) == -1 )
+		if ( ( length = FS_LoadFile( "maps.lst", (void **) (char *) &buffer ) ) == -1 )
 			Com_Error( ERR_DROP, "couldn't find maps.lst\n" );
 	}
 	else
