@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- *Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #include <ctype.h>
@@ -754,18 +754,17 @@ void Key_Event (int key, qboolean down, unsigned time)
 		return;
 	}
 
-	// update auto-repeat status
-	if (down)
-	{
-		key_repeats[key]++;
-		if (key != K_BACKSPACE 
-			&& key != K_PAUSE 
-			&& key != K_PGUP 
-			&& key != K_KP_PGUP 
-			&& key != K_PGDN
-			&& key != K_KP_PGDN
-			&& key_repeats[key] > 1)
-			return;	// ignore most autorepeats
+	/* update auto-repeat status */
+	if (down) {
+	    key_repeats[key]++;
+	    if (key != K_BACKSPACE &&
+		key != K_PAUSE &&
+		key != K_PGUP &&
+		key != K_KP_PGUP &&
+		key != K_PGDN &&
+		key != K_KP_PGDN &&
+		key_repeats[key] > 1)
+		return;	// ignore most autorepeats
 			
 		if (key >= 200 && !keybindings[key])
 			Com_Printf ("%s is unbound, hit F4 to set.\n", Key_KeynumToString (key) );

@@ -925,6 +925,26 @@ int XLateKey(XKeyEvent *ev)
 	return key;
 }
 
+/* Check to see if this is a repeated key.
+ * (shamelessly lifted from icculus quake2 who 
+ *  shamelessly lifted from SDL who
+ *  shamelessly lifted from GII -- thanks guys! :) */
+int X11_KeyRepeat(Display * dpy, XEvent * evt) {
+    XEvent peekevt;
+    int repeated = 0;
+
+    if (XPending(dpy)) {
+	XPeekEvent(dpy, &peekevt);
+	if ((peekevt.type == KeyPress) &&
+	    (peekevt.xkey.keycode == evt->xkey.keycode) &&
+	    ((peekevt.xkey.time - evt->xkey.time) < 2)) {
+	    repeated = 1;
+	    XNextEvent(dpy, &peekevt);
+	}
+    }
+    return repeated;
+}
+
 void HandleEvents(void)
 {
 	XEvent event;
@@ -940,9 +960,14 @@ void HandleEvents(void)
 		switch(event.type) {
 		case KeyPress:
 			myxtime = event.xkey.time;
+			if (in_state && in_state->Key_Event_fp)
+			    in_state->Key_Event_fp(XLateKey(&event.xkey), event.type == KeyPress);
+			break;
 		case KeyRelease:
+		  if (!X11_KeyRepeat(dpy, &event)) {
 			if (in_state && in_state->Key_Event_fp)
 				in_state->Key_Event_fp (XLateKey(&event.xkey), event.type == KeyPress);
+		  }
 			break;
 
 		case MotionNotify:
