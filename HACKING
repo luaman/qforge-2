@@ -6,11 +6,11 @@ To build quake2 from CVS, you will need the following software:
  - autoconf, 2.50 or higher
  - GNU make
 
-Note to developers: bsd/, irix/ and solaris/ are NO LONGER PERTINENT!
-
-linux/ was renamed src/, so hack in there.  As we port to more arch/os's,
-we'll integrate the old os subdirs into src/, and remove the old trees.
-
+Note to developers: bsd/, irix/ and solaris/ are NO LONGER PERTINENT!  This
+isn't meant to scare you, but merely inform that you shouldn't be using the
+code in those directories for anything but a reference.  If you use one of
+these systems, please attempt to merge in the code from these directories
+into the main tree, `src'.  The old code will eventually be removed.
 
 If you want to hack on something, but don't know where to start, have a look
 at TODO in the top level source tree, or open a browser at
