@@ -423,6 +423,8 @@ AC_CONFIG_FILES([
 	src/ctf/Makefile
 	src/xatrix/Makefile
 	src/rogue/Makefile
+	data/Makefile
+	data/baseq2/Makefile
 ])
 AC_OUTPUT
 

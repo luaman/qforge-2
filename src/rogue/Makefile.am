@@ -21,7 +21,7 @@ game_la_SOURCES = dm_ball.c dm_tag.c \
 		p_client.c p_hud.c p_trail.c p_view.c p_weapon.c \
 		q_shared.c
 
-EXTRA_DIST = g_local.h m_actor.h m_berserk.h m_boss2.h m_boss31.h \
+noinst_HEADERS = g_local.h m_actor.h m_berserk.h m_boss2.h m_boss31.h \
 	m_boss32.h m_brain.h m_carrier.h m_chick.h m_flipper.h \
 	m_float.h m_flyer.h m_gladiator.h m_gunner.h m_hover.h \
 	m_infantry.h m_insane.h m_medic.h m_mutant.h m_parasite.h \

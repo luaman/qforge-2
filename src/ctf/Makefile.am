@@ -11,7 +11,7 @@ game_la_SOURCES = g_ai.c g_chase.c g_cmds.c g_combat.c g_ctf.c \
 		p_weapon.c \
 		q_shared.c
 
-EXTRA_DIST = g_ctf.h g_local.h m_player.h p_menu.h
+noinst_HEADERS = g_ctf.h g_local.h m_player.h p_menu.h
 
 AM_CFLAGS = -fPIC -Wall -Werror -pipe @OPT_CFLAGS@
 AM_CPPFLAGS = -I$(top_srcdir)/src

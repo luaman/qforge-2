@@ -22,7 +22,7 @@ REF_SOFT_COMMON = r_aclip.c r_alias.c r_bsp.c r_draw.c r_edge.c \
 		r_sprite.c r_surf.c \
 		q_shared.c q_sh.c glob.c
 
-EXTRA_DIST = adivtab.h anorms.h anormtab.h asm_draw.h asm_i386.h block8.h \
+noinst_HEADERS = adivtab.h anorms.h anormtab.h asm_draw.h asm_i386.h block8.h \
 	block16.h cdaudio.h client.h console.h crc.h d_ifacea.h game.h \
 	gcc_attr.h gl_local.h gl_model.h glob.h glw.h input.h keys.h \
 	mdfour.h q_shared.h qasm.h qcommon.h qfiles.h qgl.h qmenu.h \
