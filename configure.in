@@ -424,6 +424,7 @@ AC_CONFIG_FILES([
 	src/xatrix/Makefile
 	src/rogue/Makefile
 	data/Makefile
+	data/pixmaps/Makefile
 	data/baseq2/Makefile
 ])
 AC_OUTPUT

@@ -1081,7 +1081,7 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 		
 		wmhints = XAllocWMHints();
 		if (wmhints) {
-			#include "../pixmaps/q2icon.xbm"
+#include "../data/pixmaps/q2icon.xbm"
 
 			Pixmap icon_pixmap, icon_mask;
 			unsigned long fg, bg;

@@ -885,7 +885,7 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 
 	wmhints = XAllocWMHints();
 	if (wmhints) {
-		#include "../pixmaps/q2icon.xbm"
+#include "../data/pixmaps/q2icon.xbm"
 
 		Pixmap icon_pixmap, icon_mask;
 		unsigned long fg, bg;

@@ -1,3 +1,3 @@
 # $Id$
 
-SUBDIRS = baseq2
+SUBDIRS = baseq2 pixmaps
