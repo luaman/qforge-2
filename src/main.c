@@ -1,22 +1,26 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * used to be sys_linux.c
+ * 
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -35,9 +39,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/wait.h>
 #include <sys/mman.h>
 #include <errno.h>
-#include <mntent.h>
+
+/* merged from sys_*.c -- jaq */
+#if defined(__linux__) || defined(__sgi)
+	#include <mntent.h>
+#elif defined(__bsd__)
+	#include <fstab.h>
+#elif defined(sun)
+	#include <sys/file.h>
+#endif
 
 #include <dlfcn.h>
+
+/* merged from sys_bsd.c -- jaq */
+#ifndef RTLD_NOW
+#define RTLD_NOW RTLD_LAZY
+#endif
+
+/* merged from sys_bsd.c -- jaq */
+#ifdef __OpenBSD__
+#define dlsym(X, Y) dlsym(X, "_"##Y)
+#endif
 
 #include "../qcommon/qcommon.h"
 #include "../game/game.h"
@@ -119,7 +141,6 @@ void Sys_Error (char *error, ...)
 	fprintf(stderr, "Error: %s\n", string);
 
 	_exit (1);
-
 } 
 
 void Sys_Warn (char *warning, ...)
@@ -296,6 +317,7 @@ int main (int argc, char **argv)
 
 	Qcommon_Init(argc, argv);
 
+	/* sys_irix.c had this and the fcntl line 3 lines down commented out */
 	fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) | FNDELAY);
 
 	nostdout = Cvar_Get("nostdout", "0", 0);
@@ -320,8 +342,13 @@ int main (int argc, char **argv)
 #if 0
 void Sys_CopyProtect(void)
 {
+/* merged in from sys_bsd.c -- jaq */
+#ifdef __linux__
 	FILE *mnt;
 	struct mntent *ent;
+#else /* __bsd__ */
+	struct fstab * ent;
+#endif
 	char path[MAX_OSPATH];
 	struct stat st;
 	qboolean found_cd = false;
@@ -331,37 +358,85 @@ void Sys_CopyProtect(void)
 	if (checked)
 		return;
 
+	/* sys_irix.c -- jaq
+	Com_Printf("XXX - Sys_CopyProtect disabled\n");
+	checked = true;
+	return;
+	*/
+
+/* merged in from sys_bsd.c */
+#ifdef __linux__
 	if ((mnt = setmntent("/etc/mtab", "r")) == NULL)
 		Com_Error(ERR_FATAL, "Can't read mount table to determine mounted cd location.");
 
 	while ((ent = getmntent(mnt)) != NULL) {
 		if (strcmp(ent->mnt_type, "iso9660") == 0) {
+#else /* __bsd__ */
+	while ((ent = getfsent()) != NULL) {
+		if (strcmp(ent->fs_vfstype, "cd9660") == 0) {
+#endif
 			// found a cd file system
 			found_cd = true;
+/* merged in from sys_bsd.c */
+#ifdef __linux__
 			sprintf(path, "%s/%s", ent->mnt_dir, "install/data/quake2.exe");
+#else /* __bsd__ */
+			sprintf(path, "%s/%s", ent->fs_file, "install/data/quake2.exe");
+#endif
 			if (stat(path, &st) == 0) {
 				// found it
 				checked = true;
+/* merged in from sys_bsd.c */
+#ifdef __linux__
 				endmntent(mnt);
+#else /* __bsd__ */
+				endfsent();
+#endif
 				return;
 			}
+/* merged in from sys_bsd.c */
+#ifdef __linux__
 			sprintf(path, "%s/%s", ent->mnt_dir, "Install/Data/quake2.exe");
+#else /* __bsd__ */
+			sprintf(path, "%s/%s", ent->fs_file, "Install/Data/quake2.exe");
+#endif
+			
 			if (stat(path, &st) == 0) {
 				// found it
 				checked = true;
+/* merged in from sys_bsd.c */
+#ifdef __linux__
 				endmntent(mnt);
+#else /* __bsd__ */
+				endfsent();
+#endif
 				return;
 			}
+/* merged in from sys_bsd.c */
+#ifdef __linux__
 			sprintf(path, "%s/%s", ent->mnt_dir, "quake2.exe");
+#else /* __bsd__ */
+			sprintf(path, "%s/%s", ent->fs_file, "quake2.exe");
+#endif
 			if (stat(path, &st) == 0) {
 				// found it
 				checked = true;
+/* merged in from sys_bsd.c */
+#ifdef __linux__
 				endmntent(mnt);
+#else /* __bsd__ */
+				endfsent();
+#endif
 				return;
 			}
 		}
 	}
+/* merged in from sys_bsd.c */
+#ifdef __linux__
 	endmntent(mnt);
+#else /* __bsd__ */
+	endfsent();
+#endif
 
 	if (found_cd)
 		Com_Error (ERR_FATAL, "Could not find a Quake2 CD in your CD drive.");

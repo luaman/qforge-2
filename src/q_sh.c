@@ -1,22 +1,26 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ * 
+ * used to be q_shlinux.c
+ * 
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -42,8 +46,14 @@ void *Hunk_Begin (int maxsize)
 	// reserve a huge chunk of memory, but don't commit any yet
 	maxhunksize = maxsize + sizeof(int);
 	curhunksize = 0;
-	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, 
-		MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+/* merged in from q_sh*.c -- jaq */
+#if defined(__linux__)
+	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+#elif defined(__bsd__)
+	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0);
+#elif defined(sun) || defined(__sgi)
+	membase = malloc(maxhunksize);
+#endif
 	if (membase == NULL || membase == (byte *)-1)
 		Sys_Error("unable to virtual allocate %d bytes", maxsize);
 
@@ -65,21 +75,26 @@ void *Hunk_Alloc (int size)
 	return buf;
 }
 
-#ifdef __linux__
+#if defined(__linux__) || defined(sun)
 int Hunk_End (void)
 {
 	byte *n;
 
+#ifdef __linux__
 	n = mremap(membase, maxhunksize, curhunksize + sizeof(int), 0);
+#else /* sun */
+	n = realloc(membase, curhunksize);
+#endif
 	if (n != membase)
 		Sys_Error("Hunk_End:  Could not remap virtual block (%d)", errno);
 	*((int *)membase) = curhunksize + sizeof(int);
 	
 	return curhunksize;
 }
-#else
+#else /* bsd and irix */
 int Hunk_End (void)
 {
+#ifndef __sgi
 	long pgsz, newsz, modsz;
 
 	pgsz = sysconf(_SC_PAGESIZE);
@@ -99,19 +114,29 @@ int Hunk_End (void)
 	}
 
 	*((int *)membase) = curhunksize + sizeof(int);
-
+#endif /* __sgi */
 	return curhunksize;
 }
-#endif
+#endif /* bsd or __sgi */
 
 void Hunk_Free (void *base)
 {
 	byte *m;
 
 	if (base) {
+/* merged in from q_shsolaris.c -- jaq */
+#ifdef sun
+		/* FIXME: I'm not sure that 'sun' is the correct define -- jaq */
+		free(base);
+#else
 		m = ((byte *)base) - sizeof(int);
+	#ifdef __sgi
+		free(m);
+	#else
 		if (munmap(m, *((int *)m)))
-			Sys_Error("Hunk_Free: munmap failed (%d)", errno);
+			Sys_Error("Hunk_Free: munmap failed (%d:%s)", errno, strerror(errno));
+	#endif /* __sgi */
+#endif /* sun */
 	}
 }
 
@@ -175,6 +200,7 @@ static qboolean CompareAttributes(char *path, char *name,
 	if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
 		return false;
 
+/* FIXME: what's the point of the return? -- jaq */
 #if 1
 	sprintf(fn, "%s/%s", path, name);
 #else

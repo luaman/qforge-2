@@ -27,13 +27,13 @@
 
 #ifdef OPENGL
 #include "../ref_gl/gl_local.h"
-#include "glw.h"
+#include "../src/glw.h"
 #else
 #include "../ref_soft/r_local.h"
 #endif
 
 #include "../client/keys.h"
-#include "rw.h"
+#include "../src/rw.h"
 
 /*****************************************************************************/
 

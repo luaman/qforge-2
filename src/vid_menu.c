@@ -1,25 +1,28 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * 
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 #include "../client/client.h"
 #include "../client/qmenu.h"
 
+/* irix/vid_menu.c defines only REF_SOFT and REF_OPENGL, we'll use REF_GLX */
 #define REF_SOFT	0
 #define REF_SOFTX11	1
 #define REF_SOFTSDL	2
@@ -106,9 +109,9 @@ static void BrightnessCallback( void *s )
 	else
 		s_brightness_slider[0].curvalue = s_brightness_slider[1].curvalue;
 
-	if ( stricmp( vid_ref->string, "soft" ) == 0 ||
-		 stricmp( vid_ref->string, "softx" ) == 0 ||
-		 stricmp( vid_ref->string, "softsdl" ) == 0 )
+	if ( Q_stricmp( vid_ref->string, "soft" ) == 0 ||
+		 Q_stricmp( vid_ref->string, "softx" ) == 0 ||
+		 Q_stricmp( vid_ref->string, "softsdl" ) == 0 )
 	{
 		float gamma = ( 0.8 - ( slider->curvalue/10.0 - 0.5 ) ) + 0.5;
 
@@ -176,12 +179,12 @@ static void ApplyChanges( void *unused )
 	** update appropriate stuff if we're running OpenGL and gamma
 	** has been modified
 	*/
-	if ( stricmp( vid_ref->string, "gl" ) == 0 )
+	if ( Q_stricmp( vid_ref->string, "gl" ) == 0 )
 	{
 		if ( vid_gamma->modified )
 		{
 			vid_ref->modified = true;
-			if ( stricmp( gl_driver->string, "3dfxgl" ) == 0 )
+			if ( Q_stricmp( gl_driver->string, "3dfxgl" ) == 0 )
 			{
 				char envbuffer[1024];
 				float g;
@@ -218,6 +221,7 @@ void VID_MenuInit( void )
 		"[1152 864 ]",
 		"[1280 1024]",
 		"[1600 1200]",
+		"[2048 1536]", /* irix/vid_menu.c -- jaq */
 		0
 	};
 	static const char *refs[] =

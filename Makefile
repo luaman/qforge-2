@@ -1199,6 +1199,6 @@ clean2:
 	$(REF_SOFT_X11_OBJS) \
 	$(REF_GL_OBJS)
 
-distclean:
+distclean: clean
 	-rm -rf $(BUILD_DEBUG_DIR) $(BUILD_RELEASE_DIR)
 	-rm -f `find . \( -not -type d \) -and \( -name '*~' \) -type f -print`

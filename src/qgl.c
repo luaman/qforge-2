@@ -1,22 +1,26 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * used to be qgl_linux.c
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * 
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 /*
 ** QGL_WIN.C
 **
@@ -27,14 +31,56 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ** QGL_Init() - loads libraries, assigns function pointers, etc.
 ** QGL_Shutdown() - unloads libraries, NULLs function pointers
 */
+
 #include <ctype.h>
 #include <float.h>
+
+/* from qgl_irix.c */
+#ifdef __sgi
+#define QGL
+#endif
+
 #include "../ref_gl/gl_local.h"
 #include "glw.h"
 
 //#include <GL/glx.h>
+//#include <GL/fxmesa.h>
 
 #include <dlfcn.h>
+
+/* merged in from qgl_irix.c -- jaq
+ * irix used log_fp instead of glw_state.log_fp for the fprintf calls
+ * in the log* functions1
+static FILE * log_fp = NULL;
+ */
+
+/* merged in from qgl_bsd.c -- jaq */
+#ifndef RTLD_NOW
+#define RTLD_NOW RTLD_LAZY
+#endif
+
+#ifndef RTLD_GLOBAL
+#define RTLD_GLOBAL 0
+#endif
+
+/* merged in from qgl_bsd.c -- jaq */
+#ifdef __bsd__
+/*
+//FX Mesa Functions
+fxMesaContext (*qfxMesaCreateContext)(GLuint win, GrScreenResolution_t, GrScreenRefresh_t, const GLint attribList[]);
+fxMesaContext (*qfxMesaCreateBestContext)(GLuint win, GLint width, GLint height, const GLint attribList[]);
+void (*qfxMesaDestroyContext)(fxMesaContext ctx);
+void (*qfxMesaMakeCurrent)(fxMesaContext ctx);
+fxMesaContext (*qfxMesaGetCurrentContext)(void);
+void (*qfxMesaSwapBuffers)(void);
+*/
+
+XVisualInfo * (*qglXChooseVisual)( Display *dpy, int screen, int *attribList );+GLXContext (*qglXCreateContext)( Display *dpy, XVisualInfo *vis, GLXContext shareList, Bool direct );
+void (*qglXDestroyContext)( Display *dpy, GLXContext ctx );
+Bool (*qglXMakeCurrent)( Display *dpy, GLXDrawable drawable, GLXContext ctx);
+void (*qglXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, GLuint mask );
+void (*qglXSwapBuffers)( Display *dpy, GLXDrawable drawable );
+#endif
 
 void ( APIENTRY * qglAccum )(GLenum op, GLfloat value);
 void ( APIENTRY * qglAlphaFunc )(GLenum func, GLclampf ref);
@@ -2616,12 +2662,14 @@ static void APIENTRY logViewport(GLint x, GLint y, GLsizei width, GLsizei height
 */
 void QGL_Shutdown( void )
 {
+	/* qgl_irix has this commented out -- jaq */
 	if ( glw_state.OpenGLLib )
 	{
 		dlclose ( glw_state.OpenGLLib );
 		glw_state.OpenGLLib = NULL;
 	}
 
+	/* and this */
 	glw_state.OpenGLLib = NULL;
 
 	qglAccum                     = NULL;
@@ -2960,16 +3008,28 @@ void QGL_Shutdown( void )
 	qglVertex4sv                 = NULL;
 	qglVertexPointer             = NULL;
 	qglViewport                  = NULL;
+/* merged in from qgl_bsd.c -- jaq */
+#ifdef __bsd__
 /*
+	qfxMesaCreateContext         = NULL;
+	qfxMesaCreateBestContext     = NULL;
+	qfxMesaDestroyContext        = NULL;
+	qfxMesaMakeCurrent           = NULL;
+	qfxMesaGetCurrentContext     = NULL;
+	qfxMesaSwapBuffers           = NULL;
+*/
+
 	qglXChooseVisual             = NULL;
 	qglXCreateContext            = NULL;
 	qglXDestroyContext           = NULL;
 	qglXMakeCurrent              = NULL;
 	qglXCopyContext              = NULL;
 	qglXSwapBuffers              = NULL;
-*/
+#endif
 }
 
+/* merged in from qgl_bsd.c -- jaq */
+#ifdef __linux__
 #define GPA( a ) dlsym( glw_state.OpenGLLib, a )
 
 void *qwglGetProcAddress(char *symbol)
@@ -2978,6 +3038,7 @@ void *qwglGetProcAddress(char *symbol)
 		return GPA ( symbol );
 	return NULL;
 }
+#endif
 
 /*
 ** QGL_Init
@@ -3362,14 +3423,25 @@ qboolean QGL_Init( const char *dllname )
 	qglVertex4sv                 = 	dllVertex4sv                 = GPA( "glVertex4sv" );
 	qglVertexPointer             = 	dllVertexPointer             = GPA( "glVertexPointer" );
 	qglViewport                  = 	dllViewport                  = GPA( "glViewport" );
+/* merged in from qgl_bsd.c -- jaq */
+#ifdef __bsd__
 /*
+	qfxMesaCreateContext         =  GPA("fxMesaCreateContext");
+	qfxMesaCreateBestContext     =  GPA("fxMesaCreateBestContext");
+	qfxMesaDestroyContext        =  GPA("fxMesaDestroyContext");
+	qfxMesaMakeCurrent           =  GPA("fxMesaMakeCurrent");
+	qfxMesaGetCurrentContext     =  GPA("fxMesaGetCurrentContext");
+	qfxMesaSwapBuffers           =  GPA("fxMesaSwapBuffers");
+*/
+
 	qglXChooseVisual             =  GPA("glXChooseVisual");
 	qglXCreateContext            =  GPA("glXCreateContext");
 	qglXDestroyContext           =  GPA("glXDestroyContext");
 	qglXMakeCurrent              =  GPA("glXMakeCurrent");
 	qglXCopyContext              =  GPA("glXCopyContext");
 	qglXSwapBuffers              =  GPA("glXSwapBuffers");
-*/
+#endif
+
 	qglLockArraysEXT = 0;
 	qglUnlockArraysEXT = 0;
 	qglPointParameterfEXT = 0;

@@ -1,25 +1,32 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 // Main windowed and fullscreen graphics interface module. This module
 // is used for both the software and OpenGL rendering versions of the
 // Quake refresh engine.
+
+/* merged in from irix/vid_so.c -- jaq */
+#ifdef __sgi
+#define SO_FILE "/etc/quake2.conf"
+#endif
 
 #include <assert.h>
 #include <dlfcn.h> // ELF dl loader
@@ -27,12 +34,30 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <unistd.h>
 #include <errno.h>
 
+/* merged in from bsd -- jaq */
+#ifndef RTLD_NOW
+#define RTLD_NOW RTLD_LAZY
+#endif
+
+#ifndef RTLD_GLOBAL
+#define RTLD_GLOBAL 0
+#endif
+
+#ifdef __OpenBSD__
+#define dlsym(X, Y) dlsym(X, "_"##Y)
+#endif
+
 #include "../client/client.h"
 
 #include "rw.h"
 
 // Structure containing functions exported from refresh DLL
 refexport_t	re;
+
+/* merged from irix/vid_so.c -- jaq */
+#ifdef REF_HARD_LINKED
+refexport_t GetRefAPI(refimport_t rimp);
+#endif
 
 // Console variables that we need to access from this module
 cvar_t		*vid_gamma;
@@ -177,7 +202,10 @@ void VID_FreeReflib (void)
 			KBD_Close_fp();
 		if (RW_IN_Shutdown_fp)
 			RW_IN_Shutdown_fp();
+/* merged from irix/vid_so.c -- jaq */
+#ifndef REF_HARD_LINKED
 		dlclose(reflib_library);
+#endif
 	}
 
 	KBD_Init_fp = NULL;
@@ -204,7 +232,10 @@ VID_LoadRefresh
 qboolean VID_LoadRefresh( char *name )
 {
 	refimport_t	ri;
+/* from irix/vid_so.c -- jaq */
+#ifndef REF_HARD_LINKED
 	GetRefAPI_t	GetRefAPI;
+#endif
 	char	fn[MAX_OSPATH];
 	char	*path;
 	struct stat st;
@@ -221,6 +252,9 @@ qboolean VID_LoadRefresh( char *name )
 		re.Shutdown();
 		VID_FreeReflib ();
 	}
+
+/* from irix/vid_so.c -- jaq */
+#ifndef REF_HARD_LINKED
 
 	Com_Printf( "------- Loading %s -------\n", name );
 
@@ -263,7 +297,8 @@ qboolean VID_LoadRefresh( char *name )
 		return false;
 	}
 
-  Com_Printf( "LoadLibrary(\"%s\")\n", fn );
+	Com_Printf( "LoadLibrary(\"%s\")\n", fn );
+#endif /* REF_HARD_LINKED */
 
 	ri.Cmd_AddCommand = Cmd_AddCommand;
 	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
@@ -282,8 +317,10 @@ qboolean VID_LoadRefresh( char *name )
 	ri.Vid_MenuInit = VID_MenuInit;
 	ri.Vid_NewWindow = VID_NewWindow;
 
+#ifndef REF_HARD_LINKED
 	if ( ( GetRefAPI = (GetRefAPI_t) dlsym( reflib_library, "GetRefAPI" ) ) == 0 )
 		Com_Error( ERR_FATAL, "dlsym failed on %s", name );
+#endif
 
 	re = GetRefAPI( ri );
 
@@ -299,6 +336,7 @@ qboolean VID_LoadRefresh( char *name )
 	in_state.viewangles = cl.viewangles;
 	in_state.in_strafe_state = &in_strafe.state;
 
+#ifndef REF_HARD_LINKED
 	if ((RW_IN_Init_fp = (void (*)(in_state_t *)) dlsym(reflib_library, "RW_IN_Init")) == NULL ||
 		(RW_IN_Shutdown_fp = (void(*)(void)) dlsym(reflib_library, "RW_IN_Shutdown")) == NULL ||
 		(RW_IN_Activate_fp = (void(*)(qboolean)) dlsym(reflib_library, "RW_IN_Activate")) == NULL ||
@@ -311,6 +349,23 @@ qboolean VID_LoadRefresh( char *name )
 	RW_Sys_GetClipboardData_fp = (char*(*)(void)) dlsym(reflib_library, "RW_Sys_GetClipboardData");
 
 	Real_IN_Init();
+#else /* ref-hard-linked */
+	{
+		void RW_IN_Init(in_state_t *in_state_p);
+		void RW_IN_Shutdown(void);
+		void RW_IN_Commands (void);
+		void RW_IN_Move (usercmd_t *cmd);
+		void RW_IN_Frame (void);
+		void RW_IN_Activate(void);
+		
+		RW_IN_Init_fp = RW_IN_Init;
+		RW_IN_Shutdown_fp = RW_IN_Shutdown;
+		RW_IN_Activate_fp = RW_IN_Activate;
+		RW_IN_Commands_fp = RW_IN_Commands;
+		RW_IN_Move_fp = RW_IN_Move;
+		RW_IN_Frame_fp = RW_IN_Frame;
+	}
+#endif
 
 	if ( re.Init( 0, 0 ) == -1 )
 	{
@@ -319,8 +374,15 @@ qboolean VID_LoadRefresh( char *name )
 		return false;
 	}
 
+/* merged in from irix/vid_so.c */
+#ifdef __sgi
+	/* give up root now */
+	setreuid(getuid(), getuid());
+	setegid(getgid());
+#endif
+
 	/* Init KBD */
-#if 1
+#ifndef REF_HARD_LINKED
 	if ((KBD_Init_fp = (void(*)(Key_Event_fp_t)) dlsym(reflib_library, "KBD_Init")) == NULL ||
 		(KBD_Update_fp = (void(*)(void)) dlsym(reflib_library, "KBD_Update")) == NULL ||
 		(KBD_Close_fp = (void(*)(void)) dlsym(reflib_library, "KBD_Close")) == NULL)
@@ -338,11 +400,17 @@ qboolean VID_LoadRefresh( char *name )
 #endif
 	KBD_Init_fp(Do_Key_Event);
 
+	/* for some reason irix has this swapped with elsewhere, kinda dodgy, needs
+	 * cleaning */
+#ifndef __sgi
 	Key_ClearStates();
 	
 	// give up root now
 	setreuid(getuid(), getuid());
 	setegid(getgid());
+#else
+	Real_IN_Init();
+#endif
 
 	Com_Printf( "------------------------------------\n");
 	reflib_active = true;
@@ -381,12 +449,12 @@ void VID_CheckChanges (void)
 		sprintf( name, "ref_%s.so", vid_ref->string );
 		if ( !VID_LoadRefresh( name ) )
 		{
-			if ( strcmp (vid_ref->string, "soft") == 0 ||
-				strcmp (vid_ref->string, "softx") == 0 ) {
-Com_Printf("Refresh failed\n");
+			if ( strcmp (vid_ref->string, "soft") == 0 || 
+					strcmp (vid_ref->string, "softx") == 0 ) {
+				Com_Printf("Refresh failed\n");
 				sw_mode = Cvar_Get( "sw_mode", "0", 0 );
 				if (sw_mode->value != 0) {
-Com_Printf("Trying mode 0\n");
+					Com_Printf("Trying mode 0\n");
 					Cvar_SetValue("sw_mode", 0);
 					if ( !VID_LoadRefresh( name ) )
 						Com_Error (ERR_FATAL, "Couldn't fall back to software refresh!");
@@ -500,6 +568,8 @@ void IN_Move (usercmd_t *cmd)
 
 void IN_Frame (void)
 {
+/* merged from irix/vid_so.c */
+#ifndef __sgi
 	if (RW_IN_Activate_fp) 
 	{
 		if ( !cl.refresh_prepped || cls.key_dest == key_console || cls.key_dest == key_menu)
@@ -507,13 +577,18 @@ void IN_Frame (void)
 		else
 			RW_IN_Activate_fp(true);
 	}
+#endif
 
 	if (RW_IN_Frame_fp)
 		RW_IN_Frame_fp();
 }
 
-void IN_Activate (qboolean active)
-{
+void IN_Activate (qboolean active) {
+/* merged in from irix/vid_so.c -- jaq */
+#ifdef __sgi
+	if (RW_IN_Activate_fp)
+		RW_IN_Activate_fp(active);
+#endif
 }
 
 void Do_Key_Event(int key, qboolean down)

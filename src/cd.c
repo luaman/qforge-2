@@ -1,24 +1,32 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * used to be cd_linux.c
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 // Quake is a trademark of Id Software, Inc., (c) 1996 Id Software, Inc. All
 // rights reserved.
+
+/* cd_irix.c comments out just about all of this code, replacing the functions
+ * with stubs... instead I'll leave the full implementations here and someone
+ * can work out how to play cds under irix -- jaq */
 
 #include <stdio.h>
 #include <unistd.h>
@@ -31,7 +39,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <time.h>
 #include <errno.h>
 
-#include <linux/cdrom.h>
+/* merged in from cd_bsd.c -- jaq */
+#ifdef __linux__
+	#include <linux/cdrom.h>
+#else /* __bsd__ */
+	#include <sys/cdio.h>
+	#include <sys/disklabel.h>
+#endif
 
 #include "../client/client.h"
 
@@ -62,8 +76,14 @@ static void CDAudio_Eject(void)
 	if (cdfile == -1 || !enabled)
 		return; // no cd init'd
 
+/* merged in from cd_bsd.c -- jaq */
+#ifdef __linux__
 	if ( ioctl(cdfile, CDROMEJECT) == -1 ) 
 		Com_DPrintf("ioctl cdromeject failed\n");
+#else /* bsd */
+	if (ioctl(cdfile, CDIOCEJECT) == -1)
+		Com_DPrintf("ioctl cdioeject failed\n");
+#endif
 }
 
 
@@ -72,30 +92,55 @@ static void CDAudio_CloseDoor(void)
 	if (cdfile == -1 || !enabled)
 		return; // no cd init'd
 
+/* merged in from cd_bsd.c -- jaq */
+#ifdef __linux__
 	if ( ioctl(cdfile, CDROMCLOSETRAY) == -1 ) 
 		Com_DPrintf("ioctl cdromclosetray failed\n");
+#else /* bsd */
+	/* No OpenBSD equivalent of this Linux ioctl() */
+	Com_DPrintf("ioctl cdromclosetray not supported\n");
+#endif
 }
 
 static int CDAudio_GetAudioDiskInfo(void)
 {
+/* merged in from cd_bsd.c */
+#ifdef __linux__
 	struct cdrom_tochdr tochdr;
+#else /* bsd */
+	struct ioc_toc_header tochdr;
+#endif
 
 	cdValid = false;
 
-	if ( ioctl(cdfile, CDROMREADTOCHDR, &tochdr) == -1 ) 
-	{
+#ifdef __linux__
+	if (ioctl(cdfile, CDROMREADTOCHDR, &tochdr) == -1) {
 		Com_DPrintf("ioctl cdromreadtochdr failed\n");
 		return -1;
 	}
+#else /* bsd */
+	if (ioctl(cdfile, CDIOREADTOCHEADER, &tochdr) == -1) {
+		Com_DPrintf("ioctl cdioreadtocheader failed\n");
+		return -1;
+	}
+#endif
 
+#ifdef __linux__
 	if (tochdr.cdth_trk0 < 1)
+#else /* bsd */
+	if (tochdr.starting_track < 1)
+#endif
 	{
 		Com_DPrintf("CDAudio: no music tracks\n");
 		return -1;
 	}
 
 	cdValid = true;
+#ifdef __linux__
 	maxTrack = tochdr.cdth_trk1;
+#else /* bsd */
+	maxTrack = tochdr.ending_track;
+#endif
 
 	return 0;
 }
@@ -103,8 +148,15 @@ static int CDAudio_GetAudioDiskInfo(void)
 
 void CDAudio_Play(int track, qboolean looping)
 {
+/* merged in from cd_bsd.c -- jaq */
+#ifdef __linux__
 	struct cdrom_tocentry entry;
 	struct cdrom_ti ti;
+#else /* bsd */
+	struct ioc_read_toc_entry entry;
+	struct cd_toc_entry cd_entry;
+	struct ioc_play_track ti;
+#endif
 
 	if (cdfile == -1 || !enabled)
 		return;
@@ -125,14 +177,34 @@ void CDAudio_Play(int track, qboolean looping)
 	}
 
 	// don't try to play a non-audio track
+#ifdef __linux__
 	entry.cdte_track = track;
 	entry.cdte_format = CDROM_MSF;
-    if ( ioctl(cdfile, CDROMREADTOCENTRY, &entry) == -1 )
-	{
+    if (ioctl(cdfile, CDROMREADTOCENTRY, &entry) == -1) {
 		Com_DPrintf("ioctl cdromreadtocentry failed\n");
 		return;
 	}
+#else /* bsd */
+	entry.starting_track = track;
+	entry.address_format = CD_MSF_FORMAT;
+	entry.data_len = sizeof(struct cd_toc_entry);
+	entry.data = &cd_entry;
+	if (ioctl(cdfile, CDIOREADTOCENTRYS, &entry) == -1) {
+		Com_DPrintf("ioctl cdioreadtocentrys failed\n");
+		return;
+	}
+#endif
+
+/* merged in from cd_bsd.c -- jaq */
+#ifdef __linux__
 	if (entry.cdte_ctrl == CDROM_DATA_TRACK)
+#else /* bsd */
+	#ifndef CDROM_DATA_TRACK
+	#define CDROM_DATA_TRACK 4
+	#endif
+
+	if (cd_entry.control == CDROM_DATA_TRACK)
+#endif
 	{
 		Com_Printf("CDAudio: track %i is not audio\n", track);
 		return;
@@ -145,19 +217,32 @@ void CDAudio_Play(int track, qboolean looping)
 		CDAudio_Stop();
 	}
 
+#ifdef __linux__
 	ti.cdti_trk0 = track;
 	ti.cdti_trk1 = track;
 	ti.cdti_ind0 = 1;
 	ti.cdti_ind1 = 99;
+	
+	if (ioctl(cdfile, CDROMPLAYTRKIND, &ti) == -1) {
+#else /* bsd */
+	ti.start_track = track;
+	ti.start_index = 1;
+	ti.end_track = track;
+	ti.end_index = 99;
 
-	if ( ioctl(cdfile, CDROMPLAYTRKIND, &ti) == -1 ) 
-	{
+	if (ioctl(cdfile, CDIOCPLAYTRACKS, &ti) == -1) {
+#endif
 		Com_DPrintf("ioctl cdromplaytrkind failed\n");
 		return;
 	}
 
+#ifdef __linux__
 	if ( ioctl(cdfile, CDROMRESUME) == -1 ) 
 		Com_DPrintf("ioctl cdromresume failed\n");
+#else /* bsd */
+	if (ioctl(cdfile, CDIOCRESUME) == -1)
+		Com_DPrintf("ioctl cdiocresume failed\n");
+#endif
 
 	playLooping = looping;
 	playTrack = track;
@@ -167,6 +252,8 @@ void CDAudio_Play(int track, qboolean looping)
 		CDAudio_Pause ();
 }
 
+#ifdef __linux__
+/* only because it hasn't been ported to bsd yet */
 void CDAudio_RandomPlay(void)
 {
 	int track, i = 0, free_tracks = 0, remap_track;
@@ -239,6 +326,7 @@ void CDAudio_RandomPlay(void)
 	}
 	while (free_tracks > 0);
 }
+#endif
 
 void CDAudio_Stop(void)
 {
@@ -248,8 +336,14 @@ void CDAudio_Stop(void)
 	if (!playing)
 		return;
 
+/* merged in from cd_bsd.c -- jaq */
+#ifdef __linux__
 	if ( ioctl(cdfile, CDROMSTOP) == -1 )
-		Com_DPrintf("ioctl cdromstop failed (%d)\n", errno);
+		Com_DPrintf("ioctl cdromstop failed (%d:%s)\n", errno, strerror(errno));
+#else /* bsd */
+	if (ioctl(cdfile, CDIOCSTOP) == -1)
+		Com_DPrintf("ioctl cdiocstop failed (%d:%s)\n", errno, strerror(errno));
+#endif
 
 	wasPlaying = false;
 	playing = false;
@@ -263,8 +357,14 @@ void CDAudio_Pause(void)
 	if (!playing)
 		return;
 
+/* merged in from cd_bsd.c -- jaq */
+#ifdef __linux__
 	if ( ioctl(cdfile, CDROMPAUSE) == -1 ) 
 		Com_DPrintf("ioctl cdrompause failed\n");
+#else /* bsd */
+	if (ioctl(cdfile, CDIOCPAUSE) == -1)
+		Com_DPrintf("ioctl cdiocpause failed\n");
+#endif
 
 	wasPlaying = playing;
 	playing = false;
@@ -281,9 +381,14 @@ void CDAudio_Resume(void)
 
 	if (!wasPlaying)
 		return;
-	
+/* merged in from cd_bsd.c -- jaq */
+#ifdef __linux__
 	if ( ioctl(cdfile, CDROMRESUME) == -1 ) 
 		Com_DPrintf("ioctl cdromresume failed\n");
+#else /* bsd */
+	if (ioctl(cdfile, CDIOCRESUME) == -1)
+		Com_DPrintf("ioctl cdiocresume failed\n");
+#endif
 	playing = true;
 }
 
@@ -407,7 +512,13 @@ static void CD_f (void)
 
 void CDAudio_Update(void)
 {
+/* merged in from cd_bsd.c -- jaq */
+#ifdef __linux__
 	struct cdrom_subchnl subchnl;
+#else /* bsd */
+	struct ioc_read_subchannel subchnl;
+	struct cd_sub_channel_info subchnl_info;
+#endif
 	static time_t lastchk;
 
 	if (cdfile == -1 || !enabled)
@@ -431,18 +542,37 @@ void CDAudio_Update(void)
 
 	if (playing && lastchk < time(NULL)) {
 		lastchk = time(NULL) + 2; //two seconds between chks
+#ifdef __linux__
 		subchnl.cdsc_format = CDROM_MSF;
 		if (ioctl(cdfile, CDROMSUBCHNL, &subchnl) == -1 ) {
 			Com_DPrintf("ioctl cdromsubchnl failed\n");
 			playing = false;
 			return;
 		}
+		
 		if (subchnl.cdsc_audiostatus != CDROM_AUDIO_PLAY &&
 			subchnl.cdsc_audiostatus != CDROM_AUDIO_PAUSED) {
 			playing = false;
 			if (playLooping)
 				CDAudio_Play(playTrack, true);
 		}
+#else /* bsd */
+		subchnl.address_format = CD_MSF_FORMAT;
+		subchnl.data_len = sizeof(struct cd_sub_channel_info);
+		subchnl.data = &subchnl_info;
+		if (ioctl(cdfile, CDIOCREADSUBCHANNEL, &subchnl) == -1) {
+			Com_DPrintf("ioctl cdiocreadsubchannel failed\n");
+			playing = false;
+			return;
+		}
+		
+		if (subchnl_info.header.audio_status != CD_AS_PLAY_IN_PROGRESS &&
+				subchnl_info.header.audio_status != CD_AS_PLAY_PAUSED) {
+			playing = false;
+			if (playLooping)
+				CDAudio_Play(playTrack, true);
+		}
+#endif
 	}
 }
 
@@ -465,7 +595,12 @@ int CDAudio_Init(void)
 
 	cd_volume = Cvar_Get ("cd_volume", "1", CVAR_ARCHIVE);
 
+/* merged in from cd_bsd.c -- jaq */
+#ifdef __linux__
 	cd_dev = Cvar_Get("cd_dev", "/dev/cdrom", CVAR_ARCHIVE);
+#else /* bsd */
+	cd_dev = Cvar_Get("cd_dev", "/dev/cd0c", CVAR_ARCHIVE);
+#endif
 
 	seteuid(saved_euid);
 
