@@ -531,6 +531,7 @@ AC_CONFIG_FILES([
 	data/Makefile
 	data/pixmaps/Makefile
 	data/baseq2/Makefile
+	quake2.spec
 ])
 AC_OUTPUT
 

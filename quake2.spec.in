@@ -1,0 +1,46 @@
+Name: @PACKAGE@
+Summary: Quake2 - classic first person shooter
+Version: @VERSION@
+Release: 1
+Source: http://osdn.dl.sourceforge.net/sourceforge/quake/@PACKAGE@-@VERSION@.tar.gz
+URL: http://www.quakeforge.net/
+Group: Amusements/Games
+BuildRoot: /var/tmp/%{name}-%{version}-buildroot
+Copyright: GPL
+Packager: Paul Jenner <psj.home@ntlworld.com>
+Prefix: %{_prefix}
+
+%description
+Quake2 is the classic first person shooter from id Software. The source was
+recently released under the GPL.
+
+%prep
+rm -rf $RPM_BUILD_ROOT
+
+%setup -q
+
+%build
+CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{prefix} \
+--disable-opt --disable-asm
+make
+
+%install
+make install-strip prefix=$RPM_BUILD_ROOT/%{prefix}
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+%doc HACKING NEWS THANKS TODO AUTHORS README COPYING
+%{prefix}/bin/*
+%{prefix}/lib/quake2/*
+%{prefix}/lib/quake2/baseq2/*
+%{prefix}/lib/quake2/ctf/*
+%{prefix}/share/quake2/*
+%{prefix}/share/quake2/baseq2/*
+
+%changelog
+* Mon Dec 23 2002 Paul Jenner <psj.home@ntlworld.com>
+- Initial spec file
+
