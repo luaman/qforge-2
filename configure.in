@@ -305,6 +305,12 @@ dnl ------------------------
 
 HAVE_MPG123=disabled
 
+dnl ---------------------
+dnl Check for zip library
+dnl ---------------------
+
+HAVE_ZIP=disabled
+
 dnl -----------------------
 dnl Checks for header files
 dnl -----------------------

@@ -446,19 +446,25 @@ of the list so they override previous pack files.
 */
 pack_t *FS_LoadPackFile (char *packfile)
 {
-	dpackheader_t	header;
-	int				i;
-	packfile_t		*newfiles;
-	int				numpackfiles;
+#ifdef HAVE_ZIP
+    dpackheader_t temp; /* header; */
+    int numOfItems = 0; /* numOfItems added for .zip */
+#else /* !HAVE_ZIP */
+    dpackheader_t header;
+    int numpackfiles;
+    unsigned checksum;
+#endif /* HAVE_ZIP */
+    packfile_t * newfiles = 0;
+    int i;
 	pack_t			*pack;
 	FILE			*packhandle;
 	dpackfile_t		info[MAX_FILES_IN_PACK];
-	unsigned		checksum;
 
 	packhandle = fopen(packfile, "rb");
 	if (!packhandle)
 		return NULL;
 
+#ifndef HAVE_ZIP
 	fread (&header, 1, sizeof(header), packhandle);
 	if (LittleLong(header.ident) != IDPAKHEADER)
 		Com_Error (ERR_FATAL, "%s is not a packfile", packfile);
@@ -475,28 +481,72 @@ pack_t *FS_LoadPackFile (char *packfile)
 	fseek (packhandle, header.dirofs, SEEK_SET);
 	fread (info, 1, header.dirlen, packhandle);
 
-// crc the directory to check for modifications
+	/* crc the directory to check for modifications */
 	checksum = Com_BlockChecksum ((void *)info, header.dirlen);
+#endif /* !HAVE_ZIP */
 
 #ifdef NO_ADDONS
 	if (checksum != PAK0_CHECKSUM)
 		return NULL;
 #endif
 // parse the directory
-	for (i=0 ; i<numpackfiles ; i++)
-	{
+
+#ifdef HAVE_ZIP
+	for (i = 0; i < MAX_FILES_IN_PACK; ++i) {
+	    /* Get the local header of the file. */
+	    fread(&temp, sizeof(dpackheader_t), 1, packhandle);
+
+	    /* Check if finished with pak file item collection. */
+	    if (BigLong(temp.ident) == ZPAKDIRHEADER)
+		break;
+	    /* Check if compression is used or any flags are set. */
+	    if ((temp.compression != 0) || (temp.flags != 0))
+		Com_Error (ERR_FATAL, "%s contains errors or is compressed", packfile);
+	    /* Get length of data area */
+	    info[i].filelen = temp.uncompressedSize;
+
+	    /* Get the data areas filename and add \0 to the end */
+	    fread( &info[i].name, temp.filenameLength, 1, packhandle);
+	    info[i].name[temp.filenameLength] = '\0';
+	    /* Get the offset of the data area */
+	    info[i].filepos = (ftell(packhandle) + temp.extraFieldLength);
+	    /* Goto the next header */
+	    fseek(packhandle, (info[i].filelen + info[i].filepos), SEEK_SET);
+	}
+#endif /* HAVE_ZIP */
+
+#ifdef HAVE_ZIP
+	for (i = 0; i < numOfItems; ++i) {
+#else
+	for (i = 0; i < numpackfiles; ++i) {
+#endif	    
 		strcpy (newfiles[i].name, info[i].name);
+#ifdef HAVE_ZIP
+		newfiles[i].filepos = info[i].filepos;
+		newfiles[i].filelen = info[i].filelen;
+#else
 		newfiles[i].filepos = LittleLong(info[i].filepos);
 		newfiles[i].filelen = LittleLong(info[i].filelen);
+#endif
 	}
 
 	pack = Z_Malloc (sizeof (pack_t));
 	strcpy (pack->filename, packfile);
 	pack->handle = packhandle;
+#ifdef HAVE_ZIP
+	pack->numfiles = numOfItems;
+#else
 	pack->numfiles = numpackfiles;
+#endif
 	pack->files = newfiles;
 	
-	Com_Printf ("Added packfile %s (%i files)\n", packfile, numpackfiles);
+	Com_Printf ("Added packfile %s (%i files)\n", packfile,
+#ifdef HAVE_ZIP
+		    numOfItems
+#else
+		    numpackfiles
+#endif
+		    );
 	return pack;
 }
 

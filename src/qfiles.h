@@ -24,9 +24,18 @@
 #ifndef __QFILES_H__
 #define __QFILES_H__
 
-/* The .pak files are just a linear collapse of a directory tree */
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
-#define IDPAKHEADER		(('K'<<24)+('C'<<16)+('A'<<8)+'P')
+#ifdef HAVE_ZIP
+# define ZPAKHEADER    (0x504B0304)
+# define ZPAKDIRHEADER (0x504B0102)
+#else
+# define IDPAKHEADER   (('K'<<24)+('C'<<16)+('A'<<8)+'P')
+#endif
+
+/* The .pak files are just a linear collapse of a directory tree */
 
 typedef struct
 {
@@ -34,12 +43,34 @@ typedef struct
 	int		filepos, filelen;
 } dpackfile_t;
 
+#ifdef HAVE_ZIP
+
+# pragma pack(push, 2)
+typedef struct {
+	unsigned long ident;
+	unsigned short version;
+	unsigned short flags;
+	unsigned short compression;
+	unsigned short modtime;
+	unsigned short moddate;
+	unsigned long crc32;
+	unsigned long compressedSize;
+	unsigned long uncompressedSize;
+	unsigned short filenameLength;
+	unsigned short extraFieldLength;
+} dpackheader_t;
+# pragma pack (pop)
+
+#else /* !HAVE_ZIP */
+
 typedef struct
 {
 	int		ident;		// == IDPAKHEADER
 	int		dirofs;
 	int		dirlen;
 } dpackheader_t;
+
+#endif /* HAVE_ZIP */
 
 #define	MAX_FILES_IN_PACK	4096
 
