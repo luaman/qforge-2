@@ -40,9 +40,9 @@ SVGALDFLAGS=-lvga
 XLDFLAGS=-L/usr/X11R6/lib -lX11 -lXext
 XCFLAGS=
 
-GLLDFLAGS=-L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib \
-	-lGL -lX11 -lXext -lvga
-GLCFLAGS=-I/usr/local/src/Mesa-2.6/include -I/usr/local/glide/include
+GLLDFLAGS=-L/usr/X11R6/lib -L/usr/local/lib \
+	-lGL -lX11 -lXext -lpthread
+GLCFLAGS=
 
 SHLIBEXT=so
 

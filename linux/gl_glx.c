@@ -44,6 +44,7 @@ static int				StudlyRGBattributes[] =
     GLX_GREEN_SIZE, 4,
     GLX_BLUE_SIZE, 4,
     GLX_DEPTH_SIZE, 1,
+//    GLX_SAMPLES_SGIS, 4, /* for better AA */
     None,
 };
 
@@ -420,23 +421,25 @@ qboolean GLimp_InitGraphics( qboolean fullscreen )
 
 // set window properties for full screen
 	if (fullscreen) {
-	    //MotifWmHints    wmhints;
-	    //Atom aHints;
+//	    MotifWmHints    wmhints;
+	    Atom aHints;
 	    XSizeHints              sizehints;
 	    XWindowChanges  changes;
-/*
+
 	    aHints = XInternAtom( x_disp, "_MOTIF_WM_HINTS", 0 );
 	    if (aHints == None)
 	    {
                 ri.Con_Printf( PRINT_ALL, "Could not intern X atom for _MOTIF_WM_HINTS." );
-//                 return( false );
+/*                 return( false ); */
 	    }
 	    else {
+#if 0
 		wmhints.flags = MWM_HINTS_DECORATIONS;
 		wmhints.decorations = 0; // Absolutely no decorations.
 		XChangeProperty(x_disp, x_win, aHints, aHints, 32,
 				PropModeReplace, (unsigned char *)&wmhints,
 				4 );
+#endif
 
 		sizehints.flags = USPosition | USSize;
 		sizehints.x = 0;
@@ -454,7 +457,6 @@ qboolean GLimp_InitGraphics( qboolean fullscreen )
 				 CWX | CWY | CWWidth | CWHeight | CWStackMode,
 				 &changes);
 	    }
-*/
 	}
 
 // map the window
