@@ -11,7 +11,6 @@
 - investigate the possibility of savegames not being tied to a particular build
 - split out assembler per arch/os (we currently have gas i386 and win i386)
 - make sure that we give back the mouse and keyboard if the game crashes
-- split out the sound code into separate modules, like the vid_refs already do
 - dynamically get video resolutions from the X server (or SVGAlib or whatever)
   instead of hardcoding them... or do both
 - have a look at http://bw-admin.sourceforge.net/ and
