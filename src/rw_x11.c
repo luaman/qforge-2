@@ -34,6 +34,10 @@
 ** SWimp_SwitchFullscreen
 */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <ctype.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -52,6 +56,13 @@
 #include <X11/keysym.h>
 #include <X11/extensions/XShm.h>
 #include <X11/extensions/xf86dga.h>
+
+#ifdef HAVE_JOYSTICK
+# include <sys/stat.h>
+# include <fcntl.h>
+# include <linux/joystick.h>
+# include <glob.h>
+#endif
 
 #include "r_local.h"
 #include "keys.h"
@@ -266,6 +277,13 @@ static cvar_t	*in_dgamouse;
 static cvar_t	*vid_xpos;			// X coordinate of window position
 static cvar_t	*vid_ypos;			// Y coordinate of window position
 
+#ifdef HAVE_JOYSTICK
+static cvar_t * in_joystick;
+static qboolean joystick_avail = false;
+static int joy_fd, jx, jy, jt;
+static cvar_t * joystick_invert_y;
+#endif
+
 static qboolean	mlooking;
 
 // state struct passed in Init
@@ -297,14 +315,56 @@ static void RW_IN_MLookUp (void)
 	in_state->IN_CenterView_fp ();
 }
 
-void RW_IN_Init(in_state_t *in_state_p)
-{
+#ifdef HAVE_JOYSTICK
+void init_joystick() {
+    int i, err;
+    glob_t pglob;
+    struct js_event e;
+
+    joystick_avail = false;
+    err = glob("/dev/js*", 0, NULL, &pglob);
+
+    if (err) {
+	switch(err) {
+	  case GLOB_NOSPACE:
+	    ri.Con_Printf(PRINT_ALL, "Error, out of memory while looking for joysticks\n");
+	    break;
+	  case GLOB_NOMATCH:
+	    ri.Con_Printf(PRINT_ALL, "No joysticks found\n");
+	    break;
+	  default:
+	    ri.Con_Printf(PRINT_ALL, "Error %d while looking for joysticks\n", err);
+	}
+	return;
+    }
+
+    for (i = 0; i < pglob.gl_pathc; i++) {
+	ri.Con_Printf(PRINT_ALL, "Trying joystick dev %s\n", pglob.gl_pathv[i]);
+	if (joy_fd == -1) {
+	    ri.Con_Printf(PRINT_ALL, "Error opening joystick dev %s\n", pglob.gl_pathv[i]);
+	} else {
+	    while (read(joy_fd, &e, sizeof(struct js_event)) != -1 && (e.type & JS_EVENT_INIT))
+		ri.Con_Printf(PRINT_ALL, "Read init event\n");
+	    ri.Con_Printf(PRINT_ALL, "Using joystick dev %s\n", pglob.gl_pathv[i]);
+	    joystick_avail = true;
+	    return;
+	}
+    }
+    globfree(&pglob);
+}
+#endif
+
+void RW_IN_Init(in_state_t *in_state_p){
 	in_state = in_state_p;
 
 	// mouse variables
 	m_filter = ri.Cvar_Get ("m_filter", "0", 0);
-    in_mouse = ri.Cvar_Get ("in_mouse", "0", CVAR_ARCHIVE);
-    in_dgamouse = ri.Cvar_Get ("in_dgamouse", "1", CVAR_ARCHIVE);
+	in_mouse = ri.Cvar_Get ("in_mouse", "0", CVAR_ARCHIVE);
+	in_dgamouse = ri.Cvar_Get ("in_dgamouse", "1", CVAR_ARCHIVE);
+#ifdef HAVE_JOYSTICK
+	in_joystick = ri.Cvar_Get("in_joystick", "1", CVAR_ARCHIVE);
+	joystick_invert_y = ri.Cvar_Get("joystick_invert_y", "1", CVAR_ARCHIVE);
+#endif
 	freelook = ri.Cvar_Get( "freelook", "0", 0 );
 	lookstrafe = ri.Cvar_Get ("lookstrafe", "0", 0);
 	sensitivity = ri.Cvar_Get ("sensitivity", "3", 0);
@@ -319,6 +379,12 @@ void RW_IN_Init(in_state_t *in_state_p)
 	ri.Cmd_AddCommand ("force_centerview", Force_CenterView_f);
 
 	mouse_avail = true;
+
+#ifdef HAVE_JOYSTICK
+	if (in_joystick) {
+	    init_joystick();
+	}
+#endif
 }
 
 /*
@@ -326,29 +392,60 @@ void RW_IN_Init(in_state_t *in_state_p)
 IN_Commands
 ===========
 */
-void RW_IN_Commands (void)
-{
-	int i;
-   
-	if (!mouse_avail) 
-		return;
-   
-	for (i=0 ; i<5 ; i++) {
-		if ( (mouse_buttonstate & (1<<i)) && !(mouse_oldbuttonstate & (1<<i)) )
-			in_state->Key_Event_fp (K_MOUSE1 + i, true);
-		if ( !(mouse_buttonstate & (1<<i)) && (mouse_oldbuttonstate & (1<<i)) )
-			in_state->Key_Event_fp (K_MOUSE1 + i, false);
+void RW_IN_Commands(void) {
+    int i;
+#ifdef HAVE_JOYSTICK
+    struct js_event e;
+    int key_index;
+#endif
+
+    if (mouse_avail) {
+	for (i = 0; i < 3; i++) {
+	    if ((mouse_buttonstate & (1<<i)) && !(mouse_oldbuttonstate & (1<<i)))
+		in_state->Key_Event_fp (K_MOUSE1 + i, true);
+	    if (!(mouse_buttonstate & (1<<i)) && (mouse_oldbuttonstate & (1<<i)))
+		in_state->Key_Event_fp (K_MOUSE1 + i, false);
 	}
-	if ( (mouse_buttonstate & (1<<3)) && !(mouse_oldbuttonstate & (1<<3)) )
-		in_state->Key_Event_fp (K_MWHEELUP, true);
-	if ( !(mouse_buttonstate & (1<<3)) && (mouse_oldbuttonstate & (1<<3)) )
+	if ((mouse_buttonstate & (1<<3)) && !(mouse_oldbuttonstate & (1<<3)))
+	    in_state->Key_Event_fp (K_MWHEELUP, true);
+	if (!(mouse_buttonstate & (1<<3)) && (mouse_oldbuttonstate & (1<<3)))
 		in_state->Key_Event_fp (K_MWHEELUP, false);
-	if ( (mouse_buttonstate & (1<<4)) && !(mouse_oldbuttonstate & (1<<4)) )
-		in_state->Key_Event_fp (K_MWHEELDOWN, true);
-	if ( !(mouse_buttonstate & (1<<4)) && (mouse_oldbuttonstate & (1<<4)) )
-		in_state->Key_Event_fp (K_MWHEELDOWN, false);
+
+	if ((mouse_buttonstate & (1<<4)) && !(mouse_oldbuttonstate & (1<<4)))
+	    in_state->Key_Event_fp (K_MWHEELDOWN, true);
+	if (!(mouse_buttonstate & (1<<4)) && (mouse_oldbuttonstate & (1<<4)))
+	    in_state->Key_Event_fp (K_MWHEELDOWN, false);
 
 	mouse_oldbuttonstate = mouse_buttonstate;
+    }
+#ifdef HAVE_JOYSTICK
+    if (joystick_avail) {
+	while (read(joy_fd, &e, sizeof(struct js_event)) != -1) {
+	    if (e.type & JS_EVENT_BUTTON) {
+		key_index = (e.number < 4) ? K_JOY1 : K_AUX1;
+		if (e.value) {
+		    in_state->Key_Event_fp(key_index + e.number, true);
+		} else {
+		    in_state->Key_Event_fp(key_index + e.number, false);
+		}
+	    } else if (e.type & JS_EVENT_AXIS) {
+		switch (e.number) {
+		  case 0:
+		    jx = e.value;
+		    break;
+		  case 1:
+		    jy = e.value;
+		    break;
+		  case 3:
+		    jt = e.value;
+		    break;
+		  default:
+		    break;
+		}
+	    }
+	}
+    }
+#endif	
 }
 
 /*
@@ -356,15 +453,11 @@ void RW_IN_Commands (void)
 IN_Move
 ===========
 */
-void RW_IN_Move (usercmd_t *cmd)
-{
-	if (!mouse_avail)
-		return;
-   
-	if (m_filter->value)
-	{
-		mx = (mx + old_mouse_x) * 0.5;
-		my = (my + old_mouse_y) * 0.5;
+void RW_IN_Move(usercmd_t *cmd) {
+    if (mouse_avail) {
+	if (m_filter->value) {
+	    mx = (mx + old_mouse_x) * 0.5;
+	    my = (my + old_mouse_y) * 0.5;
 	}
 
 	old_mouse_x = mx;
@@ -373,23 +466,37 @@ void RW_IN_Move (usercmd_t *cmd)
 	mx *= sensitivity->value;
 	my *= sensitivity->value;
 
-// add mouse X/Y movement to cmd
-	if ( (*in_state->in_strafe_state & 1) || 
-		(lookstrafe->value && mlooking ))
-		cmd->sidemove += m_side->value * mx;
+	/* add mouse X/Y movement to cmd */
+	if ((*in_state->in_strafe_state & 1) || (lookstrafe->value && mlooking ))
+	    cmd->sidemove += m_side->value * mx;
 	else
-		in_state->viewangles[YAW] -= m_yaw->value * mx;
+	    in_state->viewangles[YAW] -= m_yaw->value * mx;
 
-	if ( (mlooking || freelook->value) && 
-		!(*in_state->in_strafe_state & 1))
-	{
-		in_state->viewangles[PITCH] += m_pitch->value * my;
-	}
-	else
-	{
-		cmd->forwardmove -= m_forward->value * my;
+	if ((mlooking || freelook->value) && !(*in_state->in_strafe_state & 1)) {
+	    in_state->viewangles[PITCH] += m_pitch->value * my;
+	} else {
+	    cmd->forwardmove -= m_forward->value * my;
 	}
 	mx = my = 0;
+    }
+#ifdef HAVE_JOYSTICK
+    if (joystick_avail) {
+	/* add joy X/Y movement to cmd */
+	if ((*in_state->in_strafe_state & 1) || (lookstrafe->value && mlooking))
+	    cmd->sidemove += m_side->value * (jx/100);
+	else
+	    in_state->viewangles[YAW] -= m_yaw->value * (jx/100);
+
+	if ((mlooking || freelook->value) && !(*in_state->in_strafe_state & 1)) {
+	    if (joystick_invert_y)
+		in_state->viewangles[PITCH] -= m_pitch->value * (jy/100);
+	    else
+		in_state->viewangles[PITCH] += m_pitch->value * (jy/100);
+	    cmd->forwardmove -= m_forward->value * (jt/100);
+	} else
+	    cmd->forwardmove -= m_forward->value * (jy/100);
+    }
+#endif
 }
 
 // ========================================================================
@@ -513,17 +620,21 @@ void RW_IN_Activate(qboolean active)
 		IN_DeactivateMouse();
 }
 
-void RW_IN_Shutdown(void)
-{
-	if (mouse_avail) {
-		RW_IN_Activate (false);
+void RW_IN_Shutdown(void) {
+    if (mouse_avail) {
+	RW_IN_Activate (false);
 
-		mouse_avail = false;
+	mouse_avail = false;
 
-		ri.Cmd_RemoveCommand ("+mlook");
-		ri.Cmd_RemoveCommand ("-mlook");
-		ri.Cmd_RemoveCommand ("force_centerview");
-	}
+	ri.Cmd_RemoveCommand ("+mlook");
+	ri.Cmd_RemoveCommand ("-mlook");
+	ri.Cmd_RemoveCommand ("force_centerview");
+    }
+#ifdef HAVE_JOYSTICK
+    if (joystick_avail)
+	if (close(joy_fd))
+	    ri.Con_Printf(PRINT_ALL, "Error closing joystick device\n");
+#endif
 }
 
 /*****************************************************************************/

@@ -159,16 +159,20 @@ void RW_IN_Init(in_state_t *in_state_p)
 	mouse_avail = true;
 }
 
-void RW_IN_Shutdown(void)
-{
-	if (mouse_avail) {
-		mouse_avail = false;
+void RW_IN_Shutdown(void) {
+    if (mouse_avail) {
+	mouse_avail = false;
 
-		ri.Cmd_RemoveCommand ("+mlook");
-		ri.Cmd_RemoveCommand ("-mlook");
+	ri.Cmd_RemoveCommand ("+mlook");
+	ri.Cmd_RemoveCommand ("-mlook");
 
-		ri.Cmd_RemoveCommand ("force_centerview");
-	}	
+	ri.Cmd_RemoveCommand ("force_centerview");
+    }
+
+#ifdef HAVE_JOYSTICK
+    if (joy)
+	SDL_JoystickClose(joy);
+#endif
 }
 
 /*
@@ -282,7 +286,7 @@ void RW_IN_Move (usercmd_t *cmd)
 	    in_state->viewangles[PITCH] += m_pitch->value * (jy/100);
 	cmd->forwardmove -= m_forward->value * (jt/100);
     } else {
-	cmd_forwardmove -= m_forward->value * (jy/100);
+	cmd->forwardmove -= m_forward->value * (jy/100);
     }
     jt = jx = jy = 0;
   }
@@ -530,43 +534,46 @@ void GetEvent(SDL_Event *event)
 
 }
 
-void InitJoystick() {
-  int num_joysticks, i;
+void init_joystick() {
+#ifdef HAVE_JOYSTICK
+    int num_joysticks, i;
+    joy = NULL;
 
-  if (!(SDL_INIT_JOYSTICK&SDL_WasInit(SDL_INIT_JOYSTICK))) {
-    ri.Con_Printf(PRINT_ALL, "SDL Joystick not initialized, trying to init...\n");
-    SDL_Init(SDL_INIT_JOYSTICK);
-  }
-  if (in_joystick) {
-    ri.Con_Printf(PRINT_ALL, "Trying to start-up joystick...\n");
-    if ((num_joysticks=SDL_NumJoysticks())) {
-      for(i=0;i<num_joysticks;i++) {
-	ri.Con_Printf(PRINT_ALL, "Trying joystick [%s]\n", 
-		      SDL_JoystickName(i));
-	if (!SDL_JoystickOpened(i)) {
-	  joy = SDL_JoystickOpen(0);
-	  if (joy) {
-	    ri.Con_Printf(PRINT_ALL, "Joytick activated.\n");
-	    joystick_avail = true;
-	    joy_numbuttons = SDL_JoystickNumButtons(joy);
-	    break;
-	  }
+    if (!(SDL_INIT_JOYSTICK&SDL_WasInit(SDL_INIT_JOYSTICK))) {
+	ri.Con_Printf(PRINT_ALL, "SDL Joystick not initialized, trying to init...\n");
+	SDL_Init(SDL_INIT_JOYSTICK);
+    }
+    if (in_joystick) {
+	ri.Con_Printf(PRINT_ALL, "Trying to start-up joystick...\n");
+	if ((num_joysticks=SDL_NumJoysticks())) {
+	    for(i=0;i<num_joysticks;i++) {
+		ri.Con_Printf(PRINT_ALL, "Trying joystick [%s]\n", 
+			      SDL_JoystickName(i));
+		if (!SDL_JoystickOpened(i)) {
+		    joy = SDL_JoystickOpen(0);
+		    if (joy) {
+			ri.Con_Printf(PRINT_ALL, "Joytick activated.\n");
+			joystick_avail = true;
+			joy_numbuttons = SDL_JoystickNumButtons(joy);
+			break;
+		    }
+		}
+	    }
+	    if (!joy) {
+		ri.Con_Printf(PRINT_ALL, "Failed to open any joysticks\n");
+		joystick_avail = false;
+	    }
 	}
-      }
-      if (!joy) {
-	ri.Con_Printf(PRINT_ALL, "Failed to open any joysticks\n");
-	joystick_avail = false;
-      }
+	else {
+	    ri.Con_Printf(PRINT_ALL, "No joysticks available\n");
+	    joystick_avail = false;
+	}
     }
     else {
-      ri.Con_Printf(PRINT_ALL, "No joysticks available\n");
-      joystick_avail = false;
+	ri.Con_Printf(PRINT_ALL, "Joystick Inactive\n");
+	joystick_avail = false;
     }
-  }
-  else {
-    ri.Con_Printf(PRINT_ALL, "Joystick Inactive\n");
-    joystick_avail = false;
-  }
+#endif
 }
 
 /*****************************************************************************/
@@ -604,7 +611,7 @@ int SWimp_Init( void *hInstance, void *wndProc )
 	}
 #endif
 
-	InitJoystick();
+	init_joystick();
 
 	return true;
 }
