@@ -1317,7 +1317,7 @@ qboolean R_Init( void *hinstance, void *hWnd )
 		ri.Con_Printf( PRINT_ALL, "...GL_EXT_point_parameters not found\n" );
 	}
 
-#ifdef __linux__
+#if defined __linux__ || defined __FreeBSD__
 	if ( strstr( gl_config.extensions_string, "3DFX_set_global_palette" ))
 	{
 		if ( gl_ext_palettedtexture->value )
