@@ -71,6 +71,7 @@ AC_TYPE_SIZE_T
 AC_HEADER_TIME
 AC_STRUCT_TM
 AC_TYPE_UID_T
+AC_TYPE_VA_LIST
 
 AC_MSG_CHECKING(for underscore prefix in names)
 AC_TRY_LINK(
@@ -111,6 +112,8 @@ dnl -----------------------------
 #AC_FUNC_STAT
 #AC_FUNC_VPRINTF
 #AC_CHECK_FUNCS([bzero floor getcwd gethostbyname getmntent getpagesize gettimeofday memmove memset mkdir munmap pow putenv select socket sqrt strcasecmp strchr strdup strerror strrchr strstr])
+AC_FUNC_VA_COPY
+AC_FUNC__VA_COPY
 AC_CHECK_FUNCS(dlopen)
 
 DL_LIBS=""
