@@ -31,6 +31,7 @@
 #define __quakeio_h
 
 #include <stdio.h>
+#include "../qcommon/gcc_attr.h"
 
 typedef struct QFile_s QFile;
 

@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //define	PARANOID			// speed sapping error checking
 
+#include "../qcommon/gcc_attr.h"
 #include "../qcommon/qcommon.h"
 #include "../game/game.h"
 
@@ -253,9 +254,9 @@ void SV_Multicast (vec3_t origin, multicast_t to);
 void SV_StartSound (vec3_t origin, edict_t *entity, int channel,
 					int soundindex, float volume,
 					float attenuation, float timeofs);
-void SV_ClientPrintf (client_t *cl, int level, char *fmt, ...);
-void SV_BroadcastPrintf (int level, char *fmt, ...);
-void SV_BroadcastCommand (char *fmt, ...);
+void SV_ClientPrintf (client_t *cl, int level, char *fmt, ...) __attribute__((format(printf,3,4)));
+void SV_BroadcastPrintf (int level, char *fmt, ...) __attribute__((format(printf,2,3)));
+void SV_BroadcastCommand (char *fmt, ...) __attribute__((format(printf,1,2)));
 
 //
 // sv_user.c
@@ -277,7 +278,7 @@ void SV_RecordDemoMessage (void);
 void SV_BuildClientFrame (client_t *client);
 
 
-void SV_Error (char *error, ...);
+void SV_Error (char *error, ...) __attribute__((format(printf,1,2)));
 
 //
 // sv_game.c

@@ -1028,7 +1028,7 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 	else if (num_visuals == 0)
 	{
 		if (template_mask == VisualIDMask)
-			Sys_Error("VID: Bad visual id %d\n", template.visualid);
+			Sys_Error("VID: Bad visual id %ld\n", template.visualid);
 		else
 			Sys_Error("VID: No visuals at depth %d\n", template.depth);
 	}

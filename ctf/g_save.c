@@ -214,9 +214,9 @@ void InitGame (void)
 	// items
 	InitItems ();
 
-	Com_sprintf (game.helpmessage1, sizeof(game.helpmessage1), "");
+	game.helpmessage1[0] = 0;
 
-	Com_sprintf (game.helpmessage2, sizeof(game.helpmessage2), "");
+	game.helpmessage2[0] = 0;
 
 	// initialize all entities for this game
 	game.maxentities = maxentities->value;

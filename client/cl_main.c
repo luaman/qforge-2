@@ -332,7 +332,7 @@ void CL_Setenv_f( void )
 		}
 		else
 		{
-			Com_Printf( "%s undefined\n", Cmd_Argv(1), env );
+			Com_Printf( "%s undefined\n", Cmd_Argv(1));
 		}
 	}
 }
@@ -504,7 +504,7 @@ void CL_Connect_f (void)
 	
 	if (Com_ServerState ())
 	{	// if running a local server, kill it and reissue
-		SV_Shutdown (va("Server quit\n", msg), false);
+		SV_Shutdown ("Server quit\n", false);
 	}
 	else
 	{

@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#include "../qcommon/gcc_attr.h"
 	
 // q_shared.h -- included first by ALL program modules
 
@@ -218,7 +219,7 @@ void COM_DefaultExtension (char *path, char *extension);
 char *COM_Parse (char **data_p);
 // data is an in/out parm, returns a parsed out token
 
-void Com_sprintf (char *dest, int size, char *fmt, ...);
+void Com_sprintf (char *dest, int size, char *fmt, ...) __attribute__((format(printf,3,4)));
 
 void Com_PageInMemory (byte *buffer, int size);
 
@@ -239,7 +240,7 @@ float	BigFloat (float l);
 float	LittleFloat (float l);
 
 void	Swap_Init (void);
-char	*va(char *format, ...);
+char	*va(char *format, ...) __attribute__((format(printf,1,2)));
 
 //=============================================
 
@@ -290,8 +291,8 @@ void	Sys_FindClose (void);
 
 
 // this is only here so the functions in q_shared.c and q_shwin.c can link
-void Sys_Error (char *error, ...) __attribute__((noreturn));
-void Com_Printf (char *msg, ...);
+void Sys_Error (char *error, ...) __attribute__((noreturn, format(printf,1,2)));
+void Com_Printf (char *msg, ...) __attribute__((format(printf,1,2)));
 
 
 /*

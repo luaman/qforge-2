@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#include "../qcommon/gcc_attr.h"
 
 // game.h -- game dll information visible to server
 
@@ -109,10 +110,17 @@ struct edict_s
 typedef struct
 {
 	// special messages
+#if 0
+	void	(*bprintf) (int printlevel, char *fmt, ...) __attribute__((format(printf,2,3)));
+	void	(*dprintf) (char *fmt, ...) __attribute__((format(printf,1,2)));
+	void	(*cprintf) (edict_t *ent, int printlevel, char *fmt, ...) __attribute__((format(printf,3,4)));
+	void	(*centerprintf) (edict_t *ent, char *fmt, ...) __attribute__((format(printf,2,3)));
+#else
 	void	(*bprintf) (int printlevel, char *fmt, ...);
 	void	(*dprintf) (char *fmt, ...);
 	void	(*cprintf) (edict_t *ent, int printlevel, char *fmt, ...);
 	void	(*centerprintf) (edict_t *ent, char *fmt, ...);
+#endif
 	void	(*sound) (edict_t *ent, int channel, int soundindex, float volume, float attenuation, float timeofs);
 	void	(*positioned_sound) (vec3_t origin, edict_t *ent, int channel, int soundinedex, float volume, float attenuation, float timeofs);
 
@@ -122,6 +130,7 @@ typedef struct
 	// they connect, and changes are sent to all connected clients.
 	void	(*configstring) (int num, char *string);
 
+	//void	(*error) (char *fmt, ...) __attribute__((noreturn, format(printf,1,2)));
 	void	(*error) (char *fmt, ...) __attribute__((noreturn));
 
 	// the *index functions create configstrings and some internal server state

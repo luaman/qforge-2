@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#include "../qcommon/gcc_attr.h"
 
 // qcommon.h -- definitions common between client and server, but not game.dll
 
@@ -607,7 +608,7 @@ void Netchan_Setup (netsrc_t sock, netchan_t *chan, netadr_t adr, int qport);
 qboolean Netchan_NeedReliable (netchan_t *chan);
 void Netchan_Transmit (netchan_t *chan, int length, byte *data);
 void Netchan_OutOfBand (int net_socket, netadr_t adr, int length, byte *data);
-void Netchan_OutOfBandPrint (int net_socket, netadr_t adr, char *format, ...);
+void Netchan_OutOfBandPrint (int net_socket, netadr_t adr, char *format, ...) __attribute__((format(printf,3,4)));
 qboolean Netchan_Process (netchan_t *chan, sizebuf_t *msg);
 
 qboolean Netchan_CanReliable (netchan_t *chan);
@@ -736,10 +737,10 @@ MISC
 
 void		Com_BeginRedirect (int target, char *buffer, int buffersize, void (*flush));
 void		Com_EndRedirect (void);
-void 		Com_Printf (char *fmt, ...);
-void 		Com_DPrintf (char *fmt, ...);
-void 		Com_MDPrintf (char *fmt, ...);
-void 		Com_Error (int code, char *fmt, ...) __attribute__((noreturn));
+void 		Com_Printf (char *fmt, ...) __attribute__((format(printf,1,2)));
+void 		Com_DPrintf (char *fmt, ...) __attribute__((format(printf,1,2)));
+void 		Com_MDPrintf (char *fmt, ...) __attribute__((format(printf,1,2)));
+void 		Com_Error (int code, char *fmt, ...) __attribute__((noreturn, format(printf,2,3)));
 void 		Com_Quit (void);
 
 int			Com_ServerState (void);		// this should have just been a cvar...
@@ -800,7 +801,7 @@ void	*Sys_GetGameAPI (void *parms);
 char	*Sys_ConsoleInput (void);
 void	Sys_ConsoleOutput (char *string);
 void	Sys_SendKeyEvents (void);
-void	Sys_Error (char *error, ...) __attribute__((noreturn));
+void	Sys_Error (char *error, ...) __attribute__((noreturn, format(printf,1,2)));
 void	Sys_Quit (void);
 char	*Sys_GetClipboardData( void );
 void	Sys_CopyProtect (void);

@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __REF_H
 
 #include "../qcommon/qcommon.h"
+#include "../qcommon/gcc_attr.h"
 
 #define	MAX_DLIGHTS		32
 #define	MAX_ENTITIES	128
@@ -190,6 +191,7 @@ typedef struct
 //
 typedef struct
 {
+	//void	(*Sys_Error) (int err_level, char *str, ...) __attribute__((noreturn, format(printf,2,3)));
 	void	(*Sys_Error) (int err_level, char *str, ...) __attribute__((noreturn));
 
 	void	(*Cmd_AddCommand) (char *name, void(*cmd)(void));
@@ -198,6 +200,7 @@ typedef struct
 	char	*(*Cmd_Argv) (int i);
 	void	(*Cmd_ExecuteText) (int exec_when, char *text);
 
+	//void	(*Con_Printf) (int print_level, char *str, ...) __attribute__((format(printf,2,3)));
 	void	(*Con_Printf) (int print_level, char *str, ...);
 
 	// files will be memory mapped read only
