@@ -42,6 +42,8 @@ static const char rcsid[] =
 # include <strings.h>
 #endif
 
+#include "mdfour.h"
+
 
 unsigned int
 Com_BlockChecksum (const void *buffer, int length)

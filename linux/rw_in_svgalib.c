@@ -193,8 +193,6 @@ void KBD_Close(void)
 
 static qboolean	UseMouse = true;
 
-static int		mouserate = MOUSE_DEFAULTSAMPLERATE;
-
 static int     mouse_buttons;
 static int     mouse_buttonstate;
 static int     mouse_oldbuttonstate;
@@ -247,7 +245,6 @@ static void mousehandler(int buttonstate, int dx, int dy)
 void RW_IN_Init(in_state_t *in_state_p)
 {
 	int mtype;
-	int i;
 
 	in_state = in_state_p;
 

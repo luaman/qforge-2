@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ctype.h>
 
 #include "../client/client.h"
 
@@ -84,7 +85,6 @@ void VID_Printf (int print_level, char *fmt, ...)
 {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
-	static qboolean	inupdate;
 	
 	va_start (argptr,fmt);
 	vsprintf (msg,fmt,argptr);
@@ -96,11 +96,10 @@ void VID_Printf (int print_level, char *fmt, ...)
 		Com_DPrintf ("%s", msg);
 }
 
-void VID_Error (int err_level, char *fmt, ...)
+void __attribute__((noreturn)) VID_Error (int err_level, char *fmt, ...)
 {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
-	static qboolean	inupdate;
 	
 	va_start (argptr,fmt);
 	vsprintf (msg,fmt,argptr);

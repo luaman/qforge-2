@@ -85,7 +85,7 @@ void PF_cprintf (edict_t *ent, int level, char *fmt, ...)
 {
 	char		msg[1024];
 	va_list		argptr;
-	int			n;
+	int			n = 0;
 
 	if (ent)
 	{
@@ -139,7 +139,7 @@ PF_error
 Abort the server with a game error
 ===============
 */
-void PF_error (char *fmt, ...)
+void __attribute__((noreturn)) PF_error (char *fmt, ...)
 {
 	char		msg[1024];
 	va_list		argptr;

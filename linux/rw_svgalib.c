@@ -39,6 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdarg.h>
 #include <stdio.h>
 #include <signal.h>
+#include <unistd.h>
 #include <sys/mman.h>
 
 #include <asm/io.h>
@@ -117,7 +118,6 @@ int get_mode(int width, int height)
 {
 
 	int i;
-	int ok, match;
 
 	for (i=0 ; i<num_modes ; i++)
 		if (modes[i].width &&
@@ -141,8 +141,6 @@ int get_mode(int width, int height)
 */
 static qboolean SWimp_InitGraphics( qboolean fullscreen )
 {
-	int bsize, zsize, tsize;
-
 	SWimp_Shutdown();
 
 	current_mode = get_mode(vid.width, vid.height);

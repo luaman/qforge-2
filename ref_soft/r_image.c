@@ -320,6 +320,8 @@ void LoadTGA (char *name, byte **pic, int *width, int *height)
 								red = *buf_p++;
 								alphabyte = *buf_p++;
 								break;
+						default:
+								Com_Error (ERR_FATAL,"invalid targa pixel size");
 					}
 	
 					for(j=0;j<packetSize;j++) {

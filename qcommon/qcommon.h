@@ -738,7 +738,7 @@ void		Com_BeginRedirect (int target, char *buffer, int buffersize, void (*flush)
 void		Com_EndRedirect (void);
 void 		Com_Printf (char *fmt, ...);
 void 		Com_DPrintf (char *fmt, ...);
-void 		Com_Error (int code, char *fmt, ...);
+void 		Com_Error (int code, char *fmt, ...) __attribute__((noreturn));
 void 		Com_Quit (void);
 
 int			Com_ServerState (void);		// this should have just been a cvar...
@@ -798,7 +798,7 @@ void	*Sys_GetGameAPI (void *parms);
 char	*Sys_ConsoleInput (void);
 void	Sys_ConsoleOutput (char *string);
 void	Sys_SendKeyEvents (void);
-void	Sys_Error (char *error, ...);
+void	Sys_Error (char *error, ...) __attribute__((noreturn));
 void	Sys_Quit (void);
 char	*Sys_GetClipboardData( void );
 void	Sys_CopyProtect (void);
@@ -824,3 +824,4 @@ void SV_Frame (int msec);
 
 
 
+char *strlwr(char *);

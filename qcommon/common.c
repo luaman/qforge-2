@@ -1494,7 +1494,7 @@ Qcommon_Frame
 void Qcommon_Frame (int msec)
 {
 	char	*s;
-	int		time_before, time_between, time_after;
+	int		time_before = 0, time_between = 0, time_after = 0;
 
 	if (setjmp (abortframe) )
 		return;			// an ERR_DROP was thrown

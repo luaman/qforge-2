@@ -190,7 +190,7 @@ typedef struct
 //
 typedef struct
 {
-	void	(*Sys_Error) (int err_level, char *str, ...);
+	void	(*Sys_Error) (int err_level, char *str, ...) __attribute__((noreturn));
 
 	void	(*Cmd_AddCommand) (char *name, void(*cmd)(void));
 	void	(*Cmd_RemoveCommand) (char *name);

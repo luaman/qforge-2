@@ -35,7 +35,7 @@ ROGUE_DIR=$(MOUNT_DIR)/rogue
 MESA_DIR=/usr/local/src/Mesa-2.6
 
 CC=gcc
-BASE_CFLAGS=-Dstricmp=strcasecmp
+BASE_CFLAGS=-Dstricmp=strcasecmp -Wall -Werror
 
 ifeq ($(ARCH),axp)
 RELEASE_CFLAGS=$(BASE_CFLAGS) -ffast-math -funroll-loops \

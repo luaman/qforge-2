@@ -1503,6 +1503,10 @@ void CL_AddPlayerBeams (void)
 				framenum = 1;
 			}
 		}
+		else
+		{
+			framenum = 1;
+		}
 
 		// if it's the heatbeam, draw the particle effect
 		if ((cl_mod_heatbeam && (b->model == cl_mod_heatbeam) && (b->entity == cl.playernum+1)))
@@ -1717,7 +1721,7 @@ void CL_ProcessSustain ()
 
 	for (i=0, s=cl_sustains; i< MAX_SUSTAINS; i++, s++)
 	{
-		if (s->id)
+		if (s->id) {
 			if ((s->endtime >= cl.time) && (cl.time >= s->nextthink))
 			{
 //				Com_Printf ("think %d %d %d\n", cl.time, s->nextthink, s->thinkinterval);
@@ -1725,6 +1729,7 @@ void CL_ProcessSustain ()
 			}
 			else if (s->endtime < cl.time)
 				s->id = 0;
+		}
 	}
 }
 

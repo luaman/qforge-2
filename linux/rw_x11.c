@@ -42,6 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/mman.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -166,7 +167,7 @@ PIXEL24 xlib_rgb24(int r,int g,int b)
 
 void st2_fixup( XImage *framebuf, int x, int y, int width, int height)
 {
-	int xi,yi;
+	int yi;
 	unsigned char *src;
 	PIXEL16 *dest;
 	register int count, n;
@@ -202,7 +203,7 @@ void st2_fixup( XImage *framebuf, int x, int y, int width, int height)
 
 void st3_fixup( XImage *framebuf, int x, int y, int width, int height)
 {
-	int xi,yi;
+	int yi;
 	unsigned char *src;
 	PIXEL24 *dest;
 	register int count, n;
@@ -293,9 +294,6 @@ static void RW_IN_MLookUp (void)
 
 void RW_IN_Init(in_state_t *in_state_p)
 {
-	int mtype;
-	int i;
-
 	in_state = in_state_p;
 
 	// mouse variables
@@ -898,7 +896,7 @@ int SWimp_Init( void *hInstance, void *wndProc )
 */
 static qboolean SWimp_InitGraphics( qboolean fullscreen )
 {
-	int pnum, i;
+	int i;
 	XVisualInfo template;
 	int num_visuals;
 	int template_mask;
@@ -1016,7 +1014,6 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 
 // wait for first exposure event
 	{
-		XEvent event;
 		exposureflag = false;
 		do
 		{

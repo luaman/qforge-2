@@ -381,7 +381,7 @@ extern  void ( APIENTRY * qglViewport )(GLint x, GLint y, GLsizei width, GLsizei
 
 extern	void ( APIENTRY * qglPointParameterfEXT)( GLenum param, GLfloat value );
 extern	void ( APIENTRY * qglPointParameterfvEXT)( GLenum param, const GLfloat *value );
-extern	void ( APIENTRY * qglColorTableEXT)( int, int, int, int, int, const void * );
+extern	void ( APIENTRY * qglColorTableEXT)( GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid * );
 
 extern	void ( APIENTRY * qglLockArraysEXT) (int , int);
 extern	void ( APIENTRY * qglUnlockArraysEXT) (void);
@@ -456,7 +456,7 @@ extern void (*qglXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, GL
 extern void (*qglXSwapBuffers)( Display *dpy, GLXDrawable drawable );
 
 // 3dfxSetPaletteEXT shunt
-void Fake_glColorTableEXT( GLenum target, GLenum internalformat,
+void APIENTRY Fake_glColorTableEXT( GLenum target, GLenum internalformat,
                              GLsizei width, GLenum format, GLenum type,
                              const GLvoid *table );
 

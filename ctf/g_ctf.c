@@ -497,11 +497,12 @@ edict_t *SelectCTFSpawnPoint (edict_t *ent)
 	float	range, range1, range2;
 	char	*cname;
 
-	if (ent->client->resp.ctf_state)
+	if (ent->client->resp.ctf_state) {
 		if ( (int)(dmflags->value) & DF_SPAWN_FARTHEST)
 			return SelectFarthestDeathmatchSpawnPoint ();
 		else
 			return SelectRandomDeathmatchSpawnPoint ();
+	}
 
 	ent->client->resp.ctf_state++;
 
@@ -573,7 +574,7 @@ void CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker)
 	edict_t *ent;
 	gitem_t *flag_item, *enemy_flag_item;
 	int otherteam;
-	edict_t *flag, *carrier;
+	edict_t *flag, *carrier = 0;
 	char *c;
 	vec3_t v1, v2;
 
@@ -2735,7 +2736,6 @@ void CTFStartMatch(void)
 {
 	int i;
 	edict_t *ent;
-	int ghost = 0;
 
 	ctfgame.match = MATCH_GAME;
 	ctfgame.matchtime = level.time + matchtime->value * 60;
@@ -3715,8 +3715,6 @@ void CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 
 void CTFAdmin_SettingsCancel(edict_t *ent, pmenuhnd_t *p)
 {
-	admin_settings_t *settings = p->arg;
-
 	PMenu_Close(ent);
 	CTFOpenAdminMenu(ent);
 }

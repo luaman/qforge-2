@@ -18,6 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // r_main.c
+
+#include <ctype.h>
+
 #include "gl_local.h"
 
 void R_Clear (void);
@@ -876,7 +879,7 @@ void	R_SetGL2D (void)
 	qglEnable (GL_ALPHA_TEST);
 	qglColor4f (1,1,1,1);
 }
-
+/*
 static void GL_DrawColoredStereoLinePair( float r, float g, float b, float y )
 {
 	qglColor3f( r, g, b );
@@ -917,7 +920,7 @@ static void GL_DrawStereoPattern( void )
 		GLimp_EndFrame();
 	}
 }
-
+*/
 
 /*
 ====================
@@ -1102,7 +1105,7 @@ qboolean R_SetMode (void)
 R_Init
 ===============
 */
-int R_Init( void *hinstance, void *hWnd )
+qboolean R_Init( void *hinstance, void *hWnd )
 {	
 	char renderer_buffer[1000];
 	char vendor_buffer[1000];
@@ -1318,7 +1321,7 @@ int R_Init( void *hinstance, void *hWnd )
 		if ( gl_ext_palettedtexture->value )
 		{
 			ri.Con_Printf( PRINT_ALL, "...using GL_EXT_shared_texture_palette\n" );
-			qglColorTableEXT = ( void ( APIENTRY * ) ( int, int, int, int, int, const void * ) ) qwglGetProcAddress( "glColorTableEXT" );
+			qglColorTableEXT = qwglGetProcAddress( "glColorTableEXT" );
 		}
 		else
 		{
@@ -1392,6 +1395,7 @@ int R_Init( void *hinstance, void *hWnd )
 	err = qglGetError();
 	if ( err != GL_NO_ERROR )
 		ri.Con_Printf (PRINT_ALL, "glGetError() = 0x%x\n", err);
+	return 0;
 }
 
 /*
