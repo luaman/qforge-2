@@ -409,7 +409,7 @@ void R_DrawEntitiesOnList (void)
 ** GL_DrawParticles
 **
 */
-void GL_DrawParticles( int num_particles, const particle_t particles[], const unsigned colortable[768] )
+void GL_DrawParticles (void)
 {
 	const particle_t *p;
 	int				i;
@@ -426,7 +426,8 @@ void GL_DrawParticles( int num_particles, const particle_t particles[], const un
 	VectorScale (vup, 1.5, up);
 	VectorScale (vright, 1.5, right);
 
-	for ( p = particles, i=0 ; i < num_particles ; i++,p++)
+	for (p = r_newrefdef.particles, i = 0; i < r_newrefdef.num_particles;
+		  i++, p++)
 	{
 		// hack a scale up to keep particles from disapearing
 		scale = ( p->origin[0] - r_origin[0] ) * vpn[0] + 
@@ -438,7 +439,7 @@ void GL_DrawParticles( int num_particles, const particle_t particles[], const un
 		else
 			scale = 1 + scale * 0.004;
 
-		*(int *)color = colortable[p->color];
+		*(int *)color = d_8to24table[p->color];
 		color[3] = p->alpha*255;
 
 		qglColor4ubv( color );
@@ -503,7 +504,7 @@ void R_DrawParticles (void)
 	}
 	else
 	{
-		GL_DrawParticles( r_newrefdef.num_particles, r_newrefdef.particles, d_8to24table );
+		GL_DrawParticles ();
 	}
 }
 
@@ -1496,8 +1497,8 @@ void R_BeginFrame( float camera_separation )
 	qglDisable (GL_BLEND);
 	qglEnable (GL_ALPHA_TEST);
 
-	qglDisable (GL_TEXTURE_2D);		//WTF? why do I need to toggle this?
-	qglEnable (GL_TEXTURE_2D);
+//	qglDisable (GL_TEXTURE_2D);		//WTF? why do I need to toggle this?
+//	qglEnable (GL_TEXTURE_2D);
 	qglColor4f (1,1,1,1);
 
 	/*
