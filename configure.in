@@ -1,21 +1,26 @@
-# Process this file with autoconf to produce a configure script.
+dnl $Id$
+dnl Process this file with autoconf to produce a configure script.
+
+dnl usual stuff
 AC_PREREQ(2.50)
 AC_INIT(src/main.c)
 AC_REVISION($Revision$) dnl
 AM_CONFIG_HEADER(config.h)
 
+dnl get the build and target hosts
 AC_CANONICAL_SYSTEM
 
+dnl set the program and version
 AM_INIT_AUTOMAKE(quake2, 0.1)
-
-AM_MAINTAINER_MODE
-
 AC_SUBST(PROGRAM)
 AC_SUBST(VERSION)
 
-dnl --------------------
-dnl Checks for programs.
-dnl --------------------
+dnl configure --enable-maintainer-mode gets some extra targets
+AM_MAINTAINER_MODE
+
+dnl -------------------
+dnl Checks for programs
+dnl -------------------
 
 AC_PROG_CC
 #AC_PROG_RANLIB
@@ -33,9 +38,9 @@ AC_SUBST(ASFLAGS)
 AC_SUBST(CCAS)
 AC_SUBST(CCASFLAGS)
 
-dnl ---------------------
-dnl Checks for libraries.
-dnl ---------------------
+dnl --------------------
+dnl Checks for libraries
+dnl --------------------
 
 #AC_CHECK_LIB(GL, glBegin)
 # FIXME: Replace `main' with a function in `-lX11':
@@ -55,9 +60,9 @@ dnl ---------------------
 # FIXME: Replace `main' with a function in `-lvga':
 #AC_CHECK_LIB([vga], [main])
 
-dnl ------------------------
-dnl Checks for header files.
-dnl ------------------------
+dnl -----------------------
+dnl Checks for header files
+dnl -----------------------
 
 #AC_PATH_X
 #AC_HEADER_DIRENT
@@ -65,9 +70,9 @@ dnl ------------------------
 dnl AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([ sys/soundcard.h ])
 
-dnl --------------------------------------------------------------
-dnl Checks for typedefs, structures, and compiler characteristics.
-dnl --------------------------------------------------------------
+dnl -------------------------------------------------------------
+dnl Checks for typedefs, structures, and compiler characteristics
+dnl -------------------------------------------------------------
 
 AC_C_CONST
 AC_C_INLINE
@@ -154,6 +159,25 @@ case "${host}" in
 		;;
 esac
 AM_CONDITIONAL(ASM_ARCH, test "$ASM_ARCH" = "yes")
+
+dnl ---------------------------------------------------
+dnl Check if the xatrix and rogue sources are available
+dnl ---------------------------------------------------
+
+AC_MSG_CHECKING(to see if xatrix source is available)
+if test -f src/xatrix/g_main.c; then
+	AC_MSG_RESULT(yes)
+	AC_DEFINE(DO_XATRIX, 1, [Define this if you have the xatrix source])
+fi
+
+AC_MSG_CHECKING(to see if rogue source is available)
+if test -f src/rogue/g_main.c; then
+	AC_MSG_RESULT(yes)
+	AC_DEFINE(DO_ROGUE, 1, [Define this if you have the rogue source])
+fi
+
+AM_CONDITIONAL(DO_XATRIX, test "$DO_XATRIX" = "yes")
+AM_CONDITIONAL(DO_ROGUE, test "$DO_ROGUE" = "yes")
 
 dnl -----------
 dnl Dump it out

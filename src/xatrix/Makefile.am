@@ -1,5 +1,6 @@
 # $Id$
 
+if DO_XATRIX
 bin_PROGRAMS = game.so
 game_so_SOURCES = \
 			g_ai.c \
@@ -59,3 +60,4 @@ game_so_SOURCES = \
 AM_CFLAGS = -fPIC -pipe
 AM_CPPFLAGS = -I..
 LDFLAGS = -shared
+endif # DO_XATRIX
