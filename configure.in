@@ -10,7 +10,7 @@ AM_CONFIG_HEADER(config.h)
 dnl get the build and target hosts
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign dist-bzip2 dist-zip])
 
 dnl configure --enable-maintainer-mode gets some extra targets
 AM_MAINTAINER_MODE

@@ -1,6 +1,5 @@
 #!/bin/sh
 # quake 2 tarball release script
-# $Id$
 
 # you need to have already tagged the tree with version_x_y
 
@@ -43,12 +42,6 @@ VERSION=`echo $1 | sed -e 's/version_//' -e 's/_/./g'`
 cp quake2-$VERSION.tar.gz ../../release
 
 cd ../../release
-
-tar zxf quake2-$VERSION.tar.gz
-
-tar jcf quake2-$VERSION.tar.bz2 quake2-$VERSION/
-
-zip -qr quake2-$VERSION.zip quake2-$VERSION/
 
 md5sum quake2-$VERSION.* | grep -v 'release' | tee quake2-$VERSION.release
 

@@ -1,11 +1,12 @@
 NEWS for quake2
 ===============
 
-0.x (//04)
+0.3 (16/03/04)
 ---
 
 * Pluggable sound driver architecture, sound output drivers configurable
-  at runtime.
+  at runtime: oss, alsa, ao, sdl, solaris.
+* Fixed joystick when using softx video refresher.
 
 0.2.2 (25/02/04)
 -----
