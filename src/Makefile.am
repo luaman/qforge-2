@@ -2,9 +2,8 @@
 
 SUBDIRS = . baseq2 ctf xatrix rogue
 
-ALL_CFLAGS = -Wall -Werror -pipe
-AM_LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
-#AM_LDFLAGS = -shared
+std_cflags = -Wall -Werror -pipe
+module_ldflags = -module -avoid-version -rpath $(pkglibdir)
 
 bin_PROGRAMS = quake2
 pkglib_PROGRAMS = @VID_REFS@
@@ -52,29 +51,35 @@ quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 		m_flash.c
 #		\
 #		#snd_mixa.S
-quake2_CFLAGS = $(ALL_CFLAGS) @INCLTDL@
-quake2_LDFLAGS = -lm -pthread
-quake2_LDADD = @LIBLTDL@
+quake2_CFLAGS = $(std_cflags) @INCLTDL@ @PTHREAD_CFLAGS@
+# the macro puts -pthread into cflags, but we want to link
+# with this flag too, so stick it into the ldflags if it's there...
+# extra cflags at link time can't hurt
+quake2_LDFLAGS = @PTHREAD_CFLAGS@
+quake2_LDADD = @PTHREAD_LIBS@ @LIBLTDL@ @OSS_LIBS@ -lm
 
 # ref_glx
 if BUILD_GLX
 ref_glx_la_SOURCES = $(REF_GL_COMMON) gl_glx.c
-ref_glx_la_CFLAGS = $(ALL_CFLAGS) -fPIC @X_CFLAGS@ @OPENGL_CFLAGS@
+ref_glx_la_CFLAGS = $(std_cflags) -fPIC @X_CFLAGS@ @OPENGL_CFLAGS@
 ref_glx_la_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @OPENGL_LIBS@ @DL_LIBS@
+ref_glx_la_LDFLAGS = $(module_ldflags)
 endif
 
 # ref_tdfx
 if BUILD_TDFX
 ref_tdfx_la_SOURCES = $(REF_GL_COMMON) rw_in_svgalib.c gl_fxmesa.c
-ref_tdfx_la_CFLAGS = $(ALL_CFLAGS) -fPIC @GLIDE_CFLAGS@ @X_CFLAGS@ @SVGALIB_CFLAGS@
+ref_tdfx_la_CFLAGS = $(std_cflags) -fPIC @GLIDE_CFLAGS@ @X_CFLAGS@ @SVGALIB_CFLAGS@
 ref_tdfx_la_LDADD = @GLIDE_LIBS@ @X_LIBS@ @SVGALIB_LIBS@
+ref_tdfx_la_LDFLAGS = $(module_ldflags)
 endif
 
 # ref_sdlgl
 if BUILD_SDLGL
 ref_sdlgl_la_SOURCES = $(REF_GL_COMMON) rw_sdl.c
-ref_sdlgl_la_CFLAGS = $(ALL_CFLAGS) -fPIC -DOPENGL @SDL_CFLAGS@ @OPENGL_CFLAGS@
+ref_sdlgl_la_CFLAGS = $(std_cflags) -fPIC -DOPENGL @SDL_CFLAGS@ @OPENGL_CFLAGS@
 ref_sdlgl_la_LDADD = @SDL_LIBS@ @OPENGL_LIBS@
+ref_sdlgl_la_LDFLAGS = $(module_ldflags)
 endif
 
 # ref_soft
@@ -86,20 +91,23 @@ DCOPY_S =
 endif
 ref_soft_la_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) $(DCOPY_S) \
 	rw_svgalib.c rw_in_svgalib.c
-ref_soft_la_CFLAGS = $(ALL_CFLAGS) -fPIC @SVGALIB_CFLAGS@
+ref_soft_la_CFLAGS = $(std_cflags) -fPIC @SVGALIB_CFLAGS@
 ref_soft_la_LDADD = @SVGALIB_LIBS@
+ref_soft_la_LDFLAGS = $(module_ldflags)
 endif
 
 # ref_softx
 if BUILD_SOFTX
 ref_softx_la_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_x11.c
-ref_softx_la_CFLAGS = $(ALL_CFLAGS) -fPIC @X_CFLAGS@
+ref_softx_la_CFLAGS = $(std_cflags) -fPIC @X_CFLAGS@
 ref_softx_la_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@
+ref_softx_la_LDFLAGS = $(module_ldflags)
 endif
 
 # ref_softsdl
 if BUILD_SOFTSDL
 ref_softsdl_la_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_sdl.c
-ref_softsdl_la_CFLAGS = $(ALL_CFLAGS) -fPIC @SDL_CFLAGS@
+ref_softsdl_la_CFLAGS = $(std_cflags) -fPIC @SDL_CFLAGS@
 ref_softsdl_la_LDADD = @SDL_LIBS@
+ref_softsdl_la_LDFLAGS = $(module_ldflags)
 endif

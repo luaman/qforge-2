@@ -47,7 +47,7 @@
 /* merged from sys_*.c -- jaq */
 #if defined(__linux__) || defined(__sgi)
 	#include <mntent.h>
-#elif defined(__FreeBSD__) || defined(__bsd__)
+#elif defined(__FreeBSD__) || defined(__bsd__) || defined (__NetBSD__)
 	#include <fstab.h>
 #elif defined(sun)
 	#include <sys/file.h>
@@ -253,7 +253,6 @@ void *Sys_GetGameAPI (void *parms) {
     snprintf(name, MAX_OSPATH, "%s",
 	     game->string[0]?game->string:BASEDIRNAME);
     snprintf(path, MAX_OSPATH, "./%s:"PKGLIBDIR"/%s", name, name);
-    Com_Printf("searchpath: %s\n", path);
     lt_dlsetsearchpath(path);
         
     /* load the module */

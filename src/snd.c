@@ -38,8 +38,13 @@
 #include <sys/wait.h>
 #include <stdio.h>
 
+/* some have sys/soundcard.h, others have just soundcard.h */
 #ifdef HAVE_SYS_SOUNDCARD_H
-# include <sys/soundcard.h> /* others might be just soundcard.h */
+# include <sys/soundcard.h>
+#endif
+
+#ifdef HAVE_SOUNDCARD_H
+# include <soundcard.h>
 #endif
 
 #else /* __sgi */
@@ -99,6 +104,8 @@ void * thesound(void * arg) {
 		frags_sent &= (dma.samples * (dma.samplebits/8) / FRAGSIZE) - 1;
 	}
 	pthread_exit(0L);
+/* Not reached */
+	return NULL;
 }
 
 qboolean SNDDMA_Init(void) {

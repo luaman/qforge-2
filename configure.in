@@ -49,6 +49,14 @@ dnl --------------------
 dnl Checks for libraries
 dnl --------------------
 
+dnl Check for ossaudio on NetBSD
+OSS_LIBS=""
+AC_CHECK_LIB([ossaudio], [_oss_ioctl], [OSS_LIBS="-lossaudio"])
+AC_SUBST(OSS_LIBS)
+
+dnl Check for POSIX threads
+ACX_PTHREAD(,AC_MSG_ERROR(["POSIX threads required!"]))
+
 dnl Check for SVGAlib
 AC_ARG_WITH(svgalib,
 	[  --with-svgalib=DIR      use SVGAlib found in DIR],

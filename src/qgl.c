@@ -70,7 +70,7 @@ static FILE * log_fp = NULL;
 #endif
 
 /* merged in from qgl_bsd.c -- jaq */
-#if defined(__bsd__) || defined(__FreeBSD__)
+#if defined(__bsd__) || defined(__FreeBSD__) || defined(__NetBSD__)
 /*
 //FX Mesa Functions
 fxMesaContext (*qfxMesaCreateContext)(GLuint win, GrScreenResolution_t, GrScreenRefresh_t, const GLint attribList[]);
@@ -3019,7 +3019,7 @@ void QGL_Shutdown( void )
 	qglVertexPointer             = NULL;
 	qglViewport                  = NULL;
 /* merged in from qgl_bsd.c -- jaq */
-#if defined(__bsd__) || defined(__FreeBSD__)
+#if defined(__bsd__) || defined(__FreeBSD__) || defined(__NetBSD__)
 /*
 	qfxMesaCreateContext         = NULL;
 	qfxMesaCreateBestContext     = NULL;
@@ -3039,7 +3039,7 @@ void QGL_Shutdown( void )
 }
 
 /* merged in from qgl_bsd.c -- jaq */
-#if defined(__linux__) || defined (__FreeBSD__)
+#if defined(__linux__) || defined (__FreeBSD__) || defined(__NetBSD__)
 #define GPA( a ) dlsym( glw_state.OpenGLLib, a )
 
 void *qwglGetProcAddress(char *symbol)
@@ -3438,7 +3438,7 @@ qboolean QGL_Init( const char *dllname )
 	qglVertexPointer             = 	dllVertexPointer             = GPA( "glVertexPointer" );
 	qglViewport                  = 	dllViewport                  = GPA( "glViewport" );
 /* merged in from qgl_bsd.c -- jaq */
-#if defined(__bsd__) || defined(__FreeBSD__)
+#if defined(__bsd__) || defined(__FreeBSD__) || defined(__NetBSD__)
 /*
 	qfxMesaCreateContext         =  GPA("fxMesaCreateContext");
 	qfxMesaCreateBestContext     =  GPA("fxMesaCreateBestContext");

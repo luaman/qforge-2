@@ -3,7 +3,6 @@
 if DO_ROGUE
 pkglibdir=$(libdir)/@PACKAGE@/rogue
 pkglib_LTLIBRARIES = game.la
-
 game_la_SOURCES = dm_ball.c dm_tag.c \
 		g_ai.c g_chase.c g_cmds.c g_combat.c g_func.c \
 		g_items.c g_main.c g_misc.c g_monster.c g_newai.c \
@@ -20,7 +19,7 @@ game_la_SOURCES = dm_ball.c dm_tag.c \
 		m_tank.c m_turret.c m_widow.c m_widow2.c \
 		p_client.c p_hud.c p_trail.c p_view.c p_weapon.c \
 		q_shared.c
-#game_so_CFLAGS = -fPIC -Wall -Werror -pipe
-game_so_CFLAGS = -I.. -fPIC -pipe
-game_so_LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
+#game_la_CFLAGS = -fPIC -Wall -Werror -pipe
+game_la_CFLAGS = -I.. -fPIC -pipe
+game_la_LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
 endif # DO_ROGUE

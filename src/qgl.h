@@ -459,7 +459,7 @@ void APIENTRY Fake_glColorTableEXT( GLenum target, GLenum internalformat,
 
 #endif // linux
 
-#if defined(__linux__) || defined(__bsd__) || defined(__FreeBSD__)
+#if defined(__linux__) || defined(__bsd__) || defined(__FreeBSD__) || defined(__NetBSD__)
 
 extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
 
