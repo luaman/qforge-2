@@ -1,6 +1,11 @@
 HACKING on quake2
 =================
 
+To build quake2 from CVS, you will need the following software:
+ - automake, 1.6
+ - autoconf, 2.50 or higher
+ - GNU make
+
 Note to developers: bsd/, irix/ and solaris/ are NO LONGER PERTINENT!
 
 linux/ was renamed src/, so hack in there.  As we port to more arch/os's,

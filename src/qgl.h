@@ -440,7 +440,7 @@ extern BOOL ( WINAPI * qwglSetDeviceGammaRampEXT ) ( const unsigned char *pRed, 
 #endif
 
 /* FIXME: this ifdef sucks */
-#ifdef __linux__ || __FreeBSD__
+#if defined __linux__ || defined __FreeBSD__
 
 // local function in dll
 //#ifndef qwglGetProcAddress // FIXME

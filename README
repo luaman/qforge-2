@@ -7,9 +7,6 @@ Compiling
 If you are checking this out from CVS, run the bootstrap command first to set
 up configure.  Then follow the instructions in INSTALL.
 
-Use --disable-asm on the configure line if you want to use the software
-refreshers on i386, or better yet, fix the bug in the asm!
-
 Save Games
 ----------
 
