@@ -1,0 +1,3 @@
+# $Id$
+
+SUBDIRS = baseq2
