@@ -168,12 +168,16 @@ AC_MSG_CHECKING(to see if xatrix source is available)
 if test -f src/xatrix/g_main.c; then
 	AC_MSG_RESULT(yes)
 	AC_DEFINE(DO_XATRIX, 1, [Define this if you have the xatrix source])
+else
+	AC_MSG_RESULT(no)
 fi
 
 AC_MSG_CHECKING(to see if rogue source is available)
 if test -f src/rogue/g_main.c; then
 	AC_MSG_RESULT(yes)
 	AC_DEFINE(DO_ROGUE, 1, [Define this if you have the rogue source])
+else
+	AC_MSG_RESULT(no)
 fi
 
 AM_CONDITIONAL(DO_XATRIX, test "$DO_XATRIX" = "yes")
