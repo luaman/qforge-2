@@ -19,3 +19,11 @@ missing
 mkinstalldirs
 stamp-h
 stamp-h.in
+client
+ctf
+game
+linux
+qcommons
+ref_*
+server
+unix
