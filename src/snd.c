@@ -500,6 +500,7 @@ int SNDDMA_GetDMAPos(void) {
  * Reset the sound device for exiting
  */
 void SNDDMA_Shutdown(void) {
+	printf ("SNDDMA_Shutdown\n");
 #if 0
 	if (snd_inited)
 	{
@@ -526,6 +527,7 @@ void SNDDMA_Shutdown(void) {
 			}
 		} else {
 			munmap (dma.buffer, dma.samples *dma.samplebits / 8);
+			dma.buffer = 0L;
 		}
 
 		close(audio_fd);
