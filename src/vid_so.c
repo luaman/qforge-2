@@ -40,8 +40,9 @@
 #include <unistd.h>
 #include <errno.h>
 
-/* libtool dynamic loader */
-#include <ltdl.h>
+#ifdef HAVE_DLOPEN
+# include <dlfcn.h>
+#endif
 
 #include "client.h"
 #include "rw.h"
@@ -60,7 +61,7 @@ cvar_t * vid_fullscreen; /* fullscreen on or off */
 viddef_t viddef;
 
 /* Handle to refresh DLL */
-lt_dlhandle reflib_library = NULL;
+static void * reflib_library = NULL;
 
 qboolean reflib_active = 0;
 
@@ -193,7 +194,7 @@ void VID_FreeReflib(void) {
 	    KBD_Close_fp();
 	if (RW_IN_Shutdown_fp)
 	    RW_IN_Shutdown_fp();
-	lt_dlclose(reflib_library);
+	dlclose(reflib_library);
     }
     
     KBD_Init_fp = NULL;
@@ -220,6 +221,9 @@ VID_LoadRefresh
 qboolean VID_LoadRefresh(char * name) {
     refimport_t	ri;
     GetRefAPI_t GetRefAPI;
+    char fn[MAX_OSPATH];
+    /* char * path; */
+    struct stat st;
     extern uid_t saved_euid;
 	
     /* clean up a previous reflib */
@@ -239,7 +243,15 @@ qboolean VID_LoadRefresh(char * name) {
     //regain root
     seteuid(saved_euid);
 
-    lt_dlsetsearchpath(".:"PKGLIBDIR);
+    /*
+    path = Cvar_Get("basedir", ".", CVAR_NOSET)->string;
+    snprintf(fn, MAX_OSPATH, "%s/%s", path, name);
+    */
+    snprintf(fn, MAX_OSPATH, PKGLIBDIR"/%s", name);
+    if (stat(fn, &st) == -1) {
+	Com_Printf("LoadLibrary(\"%s\") failed: %s\n", name, strerror(errno));
+	return false;
+    }
 
     // permission checking
     if (strstr(name, "softx") == NULL &&
@@ -263,8 +275,8 @@ qboolean VID_LoadRefresh(char * name) {
 	setegid(getgid());
     }
     
-    if ((reflib_library = lt_dlopenext(name)) == 0) {
-	Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name , lt_dlerror());
+    if ((reflib_library = dlopen(fn, RTLD_LAZY)) == 0) {
+	Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name , dlerror());
 	return false;
     }
     
@@ -287,7 +299,7 @@ qboolean VID_LoadRefresh(char * name) {
     ri.Vid_MenuInit = VID_MenuInit;
     ri.Vid_NewWindow = VID_NewWindow;
     
-    if ((GetRefAPI = (GetRefAPI_t) lt_dlsym(reflib_library, "GetRefAPI")) == 0)
+    if ((GetRefAPI = (GetRefAPI_t) dlsym(reflib_library, "GetRefAPI")) == 0)
 	Com_Error(ERR_FATAL, "dlsym failed on %s", name);
     
     re = GetRefAPI( ri );
@@ -303,16 +315,16 @@ qboolean VID_LoadRefresh(char * name) {
     in_state.viewangles = cl.viewangles;
     in_state.in_strafe_state = &in_strafe.state;
 
-    if ((RW_IN_Init_fp = (void (*)(in_state_t *)) lt_dlsym(reflib_library, "RW_IN_Init")) == NULL ||
-	(RW_IN_Shutdown_fp = (void(*)(void)) lt_dlsym(reflib_library, "RW_IN_Shutdown")) == NULL ||
-	(RW_IN_Activate_fp = (void(*)(qboolean)) lt_dlsym(reflib_library, "RW_IN_Activate")) == NULL ||
-	(RW_IN_Commands_fp = (void(*)(void)) lt_dlsym(reflib_library, "RW_IN_Commands")) == NULL ||
-	(RW_IN_Move_fp = (void(*)(usercmd_t *)) lt_dlsym(reflib_library, "RW_IN_Move")) == NULL ||
-	(RW_IN_Frame_fp = (void(*)(void)) lt_dlsym(reflib_library, "RW_IN_Frame")) == NULL)
+    if ((RW_IN_Init_fp = (void (*)(in_state_t *)) dlsym(reflib_library, "RW_IN_Init")) == NULL ||
+	(RW_IN_Shutdown_fp = (void(*)(void)) dlsym(reflib_library, "RW_IN_Shutdown")) == NULL ||
+	(RW_IN_Activate_fp = (void(*)(qboolean)) dlsym(reflib_library, "RW_IN_Activate")) == NULL ||
+	(RW_IN_Commands_fp = (void(*)(void)) dlsym(reflib_library, "RW_IN_Commands")) == NULL ||
+	(RW_IN_Move_fp = (void(*)(usercmd_t *)) dlsym(reflib_library, "RW_IN_Move")) == NULL ||
+	(RW_IN_Frame_fp = (void(*)(void)) dlsym(reflib_library, "RW_IN_Frame")) == NULL)
 	Sys_Error("No RW_IN functions in REF.\n");
     
     /* this one is optional */
-    RW_Sys_GetClipboardData_fp = (char*(*)(void)) lt_dlsym(reflib_library, "RW_Sys_GetClipboardData");
+    RW_Sys_GetClipboardData_fp = (char*(*)(void)) dlsym(reflib_library, "RW_Sys_GetClipboardData");
     
     Real_IN_Init();
 
@@ -332,9 +344,9 @@ qboolean VID_LoadRefresh(char * name) {
 */
 
     /* Init KBD */
-    if ((KBD_Init_fp = (void(*)(Key_Event_fp_t)) lt_dlsym(reflib_library, "KBD_Init")) == NULL ||
-	(KBD_Update_fp = (void(*)(void)) lt_dlsym(reflib_library, "KBD_Update")) == NULL ||
-	(KBD_Close_fp = (void(*)(void)) lt_dlsym(reflib_library, "KBD_Close")) == NULL)
+    if ((KBD_Init_fp = (void(*)(Key_Event_fp_t)) dlsym(reflib_library, "KBD_Init")) == NULL ||
+	(KBD_Update_fp = (void(*)(void)) dlsym(reflib_library, "KBD_Update")) == NULL ||
+	(KBD_Close_fp = (void(*)(void)) dlsym(reflib_library, "KBD_Close")) == NULL)
 	Sys_Error("No KBD functions in REF.\n");
 
     KBD_Init_fp(Do_Key_Event);
@@ -374,7 +386,7 @@ void VID_CheckChanges(void) {
 	cl.refresh_prepped = false;
 	cls.disable_screen = true;
 	
-	sprintf(name, "ref_%s", vid_ref->string);
+	sprintf(name, "ref_%s.so", vid_ref->string);
 	if (!VID_LoadRefresh(name)) {
 	    if (strcmp(vid_ref->string, "soft") == 0 || 
 		strcmp(vid_ref->string, "softx") == 0) {

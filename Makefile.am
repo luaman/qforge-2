@@ -1,6 +1,6 @@
 # $Id$
 
-SUBDIRS = libltdl src data
+SUBDIRS = src data
 
 EXTRA_DIST = quake2.dsp quake2.dsw quake2.mak \
 	HACKING NEWS THANKS TODO \

@@ -53,8 +53,9 @@
 	#include <sys/file.h>
 #endif
 
-/* libtool dynamic loader */
-#include <ltdl.h>
+#ifdef HAVE_DLOPEN
+# include <dlfcn.h>
+#endif
 
 #include "qcommon.h"
 #include "game.h"
@@ -107,7 +108,7 @@ void Sys_Printf (char *fmt, ...) {
 void Sys_Quit (void) {
     CL_Shutdown();
     Qcommon_Shutdown();
-    lt_dlexit();
+
     fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) & ~FNDELAY);
     _exit(0);
 }
@@ -208,22 +209,20 @@ char *Sys_ConsoleInput(void)
 
 /*****************************************************************************/
 
-static lt_dlhandle game_library = NULL;
+static void * game_library = NULL;
 typedef game_export_t * gameapi_t(game_import_t *);
 
 void Sys_UnloadGame(void) {
     if (game_library) 
-	lt_dlclose(game_library);
+	dlclose(game_library);
     game_library = NULL;
 }
 
 /* Loads the game dll */
 void *Sys_GetGameAPI (void *parms) {
     gameapi_t * GetGameAPI;
-    cvar_t * game;
     char path[MAX_OSPATH];
-    char name[MAX_OSPATH];
-    char * str_p;
+    cvar_t * gamename;
     
     setreuid(getuid(), getuid());
     setegid(getgid());
@@ -231,34 +230,21 @@ void *Sys_GetGameAPI (void *parms) {
     if (game_library)
 	Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
-    game = Cvar_Get("game", "", CVAR_LATCH|CVAR_SERVERINFO);
-
-    Com_Printf("------- Loading %s -------\n", game->string);
-    
+    /* now run through the search paths */
+    gamename = Cvar_Get("gamedir", BASEDIRNAME, CVAR_LATCH|CVAR_SERVERINFO);
+    Com_Printf("------- Loading %s -------\n", gamename->string);
+  
     /* set the module search path */
-    snprintf(name, MAX_OSPATH, "%s",
-	     game->string[0]?game->string:BASEDIRNAME);
-    snprintf(path, MAX_OSPATH, "./%s:"PKGLIBDIR"/%s", name, name);
-    lt_dlsetsearchpath(path);
-        
-    /* load the module */
-    game_library = lt_dlopenext("game");
-    
+    snprintf(path, MAX_OSPATH, PKGLIBDIR"/%s/game.so", gamename->string);
+    game_library = dlopen(path, RTLD_NOW);
     if (game_library) {
-	Com_MDPrintf("LoadLibrary (%s)\n", name);
+	Com_MDPrintf("LoadLibrary (%s)\n", gamename->string);
     } else {
-	Com_MDPrintf("LoadLibrary (%s)\n", name);
-	//str_p = strchr(lt_dlerror(), ':'); // skip the path (already shown)
-	str_p = (char *) lt_dlerror();
-	if (str_p != NULL) {
-	    Com_MDPrintf (" **");
-	    while (*str_p)
-		Com_MDPrintf ("%c", *(++str_p));
-	    Com_MDPrintf ("\n");
-	}
+	Com_MDPrintf("LoadLibrary (%s)\n", gamename->string);
+	Com_MDPrintf("%s\n", dlerror());
     }
     
-    GetGameAPI = (gameapi_t *) lt_dlsym(game_library, "GetGameAPI");
+    GetGameAPI = (gameapi_t *) dlsym(game_library, "GetGameAPI");
     
     if (!GetGameAPI) {
 	Sys_UnloadGame ();		
@@ -296,9 +282,6 @@ int main (int argc, char **argv) {
 
     printf("QuakeIIForge %s\n", VERSION);
 
-    /* initialiase libltdl */
-    lt_dlinit();
-    
     Qcommon_Init(argc, argv);
 
     /* sys_irix.c had this and the fcntl line 3 lines down commented out */

@@ -2,7 +2,7 @@
 
 SUBDIRS = . baseq2 ctf xatrix rogue
 
-std_cflags = -Wall -pipe @OPT_CFLAGS@
+std_cflags = -Wall -Werror -pipe @OPT_CFLAGS@
 module_ldflags = -module -avoid-version -rpath $(pkglibdir)
 
 bin_PROGRAMS = quake2
@@ -69,26 +69,24 @@ quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c q_glob.c net_udp.c \
 		$(QUAKE2_ASM) $(SOUND)
 
 if BUILD_SDLQUAKE2
-quake2_CFLAGS = $(std_cflags) @INCLTDL@ @PTHREAD_CFLAGS@ @SDL_CFLAGS@
+quake2_CFLAGS = $(std_cflags) @PTHREAD_CFLAGS@ @SDL_CFLAGS@
 else
-quake2_CFLAGS = $(std_cflags) @INCLTDL@ @PTHREAD_CFLAGS@
+quake2_CFLAGS = $(std_cflags) @PTHREAD_CFLAGS@
 endif
 # the macro puts -pthread into cflags, but we want to link
 # with this flag too, so stick it into the ldflags if it's there...
 # extra cflags at link time can't hurt
 quake2_LDFLAGS = @PTHREAD_CFLAGS@
 if BUILD_SDLQUAKE2
-quake2_LDADD = @PTHREAD_LIBS@ @LIBLTDL@ @OSS_LIBS@ @SDL_LIBS@ @SYSTEM_LIBS@ -lm
+quake2_LDADD = @PTHREAD_LIBS@ @DL_LIBS@ @OSS_LIBS@ @SDL_LIBS@ @SYSTEM_LIBS@ -lm
 else
-quake2_LDADD = @PTHREAD_LIBS@ @LIBLTDL@ @OSS_LIBS@ @SYSTEM_LIBS@ -lm
+quake2_LDADD = @PTHREAD_LIBS@ @DL_LIBS@ @OSS_LIBS@ @SYSTEM_LIBS@ -lm
 endif
 
 # ref_glx
 if BUILD_GLX
 ref_glx_la_SOURCES = $(REF_GL_COMMON) gl_glx.c
-#ref_glx_la_CFLAGS = $(std_cflags) -fPIC @X_CFLAGS@ @OPENGL_CFLAGS@
 ref_glx_la_CFLAGS = $(std_cflags) -fPIC @X_CFLAGS@
-#ref_glx_la_LIBADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @OPENGL_LIBS@ @DL_LIBS@
 ref_glx_la_LIBADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @DL_LIBS@
 ref_glx_la_LDFLAGS = $(module_ldflags)
 endif

@@ -22,6 +22,6 @@ fi
 # when one can just read the README
 aclocal && \
 autoheader && \
-libtoolize --copy --ltdl --automake && \
+libtoolize --copy --automake && \
 automake --foreign --add-missing --copy && \
 autoconf
