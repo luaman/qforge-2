@@ -1,25 +1,26 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-/*
-** QGL.H
-*/
+/* $Id$
+ *
+ * quake GL calls
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ * 02111-1307, USA.
+ */
 
 #ifndef __QGL_H__
 #define __QGL_H__
@@ -438,11 +439,12 @@ extern BOOL ( WINAPI * qwglSetDeviceGammaRampEXT ) ( const unsigned char *pRed, 
 
 #endif
 
-#ifdef __linux__
+/* FIXME: this ifdef sucks */
+#ifdef __linux__ || __FreeBSD__
 
 // local function in dll
 //#ifndef qwglGetProcAddress // FIXME
-extern void *qwglGetProcAddress(char *symbol);
+extern void * qwglGetProcAddress(char *symbol);
 //#endif
 
 extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
@@ -480,4 +482,4 @@ void APIENTRY Fake_glColorTableEXT( GLenum target, GLenum internalformat,
 
 extern int GL_Texture0, GL_Texture1;
 
-#endif
+#endif /* __QGL_H__ */
