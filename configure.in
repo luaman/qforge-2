@@ -354,8 +354,8 @@ dnl $libdir usually gets set to ${exec_prefix}/lib,
 dnl $prefix and $exec_prefix is likely to be "NONE"
 dnl Autoconf usually sets pkglibdir correctly in the Makefile, but not in
 dnl the configure script :(
-test "$prefix" = NONE && prefix=/usr/local
-test "$exec_prefix" = NONE && exec_prefix=/usr/local
+test "$prefix" = "NONE" && prefix=/usr/local
+test "$exec_prefix" = "NONE" && exec_prefix=$prefix
 
 eval PKGLIBDIR="$libdir/$PACKAGE"
 AC_DEFINE_UNQUOTED(PKGLIBDIR, "$PKGLIBDIR", [Define this to the path containing the dynamic modules (\${exec-prefix}/lib/quake2/)])
