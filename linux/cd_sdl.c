@@ -52,7 +52,7 @@ static void CDAudio_Eject()
 
 void CDAudio_Play(int track, qboolean looping)
 {
-	CDstatus cd_stat;
+	CDstatus cd_stat = CD_ERROR;
 	if(!cd_id || !enabled) return;
 	
 	if(!cdValid)
