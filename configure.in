@@ -59,7 +59,9 @@ AC_CHECK_FUNCS([bzero floor getcwd gethostbyname getmntent getpagesize gettimeof
 
 AC_CONFIG_FILES([Makefile
 				 src/Makefile
-				 game/Makefile])
+				 game/Makefile
+				 game/baseq2/Makefile
+				 game/ctf/Makefile])
 #				 ref_gl/Makefile
 #				 ref_soft/Makefile])
 AC_OUTPUT

@@ -53,5 +53,5 @@ game_so_SOURCES = g_ai.c \
 			m_flash.c
 
 AM_CFLAGS = -fPIC
-AM_CPPFLAGS = -I../src
+AM_CPPFLAGS = -I../../src -I..
 LDFLAGS = -shared

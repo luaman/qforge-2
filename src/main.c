@@ -62,7 +62,7 @@
 #endif
 
 #include "qcommon.h"
-#include "../game/game.h"
+#include "game.h"
 #include "rw.h"
 
 cvar_t *nostdout;
