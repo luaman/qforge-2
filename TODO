@@ -32,18 +32,18 @@ from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
 X Removing shadows on certain objects
 X Fixing dlight shine trough
 - Fix for left over icons on windows taskbar
-- Adding a clock to the console
+X Adding a clock to the console
 - Adding Q3A's cvar list
 X Transparent console
-- How to add .m32 texture support to the Quake2 engine and compile tools.
+X How to add .m32 texture support to the Quake2 engine and compile tools.
 - TGA textures
 X Stencil buffered shadows
 - Adding true color TGA loading for MD2 Models
 - Better dynamic light falloff
 - Controlable water waves
 - Adding a FPS counter
-- Quake2 MP3 Playback
-- Adding a skybox size variable
+X Quake2 MP3 Playback
+X Adding a skybox size variable
 X Adding new video resolutions
 - Drawing alias model bounding boxes
 
