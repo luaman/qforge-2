@@ -501,14 +501,6 @@ int SNDDMA_GetDMAPos(void) {
  */
 void SNDDMA_Shutdown(void) {
 	printf ("SNDDMA_Shutdown\n");
-#if 0
-	if (snd_inited)
-	{
-		close(audio_fd);
-		audio_fd = -1;
-		snd_inited = 0;
-	}
-#endif
 /* merged in from snd_irix.c -- jaq */
 #ifdef __sgi
 	if (sgisnd_aport) {
