@@ -1028,9 +1028,9 @@ void HandleEvents(void)
 			break;
 
 		case ClientMessage:
-			if (event.xclient.data.l[0] == wmDeleteWindow)
-				ri.Cmd_ExecuteText(EXEC_NOW, "quit");
-			break;
+		  if (event.xclient.data.l[0] == wmDeleteWindow)
+		      ri.Cmd_ExecuteText(EXEC_NOW, "quit");
+		  break;
 
 		default:
 			if (doShm && event.type == x_shmeventtype)
@@ -1173,7 +1173,7 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 	   int attribmask = CWEventMask  | CWColormap | CWBorderPixel;
 	   XSetWindowAttributes attribs;
 	   XSizeHints *sizehints;
-	   XWMHints *wmhints;
+	   XWMHints * wmhints;
 	   Colormap tmpcmap;
 	   
 	   tmpcmap = XCreateColormap(dpy, root, x_vis, AllocNone);
@@ -1203,24 +1203,24 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 		if (wmhints) {
 #include "../data/pixmaps/q2icon.xbm"
 
-			Pixmap icon_pixmap, icon_mask;
-			unsigned long fg, bg;
-			int i;
+		    Pixmap icon_pixmap, icon_mask;
+		    unsigned long fg, bg;
+		    int i;
 
-			fg = BlackPixel(dpy, x_visinfo->screen);
-			bg = WhitePixel(dpy, x_visinfo->screen);
-			icon_pixmap = XCreatePixmapFromBitmapData(dpy, win, (char *)q2icon_bits, q2icon_width, q2icon_height, fg, bg, x_visinfo->depth);
-			for (i = 0; i < sizeof(q2icon_bits); i++)
-				q2icon_bits[i] = ~q2icon_bits[i];
-			icon_mask = XCreatePixmapFromBitmapData(dpy, win, (char *)q2icon_bits, q2icon_width, q2icon_height, bg, fg, x_visinfo->depth);
+		    fg = BlackPixel(dpy, x_visinfo->screen);
+		    bg = WhitePixel(dpy, x_visinfo->screen);
+		    icon_pixmap = XCreatePixmapFromBitmapData(dpy, win, (char *)q2icon_bits, q2icon_width, q2icon_height, fg, bg, x_visinfo->depth);
+		    for (i = 0; i < sizeof(q2icon_bits); i++)
+			q2icon_bits[i] = ~q2icon_bits[i];
+		    icon_mask = XCreatePixmapFromBitmapData(dpy, win, (char *)q2icon_bits, q2icon_width, q2icon_height, bg, fg, x_visinfo->depth);
 
-				wmhints->flags = IconPixmapHint|IconMaskHint;
-				wmhints->icon_pixmap = icon_pixmap;
-				wmhints->icon_mask = icon_mask;
+		    wmhints->flags = IconPixmapHint|IconMaskHint;
+		    wmhints->icon_pixmap = icon_pixmap;
+		    wmhints->icon_mask = icon_mask;
 		}
 
 		XSetWMProperties(dpy, win, NULL, NULL, NULL, 0,
-						 sizehints, wmhints, None);
+				 sizehints, wmhints, None);
 		if (sizehints)
 			XFree(sizehints);
 		if (wmhints)

@@ -1092,24 +1092,24 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 	if (wmhints) {
 #include "../data/pixmaps/q2icon.xbm"
 
-		Pixmap icon_pixmap, icon_mask;
-		unsigned long fg, bg;
-		int i;
+	    Pixmap icon_pixmap, icon_mask;
+	    unsigned long fg, bg;
+	    int i;
 
-		fg = BlackPixel(dpy, visinfo->screen);
-		bg = WhitePixel(dpy, visinfo->screen);
-		icon_pixmap = XCreatePixmapFromBitmapData(dpy, win, (char *)q2icon_bits, q2icon_width, q2icon_height, fg, bg, visinfo->depth);
-		for (i = 0; i < sizeof(q2icon_bits); i++)
-			q2icon_bits[i] = ~q2icon_bits[i];
-		icon_mask = XCreatePixmapFromBitmapData(dpy, win, (char *)q2icon_bits, q2icon_width, q2icon_height, bg, fg, visinfo->depth); 
+	    fg = BlackPixel(dpy, visinfo->screen);
+	    bg = WhitePixel(dpy, visinfo->screen);
+	    icon_pixmap = XCreatePixmapFromBitmapData(dpy, win, (char *)q2icon_bits, q2icon_width, q2icon_height, fg, bg, visinfo->depth);
+	    for (i = 0; i < sizeof(q2icon_bits); i++)
+		q2icon_bits[i] = ~q2icon_bits[i];
+	    icon_mask = XCreatePixmapFromBitmapData(dpy, win, (char *)q2icon_bits, q2icon_width, q2icon_height, bg, fg, visinfo->depth); 
 
-		wmhints->flags = IconPixmapHint|IconMaskHint;
-		wmhints->icon_pixmap = icon_pixmap;
-		wmhints->icon_mask = icon_mask;
+	    wmhints->flags = IconPixmapHint|IconMaskHint;
+	    wmhints->icon_pixmap = icon_pixmap;
+	    wmhints->icon_mask = icon_mask;
 	}
 	
 	XSetWMProperties(dpy, win, NULL, NULL, NULL, 0,
-					 sizehints, wmhints, None);
+			 sizehints, wmhints, None);
 	if (sizehints)
 		XFree(sizehints);
 	if (wmhints)
