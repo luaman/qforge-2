@@ -43,6 +43,10 @@
 #include <ctype.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#ifdef HAVE_JOYSTICK
+#include <sys/stat.h>
+#include <fcntl.h>
+#endif
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -60,10 +64,11 @@
 #ifdef HAVE_XF86_DGA
 #include <X11/extensions/xf86dga.h>
 #endif
+#ifdef HAVE_XF86_VIDMODE
+#include <X11/extensions/xf86vmode.h>
+#endif
 
 #ifdef HAVE_JOYSTICK
-# include <sys/stat.h>
-# include <fcntl.h>
 # include <linux/joystick.h>
 # include <glob.h>
 #endif
@@ -282,10 +287,10 @@ static cvar_t	*vid_xpos;			// X coordinate of window position
 static cvar_t	*vid_ypos;			// Y coordinate of window position
 
 #ifdef HAVE_JOYSTICK
-static cvar_t * in_joystick;
+static cvar_t   *in_joystick;
 static qboolean joystick_avail = false;
 static int joy_fd, jx, jy, jt;
-static cvar_t * joystick_invert_y;
+static cvar_t   *j_invert_y;
 #endif
 
 static qboolean	mlooking;
@@ -367,7 +372,7 @@ void RW_IN_Init(in_state_t *in_state_p){
 	in_dgamouse = ri.Cvar_Get ("in_dgamouse", "1", CVAR_ARCHIVE);
 #ifdef HAVE_JOYSTICK
 	in_joystick = ri.Cvar_Get("in_joystick", "1", CVAR_ARCHIVE);
-	joystick_invert_y = ri.Cvar_Get("joystick_invert_y", "1", CVAR_ARCHIVE);
+	j_invert_y = ri.Cvar_Get("j_invert_y", "1", CVAR_ARCHIVE);
 #endif
 	freelook = ri.Cvar_Get( "freelook", "0", 0 );
 	lookstrafe = ri.Cvar_Get ("lookstrafe", "0", 0);
@@ -492,7 +497,7 @@ void RW_IN_Move(usercmd_t *cmd) {
 	    in_state->viewangles[YAW] -= m_yaw->value * (jx/100);
 
 	if ((mlooking || freelook->value) && !(*in_state->in_strafe_state & 1)) {
-	    if (joystick_invert_y)
+	    if (j_invert_y)
 		in_state->viewangles[PITCH] -= m_pitch->value * (jy/100);
 	    else
 		in_state->viewangles[PITCH] += m_pitch->value * (jy/100);
@@ -615,6 +620,12 @@ static void IN_ActivateMouse( void )
 		install_grabs();
 		mouse_active = true;
 	}
+#ifdef Joystick
+	if (joystick_avail)
+	  if (close(joy_fd))
+	    ri.Con_Printf(PRINT_ALL, "Error, Problem closing joystick.");
+#endif
+    
 }
 
 void RW_IN_Frame (void)
@@ -691,7 +702,6 @@ char *RW_Sys_GetClipboardData()
 }
 
 /*****************************************************************************/
-
 void ResetFrameBuffer(void)
 {
 	int mem;

@@ -107,7 +107,7 @@ static int (*qglXGetConfig)( Display *dpy, XVisualInfo *vis, int attrib, int *va
 static cvar_t * in_joystick;
 static qboolean joystick_avail = false;
 static int joy_fd, jx, jy, jt;
-static cvar_t * joystick_invert_y;
+static cvar_t * j_invert_y;
 
 void init_joystick() {
     int i, err;
@@ -146,6 +146,57 @@ void init_joystick() {
     globfree(&pglob);
 }
 #endif
+
+#ifdef Joystick
+static cvar_t   *in_joystick;
+static qboolean joystick_avail = false;
+static int joy_fd, jx, jy, jt;
+static cvar_t   *j_invert_y;
+#endif
+
+#ifdef Joystick
+void InitJoystick() {
+  int i, err;
+  glob_t pglob;
+  struct js_event e;
+
+  joystick_avail = false;
+  err = glob("/dev/js*", 0, NULL, &pglob);
+  
+  if (err) {
+    switch (err) {
+    case GLOB_NOSPACE:
+      ri.Con_Printf(PRINT_ALL, "Error, out of memory while looking for joysticks\n");
+      break;
+    case GLOB_NOMATCH:
+      ri.Con_Printf(PRINT_ALL, "No joysticks found\n");
+      break;
+    default:
+      ri.Con_Printf(PRINT_ALL, "Error #%d while looking for joysticks\n",err);
+    }
+    return;
+  }  
+  
+  for (i=0;i<pglob.gl_pathc;i++) {
+    ri.Con_Printf(PRINT_ALL, "Trying joystick dev %s\n", pglob.gl_pathv[i]);
+    joy_fd = open (pglob.gl_pathv[i], O_RDONLY | O_NONBLOCK);
+    if (joy_fd == -1) {
+      ri.Con_Printf(PRINT_ALL, "Error opening joystick dev %s\n", 
+		    pglob.gl_pathv[i]);
+    }
+    else {
+      while (read(joy_fd, &e, sizeof(struct js_event))!=-1 &&
+	     (e.type & JS_EVENT_INIT))
+	ri.Con_Printf(PRINT_ALL, "Read init event\n");
+      ri.Con_Printf(PRINT_ALL, "Using joystick dev %s\n", pglob.gl_pathv[i]);
+      joystick_avail = true;
+      return;
+    }
+  }
+  globfree(&pglob);
+}
+#endif
+
 
 /*****************************************************************************/
 /* MOUSE                                                                     */
@@ -313,11 +364,15 @@ void RW_IN_Init(in_state_t *in_state_p)
 
 #ifdef HAVE_JOYSTICK
 	in_joystick = ri.Cvar_Get("in_joystick", "1", CVAR_ARCHIVE);
-	joystick_invert_y = ri.Cvar_Get("joystick_invert_y", "1", CVAR_ARCHIVE);
+	j_invert_y = ri.Cvar_Get("j_invert_y", "1", CVAR_ARCHIVE);
 #endif
 
 	// mouse variables
 	_windowed_mouse = ri.Cvar_Get( "_windowed_mouse", "0", CVAR_ARCHIVE );
+#ifdef HAVE_JOYSTICK
+	in_joystick = ri.Cvar_Get("in_joystick", "1", CVAR_ARCHIVE);
+	j_invert_y = ri.Cvar_Get("j_invert_y", "1", CVAR_ARCHIVE);
+#endif
 	m_filter = ri.Cvar_Get ("m_filter", "0", 0);
     in_mouse = ri.Cvar_Get ("in_mouse", "1", CVAR_ARCHIVE);
     in_dgamouse = ri.Cvar_Get ("in_dgamouse", "1", CVAR_ARCHIVE);
@@ -461,7 +516,7 @@ void RW_IN_Move (usercmd_t *cmd) {
 	    in_state->viewangles[YAW] -= m_yaw->value * (jx/100);
 
 	if ((mlooking || freelook->value) && !(*in_state->in_strafe_state & 1)) {
-	    if (joystick_invert_y)
+	    if (j_invert_y)
 		in_state->viewangles[PITCH] -= m_pitch->value * (jy/100);
 	    else
 		in_state->viewangles[PITCH] += m_pitch->value * (jy/100);
@@ -481,6 +536,12 @@ static void IN_DeactivateMouse( void )
 		uninstall_grabs();
 		mouse_active = false;
 	}
+
+#ifdef Joystick
+	if (joystick_avail)
+	  if (close(joy_fd))
+	    ri.Con_Printf(PRINT_ALL, "Error, Problem closing joystick.");
+#endif
 }
 
 static void IN_ActivateMouse( void ) 
@@ -497,6 +558,50 @@ static void IN_ActivateMouse( void )
 
 void RW_IN_Frame (void)
 {
+	int i;
+#ifdef Joystick
+	struct js_event e;
+	int key_index;
+#endif
+	if (mouse_avail) { 
+	  for (i=0 ; i<3 ; i++) {
+	    if ( (mouse_buttonstate & (1<<i)) && !(mouse_oldbuttonstate & (1<<i)) )
+	      in_state->Key_Event_fp (K_MOUSE1 + i, true);
+	    
+	    if ( !(mouse_buttonstate & (1<<i)) && (mouse_oldbuttonstate & (1<<i)) )
+	      in_state->Key_Event_fp (K_MOUSE1 + i, false);
+	  }
+	  mouse_oldbuttonstate = mouse_buttonstate;
+	}
+#ifdef Joystick
+	if (joystick_avail) {
+	  while (read(joy_fd, &e, sizeof(struct js_event))!=-1) {
+	    if (JS_EVENT_BUTTON & e.type) {
+	      key_index = (e.number < 4) ? K_JOY1 : K_AUX1;
+	      if (e.value) {
+		in_state->Key_Event_fp (key_index + e.number, true);
+	      }
+	      else {
+		in_state->Key_Event_fp (key_index + e.number, false);
+	      }
+	      //joy_oldbuttonstate = e.number;
+	    }
+	    else if (JS_EVENT_AXIS & e.type) {
+	      switch (e.number) {
+	      case 0:
+		jx = e.value;
+		break;
+	      case 1:
+		jy = e.value;
+		break;
+	      case 3:
+		jt = e.value;
+		break;
+	      }
+	    }
+	  }
+	}
+#endif
 }
 
 void RW_IN_Activate(qboolean active)
