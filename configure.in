@@ -10,6 +10,8 @@ AM_CONFIG_HEADER(config.h)
 
 dnl get the build and target hosts
 AC_CANONICAL_SYSTEM
+AC_DEFINE_UNQUOTED(BUILDHOST, "${target_cpu}-${target_os}", 
+	[Set to the canonical name of the target machine])
 
 dnl set the program and version
 AM_INIT_AUTOMAKE(quake2, 0.1)

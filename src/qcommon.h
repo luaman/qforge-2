@@ -1,96 +1,49 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * definitions common between client and server, but not the game dll
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+#ifndef __QCOMMON_H__
+#define __QCOMMON_H__
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 #include "gcc_attr.h"
-
-// qcommon.h -- definitions common between client and server, but not game.dll
-
 #include "q_shared.h"
-
-
-/* we define this in config.h now */
-/* #define	VERSION		3.21 */
 
 #define	BASEDIRNAME	"baseq2"
 
-#ifdef WIN32
-
-#ifdef NDEBUG
-#define BUILDSTRING "Win32 RELEASE"
-#else
-#define BUILDSTRING "Win32 DEBUG"
-#endif
-/*
-#ifdef _M_IX86
-#define	CPUSTRING	"x86"
-#elif defined _M_ALPHA
-#define	CPUSTRING	"AXP"
-#endif
-*/
-#elif defined(__linux__) || defined(__bsd__) || defined (__FreeBSD__) || defined (__NetBSD__)
-
-#define BUILDSTRING "Linux"
-/*
-#ifdef __i386__
-#define CPUSTRING "i386"
-#elif defined __alpha__
-#define CPUSTRING "axp"
-#else
-#define CPUSTRING "Unknown"
-#endif
-*/
-#elif defined __sun__
-
-#define BUILDSTRING "Solaris"
-/*
-#ifdef __i386__
-#define CPUSTRING "i386"
-#else
-#define CPUSTRING "sparc"
-#endif
-*/
-#else	// !WIN32
-
-#define BUILDSTRING "NON-WIN32"
-/* #define	CPUSTRING	"NON-WIN32" */
-
-#endif
-
-/* all that crud above should die -- jaq */
-#define CPUSTRING ARCH
-//============================================================================
-
-typedef struct sizebuf_s
-{
-	qboolean	allowoverflow;	// if false, do a Com_Error
-	qboolean	overflowed;		// set to true if the buffer size failed
-	byte	*data;
-	int		maxsize;
-	int		cursize;
-	int		readcount;
+typedef struct sizebuf_s {
+    qboolean allowoverflow; /* if false, do a Com_Error */
+    qboolean overflowed; /* set to true if the buffer size failed */
+    byte * data;
+    int maxsize;
+    int cursize;
+    int readcount;
 } sizebuf_t;
 
-void SZ_Init (sizebuf_t *buf, byte *data, int length);
-void SZ_Clear (sizebuf_t *buf);
-void *SZ_GetSpace (sizebuf_t *buf, int length);
-void SZ_Write (sizebuf_t *buf, void *data, int length);
-void SZ_Print (sizebuf_t *buf, char *data);	// strcats onto the sizebuf
+void SZ_Init(sizebuf_t * buf, byte * data, int length);
+void SZ_Clear(sizebuf_t * buf);
+void * SZ_GetSpace(sizebuf_t * buf, int length);
+void SZ_Write(sizebuf_t * buf, void * data, int length);
+void SZ_Print(sizebuf_t * buf, char * data); /* strcats onto the sizebuf */
 
 //============================================================================
 
@@ -854,6 +807,4 @@ void SV_Init (void);
 void SV_Shutdown (char *finalmsg, qboolean reconnect);
 void SV_Frame (int msec);
 
-
-
-//char *strlwr (char *);	// FIXME: is this needed?
+#endif /* __QCOMMON_H__ */

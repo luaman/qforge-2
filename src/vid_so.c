@@ -20,7 +20,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -34,9 +35,11 @@
 
 #include <assert.h>
 
+/*
 #ifdef HAVE_DLOPEN
 # include <dlfcn.h> // ELF dl loader
 #endif
+*/
 
 #include <sys/stat.h>
 #include <unistd.h>
@@ -45,45 +48,26 @@
 /* libtool dynamic loader */
 #include <ltdl.h>
 
-/* merged in from bsd -- jaq */
-/*
-#ifndef RTLD_NOW
-#define RTLD_NOW RTLD_LAZY
-#endif
-
-#ifndef RTLD_GLOBAL
-#define RTLD_GLOBAL 0
-#endif
-
-#ifdef __OpenBSD__
-#define dlsym(X, Y) dlsym(X, "_"##Y)
-#endif
-*/
-
 #include "client.h"
 #include "rw.h"
 
-// Structure containing functions exported from refresh DLL
-refexport_t	re;
+/* Structure containing functions exported from refresh DLL */
+refexport_t re;
 
-/* merged from irix/vid_so.c -- jaq */
-/*
-#ifdef REF_HARD_LINKED
-refexport_t GetRefAPI(refimport_t rimp);
-#endif
-*/
+/* Console variables that we need to access from this module */
+cvar_t * vid_gamma;      /* gamma value */
+cvar_t * vid_ref;        /* name of refresher dll */
+cvar_t * vid_xpos;       /* window position x */
+cvar_t * vid_ypos;       /* window position y */
+cvar_t * vid_fullscreen; /* fullscreen on or off */
 
-// Console variables that we need to access from this module
-cvar_t		*vid_gamma;
-cvar_t		*vid_ref;			// Name of Refresh DLL loaded
-cvar_t		*vid_xpos;			// X coordinate of window position
-cvar_t		*vid_ypos;			// Y coordinate of window position
-cvar_t		*vid_fullscreen;
+/* global video state; used by other modules */
+viddef_t viddef;
 
-// Global variables used internally by this module
-viddef_t	viddef;				// global video state; used by other modules
-lt_dlhandle reflib_library = NULL; // Handle to refresh DLL 
-qboolean	reflib_active = 0;
+/* Handle to refresh DLL */
+lt_dlhandle reflib_library = NULL;
+
+qboolean reflib_active = 0;
 
 #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
 
@@ -206,43 +190,34 @@ qboolean VID_GetModeInfo( unsigned int *width, unsigned int *height, int mode )
 /*
 ** VID_NewWindow
 */
-void VID_NewWindow ( int width, int height)
-{
-	viddef.width  = width;
-	viddef.height = height;
+void VID_NewWindow(int width, int height) {
+    viddef.width  = width;
+    viddef.height = height;
 }
 
-void VID_FreeReflib (void)
-{
-	if (reflib_library) {
-		if (KBD_Close_fp)
-			KBD_Close_fp();
-		if (RW_IN_Shutdown_fp)
-			RW_IN_Shutdown_fp();
-/* merged from irix/vid_so.c -- jaq */
-/*
-#ifndef REF_HARD_LINKED
-*/
-		lt_dlclose(reflib_library);
-/*
-#endif
-*/
-	}
-
-	KBD_Init_fp = NULL;
-	KBD_Update_fp = NULL;
-	KBD_Close_fp = NULL;
-	RW_IN_Init_fp = NULL;
-	RW_IN_Shutdown_fp = NULL;
-	RW_IN_Activate_fp = NULL;
-	RW_IN_Commands_fp = NULL;
-	RW_IN_Move_fp = NULL;
-	RW_IN_Frame_fp = NULL;
-	RW_Sys_GetClipboardData_fp = NULL;
-
-	memset (&re, 0, sizeof(re));
-	reflib_library = NULL;
-	reflib_active  = false;
+void VID_FreeReflib(void) {
+    if (reflib_library) {
+	if (KBD_Close_fp)
+	    KBD_Close_fp();
+	if (RW_IN_Shutdown_fp)
+	    RW_IN_Shutdown_fp();
+	lt_dlclose(reflib_library);
+    }
+    
+    KBD_Init_fp = NULL;
+    KBD_Update_fp = NULL;
+    KBD_Close_fp = NULL;
+    RW_IN_Init_fp = NULL;
+    RW_IN_Shutdown_fp = NULL;
+    RW_IN_Activate_fp = NULL;
+    RW_IN_Commands_fp = NULL;
+    RW_IN_Move_fp = NULL;
+    RW_IN_Frame_fp = NULL;
+    RW_Sys_GetClipboardData_fp = NULL;
+    
+    memset (&re, 0, sizeof(re));
+    reflib_library = NULL;
+    reflib_active  = false;
 }
 
 /*
@@ -388,68 +363,53 @@ qboolean VID_LoadRefresh(char * name) {
     return true;
 }
 
-/*
-============
-VID_CheckChanges
+/* This function gets called once just before drawing each frame, and
+ * its sole purpose in life is to check to see if any of the video mode
+ * parameters have changed, and if they have to update the rendering DLL
+ * and/or video mode to match. */
+void VID_CheckChanges(void) {
+    char name[100];
+    cvar_t *sw_mode;
 
-This function gets called once just before drawing each frame, and it's sole purpose in life
-is to check to see if any of the video mode parameters have changed, and if they have to 
-update the rendering DLL and/or video mode to match.
-============
-*/
-void VID_CheckChanges (void)
-{
-	char name[100];
-	cvar_t *sw_mode;
+    if (vid_ref->modified) {
+	S_StopAllSounds();
+    }
 
-	if ( vid_ref->modified )
-	{
-		S_StopAllSounds();
+    while (vid_ref->modified) {
+	/* refresher has changed */
+	vid_ref->modified = false;
+	vid_fullscreen->modified = true;
+	cl.refresh_prepped = false;
+	cls.disable_screen = true;
+	
+	sprintf(name, "ref_%s", vid_ref->string);
+	if (!VID_LoadRefresh(name)) {
+	    if (strcmp(vid_ref->string, "soft") == 0 || 
+		strcmp(vid_ref->string, "softx") == 0) {
+		Com_Printf("Refresh failed\n");
+		sw_mode = Cvar_Get("sw_mode", "0", 0);
+		if (sw_mode->value != 0) {
+		    Com_Printf("Trying mode 0\n");
+		    Cvar_SetValue("sw_mode", 0);
+		    if (!VID_LoadRefresh(name))
+			Com_Error(ERR_FATAL, "Couldn't fall back to software refresh!");
+		} else
+		    Com_Error (ERR_FATAL, "Couldn't fall back to software refresh!");
+	    }
+	    
+	    /* prefer to fall back on X if active */
+	    if (getenv("DISPLAY"))
+		Cvar_Set("vid_ref", "softx");
+	    else
+		Cvar_Set("vid_ref", "soft");
+
+	    /* drop the console if we fail to load a refresh */
+	    if (cls.key_dest != key_console) {
+		Con_ToggleConsole_f();
+	    }
 	}
-
-	while (vid_ref->modified)
-	{
-		/*
-		** refresh has changed
-		*/
-		vid_ref->modified = false;
-		vid_fullscreen->modified = true;
-		cl.refresh_prepped = false;
-		cls.disable_screen = true;
-
-		sprintf( name, "ref_%s", vid_ref->string );
-		if ( !VID_LoadRefresh( name ) )
-		{
-			if ( strcmp (vid_ref->string, "soft") == 0 || 
-					strcmp (vid_ref->string, "softx") == 0 ) {
-				Com_Printf("Refresh failed\n");
-				sw_mode = Cvar_Get( "sw_mode", "0", 0 );
-				if (sw_mode->value != 0) {
-					Com_Printf("Trying mode 0\n");
-					Cvar_SetValue("sw_mode", 0);
-					if ( !VID_LoadRefresh( name ) )
-						Com_Error (ERR_FATAL, "Couldn't fall back to software refresh!");
-				} else
-					Com_Error (ERR_FATAL, "Couldn't fall back to software refresh!");
-			}
-
-			/* prefer to fall back on X if active */
-			if (getenv("DISPLAY"))
-				Cvar_Set( "vid_ref", "softx" );
-			else
-				Cvar_Set( "vid_ref", "soft" );
-
-			/*
-			** drop the console if we fail to load a refresh
-			*/
-			if ( cls.key_dest != key_console )
-			{
-				Con_ToggleConsole_f();
-			}
-		}
-		cls.disable_screen = false;
-	}
-
+	cls.disable_screen = false;
+    }
 }
 
 /*

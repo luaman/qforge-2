@@ -26,7 +26,7 @@
 #define __QGL_H__
 
 #ifdef _WIN32
-#  include <windows.h>
+# include <windows.h>
 #endif
 
 #include <GL/gl.h>
@@ -35,25 +35,16 @@
 qboolean QGL_Init( const char *dllname );
 void     QGL_Shutdown( void );
 
+/* for windos' benefit */
 #ifndef APIENTRY
-#  define APIENTRY
+# define APIENTRY
 #endif
 
 /*
-#ifdef __OpenBSD__ || __FreeBSD__
-#define GPA(X) dlsym(glw_state.OpenGLLib, "_"##X)
-#else
-#define GPA(X) dlsym(glw_state.OpenGLLib, X)
-#endif
-
-#ifndef qwglGetProcAddress
-#define qwglGetProcAddress(X) (glw_state.OpenGLLib ? GPA(X) : NULL)
-#endif
-*/
-
 #ifdef __FreeBSD__
 extern void *qwglGetProcAddress(char *symbol);
 #endif
+*/
 
 extern  void ( APIENTRY * qglAccum )(GLenum op, GLfloat value);
 extern  void ( APIENTRY * qglAlphaFunc )(GLenum func, GLclampf ref);
@@ -444,7 +435,7 @@ extern BOOL ( WINAPI * qwglSetDeviceGammaRampEXT ) ( const unsigned char *pRed, 
 #endif
 
 /* FIXME: this ifdef sucks */
-#if defined __linux__ || defined __FreeBSD__
+/*#if defined __linux__ || defined __FreeBSD__*/
 
 // local function in dll
 //#ifndef qwglGetProcAddress // FIXME
@@ -457,23 +448,22 @@ void APIENTRY Fake_glColorTableEXT( GLenum target, GLenum internalformat,
 									GLsizei width, GLenum format, GLenum type,
 									const GLvoid *table );
 
-#endif // linux
+/*#endif // linux */
 
-#if defined(__linux__) || defined(__bsd__) || defined(__FreeBSD__) || defined(__NetBSD__)
+/*#if defined(__linux__) || defined(__bsd__) || defined(__FreeBSD__) || defined(__NetBSD__)*/
 
 extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
 
-#endif
+/*#endif*/
 
 
 /* deprecated */
 #define GL_TEXTURE0_SGIS					0x835E
 #define GL_TEXTURE1_SGIS					0x835F
 
-#if 0 // FIXME: these are in glext.h, delete after testing
 /*
-** extension constants
-*/
+#if 0 // FIXME: these are in glext.h, delete after testing
+// extension constants
 #define GL_POINT_SIZE_MIN_EXT				0x8126
 #define GL_POINT_SIZE_MAX_EXT				0x8127
 #define GL_POINT_FADE_THRESHOLD_SIZE_EXT	0x8128
@@ -489,6 +479,7 @@ extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
 #define GL_TEXTURE1_ARB						0x84C1
 
 #endif // FIXME: end of glext.h defines
+*/
 
 extern int GL_Texture0, GL_Texture1;
 

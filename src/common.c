@@ -18,7 +18,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1486,10 +1487,7 @@ void Qcommon_Init (int argc, char **argv)
 	dedicated = Cvar_Get ("dedicated", "0", CVAR_NOSET);
 #endif
 
-	/* lose the arch
-	s = va("%4.2f %s %s %s", VERSION, CPUSTRING, __DATE__, BUILDSTRING);
-	*/
-	s = va("%s %s %s", VERSION, __DATE__, BUILDSTRING);
+	s = va("%s %s %s", VERSION, __DATE__, BUILDHOST);
 	Cvar_Get ("version", s, CVAR_SERVERINFO|CVAR_NOSET);
 
 

@@ -44,7 +44,7 @@
 #include <sys/mman.h>
 #include <errno.h>
 
-/* merged from sys_*.c -- jaq */
+/* merged from sys_*.c -- jaq
 #if defined(__linux__) || defined(__sgi)
 	#include <mntent.h>
 #elif defined(__FreeBSD__) || defined(__bsd__) || defined (__NetBSD__)
@@ -52,23 +52,10 @@
 #elif defined(sun)
 	#include <sys/file.h>
 #endif
+*/
 
 /* libtool dynamic loader */
 #include <ltdl.h>
-
-/* merged from sys_bsd.c -- jaq */
-#ifndef RTLD_NOW
-#define RTLD_NOW RTLD_LAZY
-#endif
-
-/* merged from sys_bsd.c -- jaq */
-#ifdef __OpenBSD__
-#define dlsym(X, Y) dlsym(X, "_"##Y)
-#endif
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 #include "qcommon.h"
 #include "game.h"

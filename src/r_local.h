@@ -16,8 +16,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
  */
+
+#ifndef __R_LOCAL_H__
+#define __R_LOCAL_H__
   
 #include <stdio.h>
 #include <stdlib.h>
@@ -847,3 +851,4 @@ void		SWimp_Shutdown( void );
 rserr_t		SWimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboolean fullscreen );
 void		SWimp_AppActivate( qboolean active );
 
+#endif /* __R_LOCAL_H__ */
