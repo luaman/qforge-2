@@ -167,7 +167,7 @@ dnl ---------------------------------------------------
 AC_MSG_CHECKING(to see if xatrix source is available)
 if test -f src/xatrix/g_main.c; then
 	AC_MSG_RESULT(yes)
-	AC_DEFINE(DO_XATRIX, 1, [Define this if you have the xatrix source])
+	DO_XATRIX=yes
 else
 	AC_MSG_RESULT(no)
 fi
@@ -175,7 +175,7 @@ fi
 AC_MSG_CHECKING(to see if rogue source is available)
 if test -f src/rogue/g_main.c; then
 	AC_MSG_RESULT(yes)
-	AC_DEFINE(DO_ROGUE, 1, [Define this if you have the rogue source])
+	DO_ROGUE=yes
 else
 	AC_MSG_RESULT(no)
 fi
