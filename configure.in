@@ -5,21 +5,23 @@ dnl stick the revision info into the resulting configure script
 AC_REVISION($Revision$) dnl
 AC_PREREQ(2.50)
 
-AC_INIT(src/main.c)
+AC_INIT(quake2, 0.1, quake2-devel@lists.quakeforge.net)
+AC_CONFIG_SRCDIR(src/main.c)
 AM_CONFIG_HEADER(config.h)
 
 dnl get the build and target hosts
 AC_CANONICAL_SYSTEM
-AC_DEFINE_UNQUOTED(BUILDHOST, "${target_cpu}-${target_os}", 
-	[Set to the canonical name of the target machine])
 
-dnl set the program and version
-AM_INIT_AUTOMAKE(quake2, 0.1)
-AC_SUBST(PROGRAM)
-AC_SUBST(VERSION)
+AM_INIT_AUTOMAKE([1.6 foreign])
 
 dnl configure --enable-maintainer-mode gets some extra targets
 AM_MAINTAINER_MODE
+
+dnl set some macros
+AC_DEFINE_UNQUOTED(BUILDHOST, "${target_cpu}-${target_os}", 
+	[Set to the canonical name of the target machine])
+AC_SUBST(PROGRAM)
+AC_SUBST(VERSION)
 
 dnl -------------------
 dnl Checks for programs
