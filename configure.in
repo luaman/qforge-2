@@ -12,7 +12,7 @@ dnl 	echo restart configure
 dnl 	exit 1
 dnl )
 
-AM_INIT_AUTOMAKE(quake2, 0.1, quake2-devel@quakeforge.net)
+AM_INIT_AUTOMAKE(quake2, 0.1)
 
 AM_MAINTAINER_MODE
 

@@ -48,7 +48,7 @@ ref_glx_so_SOURCES = $(REF_GL) gl_glx.c
 #ref_sdlgl_so_SOURCES = $(REF_GL) rw_sdl.c
 
 AM_CFLAGS = -Wall -Werror -pipe
-AM_CPPFLAGS = -DLINUX_VERSION="\"$(VERSION)\"" -Dstricmp=strcasecmp -I../game
+AM_CPPFLAGS = -Dstricmp=strcasecmp -I../game
 
 ref_glx_so_CFLAGS = -fPIC
 ref_glx_so_LDFLAGS = -shared

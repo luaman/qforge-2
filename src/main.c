@@ -61,6 +61,10 @@
 #define dlsym(X, Y) dlsym(X, "_"##Y)
 #endif
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "qcommon.h"
 #include "game.h"
 #include "rw.h"
@@ -325,7 +329,7 @@ int main (int argc, char **argv)
 	seteuid(getuid());
 
 	/* relnev 0.9 added -- jaq */
-	printf("Quake II -- Version %s\n", LINUX_VERSION);
+	printf("QuakeIIForge %s\n", VERSION);
 
 	Qcommon_Init(argc, argv);
 

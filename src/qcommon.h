@@ -24,7 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "q_shared.h"
 
 
-#define	VERSION		3.21
+/* we define this in config.h now */
+/* #define	VERSION		3.21 */
 
 #define	BASEDIRNAME	"baseq2"
 

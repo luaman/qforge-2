@@ -21,6 +21,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "qcommon.h"
 #include <setjmp.h>
 
@@ -1485,7 +1489,7 @@ void Qcommon_Init (int argc, char **argv)
 	/* lose the arch
 	s = va("%4.2f %s %s %s", VERSION, CPUSTRING, __DATE__, BUILDSTRING);
 	*/
-	s = va("%4.2f %s %s", VERSION, __DATE__, BUILDSTRING);
+	s = va("%s %s %s", VERSION, __DATE__, BUILDSTRING);
 	Cvar_Get ("version", s, CVAR_SERVERINFO|CVAR_NOSET);
 
 
