@@ -65,6 +65,7 @@ void *Hunk_Alloc (int size)
 	return buf;
 }
 
+#ifdef mremap
 int Hunk_End (void)
 {
 	byte *n;
@@ -76,6 +77,32 @@ int Hunk_End (void)
 	
 	return curhunksize;
 }
+#else
+int Hunk_End (void)
+{
+	long pgsz, newsz, modsz;
+
+	pgsz = sysconf(_SC_PAGESIZE);
+	if (pgsz == -1)
+		Sys_Error("Hunk_End: Sysconf() failed: %s", strerror(errno));
+
+	newsz = curhunksize + sizeof(int);
+
+	if (newsz > maxhunksize)
+		Sys_Error("Hunk_End Overflow");
+	else if (newsz < maxhunksize) {
+		modsz = newsz % pgsz;
+		if (modsz) newsz += pgsz - modsz;
+
+		if (munmap(membase + newsz, maxhunksize - newsz) == -1)
+			Sys_Error("Hunk_End: munmap() failed: %s", strerror(errno));
+	}
+
+	*((int *)membase) = curhunksize + sizeof(int);
+
+	return curhunksize;
+}
+#endif
 
 void Hunk_Free (void *base)
 {
