@@ -71,7 +71,16 @@ quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c q_glob.c net_udp.c \
 # include the asm and so forth when building on non-x86 architectures
 EXTRA_ref_soft_la_SOURCES = r_aclipa.S r_draw16.S r_drawa.S r_edgea.S \
 				r_scana.S r_spr8.S r_surf8.S math.S \
-				d_polysa.S r_varsa.S sys_dosa.S
+				d_polysa.S r_varsa.S sys_dosa.S d_copy.S \
+				rw_svgalib.c rw_in_svgalib.c
+
+EXTRA_ref_glx_la_SOURCES = gl_glx.c
+
+EXTRA_ref_softsdl_la_SOURCES = rw_sdl.c
+
+EXTRA_ref_tdfx_la_SOURCES =  rw_in_svgalib.c gl_fxmesa.c
+
+EXTRA_ref_softx_la_SOURCES = rw_x11.c
 
 EXTRA_quake2_SOURCES = snd_mixa.S cd_sdl.c snd_sdl.c snd_dma.c \
 			snd_mix.c snd_mem.c cd.c snd.c
