@@ -238,6 +238,7 @@ void VID_MenuInit( void )
 		"[1024 480 ]", /* sony vaio pocketbook */
 		"[1152 768 ]", /* apple tibook */
 		"[1280 854 ]", /* apple tibook */
+		"[1440 900 ]", /* apple powerbook g4 17" */
 		0
 	};
 	static const char *refs[] =
