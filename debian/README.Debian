@@ -10,14 +10,21 @@ quake2-data package.  There is talk of creating DFSG-free data for this engine,
 but currently this maintainer knows of no tools to build such data for Linux,
 let alone Debian.
 
-This package contains the SDL patches made by Steven Fuller (downloaded from
-http://icculus.org/~relnev/download.php), for more details please read
-README.sdl.  This patch was rearranged slightly to fit the original source from
-iD.  The top-level Makefile is also thanks to Steven.
+If you are running esd, you will want to kill it before running quake2; quake2
+only works with OSS audio.
 
-The following may only be of interest to other maintainers:
-The .orig.tar.gz has had ^Ms removed from the source files, and the file
-quake2-3.21/linux/map.out has been removed.  Apart from that, no other changes
-have been made.
+This maintainer has found the gamma levels in OpenGL renderers to be very dark,
+and has fixed it by calling xgamma to set the gamma level to 1.7 before
+playing.
 
- -- Jamie Wilkinson <jaq@spacepants.org>, Sat, 29 Dec 2001 17:42:41 +1100
+Save Games
+==========
+
+Due to the fact that a save game is just a memory dump of game data, there
+is no easy way to get save games to work reliably after a recompile of the
+game.  Upstream is currently looking into this, and will probably replace
+the memory dump with something parseable.  In the meantime, the recommended
+method is to put quake2 on hold if you're halfway through a single player
+game.
+
+ -- Jamie Wilkinson <jaq@debian.org>, Sat, 29 Dec 2001 17:42:41 +1100

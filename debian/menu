@@ -1,3 +1,12 @@
-?package(quake2):needs=X11 section=Games/Arcade\
-  title="Quake II" command="/usr/games/quake2" \
+?package(quake2): \
+  needs=X11 \
+  section=Games/Arcade \
+  title="Quake II" \
+  command="/usr/games/quake2" \
   icon="/usr/share/pixmaps/quake2.xpm"
+?package(quake2): \
+  needs=x11 \
+  section=Games/Arcade \
+  title="Quake II CTF" \
+  command="/usr/games/quake2 +set game ctf" \
+  icon="/usr/share/pixmaps/quake2ctf.xpm"

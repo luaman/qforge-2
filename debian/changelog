@@ -1,3 +1,140 @@
+quake2 (1:0.1-1) unstable; urgency=low
+
+  * New upstream release.
+    - Removed patch to VAIO Picturebook and TiBook resolutions.
+    - Removed patch for rcon_password exploit.
+    - Removed patch for SDL mouse buttons 2 and 3.
+    - Removed patch for broken ALSA OSS emulation.
+    - Removed patch for other compile warnings that are also fixed in the
+      new upstream code.
+  * Removed quake2.sh, as libGL.so.1 is set as the correct gl_driver in the
+    code, and gamma is handled internally (at least, the GLX refresher does).
+    If you find that your favourite refresher doesn't do gamma, file a bug
+    and I'll reinstate the wrapper script.
+  * Removed Depends: xbase-clients as the wrapper script is no longer
+    used.
+
+ -- Jamie Wilkinson <jaq@debian.org>  Wed, 18 Sep 2002 23:11:38 +1000
+
+quake2 (3.21.cvs20020126-8) unstable; urgency=low
+
+  * Fixed the menus to refer to the correct video modes. (Closes: #148173)
+  * Added new TiBook resolution (1280x854). 
+
+ -- Jamie Wilkinson <jaq@debian.org>  Sun, 26 May 2002 16:35:41 +1000
+
+quake2 (3.21.cvs20020126-7) unstable; urgency=high
+
+  * The "how did I forget to patch this?" release
+  * Fix the rcon_password exploit (Closes: #147670)
+
+ -- Jamie Wilkinson <jaq@debian.org>  Wed, 22 May 2002 15:39:35 +1000
+
+quake2 (3.21.cvs20020126-6) unstable; urgency=low
+
+  * Suggests xqf and qstat.  (Closes: #145029)
+  * Stole a patch from upstream CVS to add resolutions for the Apple
+    TiBook and the Vaio Picturebook.  (Closes: #137772)
+  * Stole a patch from upstream CVS to correct mouse buttons 2 and 3
+    under SDL.  (Closes: #133113)
+  * Added a note to README.Debian noting the inability for savegames to
+    work after a recompile, and a suggested workaround.  (Closes: #128232)
+
+ -- Jamie Wilkinson <jaq@debian.org>  Fri, 10 May 2002 18:30:02 +1000
+
+quake2 (3.21.cvs20020126-5) unstable; urgency=low
+
+  * Backported a patch from upstream's CVS to fix broken usage of OSS,
+    that shows up when the user is using ALSA's OSS emulation.  Thanks
+    to Tony Hilliard for finding the cause.  (Closes: #144161)
+
+ -- Jamie Wilkinson <jaq@debian.org>  Thu, 25 Apr 2002 18:46:00 +1000
+
+quake2 (3.21.cvs20020126-4) unstable; urgency=low
+
+  * Added +set gl_driver libGL.so.1 so quake2 uses the correct name,
+    libGL.so only exists in -dev packages.  Thanks to Tony Hilliard
+    <8ah4@qlink.queensu.ca>.  (Closes: #137896, #144087)
+
+ -- Jamie Wilkinson <jaq@debian.org>  Tue, 23 Apr 2002 12:14:33 +1000
+
+quake2 (3.21.cvs20020126-3) unstable; urgency=low
+
+  * Removed README.solaris from debian/docs
+  * Save and restore gamma values (Closes: #135317)
+  * Added a note re: symlinking libGL.so to README.Debian (Closes: #128450)
+
+ -- Jamie Wilkinson <jaq@debian.org>  Sun,  3 Mar 2002 17:59:59 +1100
+
+quake2 (3.21.cvs20020126-2) unstable; urgency=low
+
+  * Changed SDL LDFLAGS to use --plugin-libs as per
+    http://lists.debian.org/debian-devel/2001/debian-devel-200111/msg00028.html
+    thus fixing linker errors when building on hppa and ia64
+  * Added xlibs-pic to Build-Depends:
+  * Using dpkg-architecture instead of nutball uname line for ARCH in
+    Makefile and debian/rules
+  * Small change to description in debian/control
+
+ -- Jamie Wilkinson <jaq@debian.org>  Sun,  3 Feb 2002 14:48:19 +1100
+
+quake2 (3.21.cvs20020126-1) unstable; urgency=low
+
+  * Settled on the quakeforge cvs as upstream.  The previous upstream was
+    just the raw code released from iD, and hence no official upstream to
+    fix bugs.
+  * Removed SDL patch from diff, as it is incorporated in upstream.
+  * Added a call to xgamma from the quake2 shell script to modify gamma
+    settings when using OpenGL renderers.
+
+ -- Jamie Wilkinson <jaq@debian.org>  Sat,  2 Feb 2002 18:40:59 +1100
+
+quake2 (3.21-5) unstable; urgency=low
+
+  * The "builds-on-alpha/ppc/sparc" release.
+  * Fixed i386-centric install lines in debian/rules
+  * Fixed incorrect build-depends, thanks to James Troup
+    (Closes: #128442, #129249)
+  * Fixed clean in debian/rules to remove the crack makefile
+  * Made quake2-3.21/Makefile more portable
+  * Fixed a typo in the manpage (Closes: #128603)
+  * Applied Steven Fuller's SDL 0.0.8 patch (See README.sdl for his full
+    changelog)
+  * Cleaned up menu icons (using modified q2icon.xbm from the SDL patch
+    for quake2)
+  * SVGALib support only builds on i386, so disable for all other archs,
+    removed svgalib-dummyg1 from !i386 build-depends, made a note in the
+    manpage
+  * Quitting works fine (Closes: #129158)
+  * Switching drivers from the Video menu works fine (Closes: #128851)
+
+ -- Jamie Wilkinson <jaq@spacepants.org>  Thu, 10 Jan 2002 04:12:32 +1100
+
+quake2 (3.21-4) unstable; urgency=low
+
+  * Fixed debian/rules to include installation of manpage (Closes: #128281) 
+  * Updated manpage to include some useful options
+  * Removed quake2-3.21/tags from diff.gz
+  * Changed build-dep on svgalib to use svgalib-dummyg1 first
+  * Removed -Werror at suggestion of Junichi Uekawa, who said that -Werror
+    was probably only useful for development.
+  * Conflicts: quake2-bin (Closes: #128337)
+
+ -- Jamie Wilkinson <jaq@spacepants.org>  Wed,  9 Jan 2002 01:34:17 +1100
+
+quake2 (3.21-3) unstable; urgency=low
+
+  * Added -Wall -Werror to the CFLAGS, cleaned up a lot of compiler errors.
+    Damn that Carmack is a messy coder ;)
+
+ -- Jamie Wilkinson <jaq@spacepants.org>  Fri,  4 Jan 2002 17:07:52 +1100
+
+quake2 (3.21-2) unstable; urgency=low
+
+  * Added CTF support, including menu item
+
+ -- Jamie Wilkinson <jaq@spacepants.org>  Tue,  1 Jan 2002 14:49:49 +1100
+
 quake2 (3.21-1) unstable; urgency=low
 
   * Initial Release.  (Closes: #126716)
@@ -6,6 +143,4 @@ quake2 (3.21-1) unstable; urgency=low
 
  -- Jamie Wilkinson <jaq@spacepants.org>  Sat, 29 Dec 2001 17:42:41 +1100
 
-Local variables:
-mode: debian-changelog
-End:
+
