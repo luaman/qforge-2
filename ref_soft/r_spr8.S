@@ -3,7 +3,7 @@
 // x86 assembly-language horizontal 8-bpp transparent span-drawing code.
 //
 
-#include "qasm.h"
+#include "../src/qasm.h"
 
 #if id386
 

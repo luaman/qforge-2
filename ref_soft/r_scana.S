@@ -3,7 +3,7 @@
 // x86 assembly-language turbulent texture mapping code
 //
 
-#include "qasm.h"
+#include "../src/qasm.h"
 #include "d_ifacea.h"
 
 #if id386

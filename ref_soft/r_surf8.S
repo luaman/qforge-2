@@ -3,7 +3,7 @@
 // x86 assembly-language 8 bpp surface block drawing code.
 //
 
-#include "qasm.h"
+#include "../src/qasm.h"
 
 #if	id386
 

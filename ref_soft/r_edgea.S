@@ -3,7 +3,7 @@
 // x86 assembly-language edge-processing code.
 //
 
-#include "qasm.h"
+#include "../src/qasm.h"
 
 #if	id386
 

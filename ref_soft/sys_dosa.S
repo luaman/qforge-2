@@ -2,7 +2,7 @@
 // sys_dosa.s
 // x86 assembly-language DOS-dependent routines.
 
-#include "qasm.h"
+#include "../src/qasm.h"
 
 
 	.data

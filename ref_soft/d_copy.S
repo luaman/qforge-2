@@ -3,7 +3,7 @@
 // x86 assembly-language screen copying code.
 //
 
-#include "qasm.h"
+#include "../src/qasm.h"
 
 	.data
 

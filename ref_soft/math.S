@@ -3,7 +3,7 @@
 // x86 assembly-language math routines.
 
 #define GLQUAKE	1	// don't include unneeded defs
-#include "qasm.h"
+#include "../src/qasm.h"
 
 
 #if	id386

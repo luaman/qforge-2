@@ -1028,37 +1028,37 @@ $(BUILDDIR)/ref_soft/r_sprite.o :     $(REF_SOFT_DIR)/r_sprite.c
 $(BUILDDIR)/ref_soft/r_surf.o :       $(REF_SOFT_DIR)/r_surf.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/r_aclipa.o :     $(SRC_DIR)/r_aclipa.S
+$(BUILDDIR)/ref_soft/r_aclipa.o :     $(REF_SOFT_DIR)/r_aclipa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_draw16.o :     $(SRC_DIR)/r_draw16.S
+$(BUILDDIR)/ref_soft/r_draw16.o :     $(REF_SOFT_DIR)/r_draw16.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_drawa.o :      $(SRC_DIR)/r_drawa.S
+$(BUILDDIR)/ref_soft/r_drawa.o :      $(REF_SOFT_DIR)/r_drawa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_edgea.o :      $(SRC_DIR)/r_edgea.S
+$(BUILDDIR)/ref_soft/r_edgea.o :      $(REF_SOFT_DIR)/r_edgea.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_scana.o :      $(SRC_DIR)/r_scana.S
+$(BUILDDIR)/ref_soft/r_scana.o :      $(REF_SOFT_DIR)/r_scana.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_spr8.o :       $(SRC_DIR)/r_spr8.S
+$(BUILDDIR)/ref_soft/r_spr8.o :       $(REF_SOFT_DIR)/r_spr8.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_surf8.o :      $(SRC_DIR)/r_surf8.S
+$(BUILDDIR)/ref_soft/r_surf8.o :      $(REF_SOFT_DIR)/r_surf8.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/math.o :         $(SRC_DIR)/math.S
+$(BUILDDIR)/ref_soft/math.o :         $(REF_SOFT_DIR)/math.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/d_polysa.o :     $(SRC_DIR)/d_polysa.S
+$(BUILDDIR)/ref_soft/d_polysa.o :     $(REF_SOFT_DIR)/d_polysa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_varsa.o :      $(SRC_DIR)/r_varsa.S
+$(BUILDDIR)/ref_soft/r_varsa.o :      $(REF_SOFT_DIR)/r_varsa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/sys_dosa.o :     $(SRC_DIR)/sys_dosa.S
+$(BUILDDIR)/ref_soft/sys_dosa.o :     $(REF_SOFT_DIR)/sys_dosa.S
 	$(DO_SHLIB_AS)
 
 $(BUILDDIR)/ref_soft/q_shared.o :     $(GAME_DIR)/q_shared.c
@@ -1070,7 +1070,7 @@ $(BUILDDIR)/ref_soft/q_sh.o :    $(SRC_DIR)/q_sh.c
 $(BUILDDIR)/ref_soft/glob.o :         $(SRC_DIR)/glob.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/d_copy.o :       $(SRC_DIR)/d_copy.S
+$(BUILDDIR)/ref_soft/d_copy.o :       $(REF_SOFT_DIR)/d_copy.S
 	$(DO_SHLIB_AS)
 
 $(BUILDDIR)/ref_soft/rw_svgalib.o :   $(SRC_DIR)/rw_svgalib.c
