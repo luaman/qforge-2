@@ -120,7 +120,7 @@ void R_MarkLights (dlight_t *light, int bit, mnode_t *node)
 	cplane_t	*splitplane;
 	float		dist;
 	msurface_t	*surf;
-	int			i;
+	int		i, sidebit;
 	
 	if (node->contents != -1)
 		return;
@@ -143,6 +143,17 @@ void R_MarkLights (dlight_t *light, int bit, mnode_t *node)
 	surf = r_worldmodel->surfaces + node->firstsurface;
 	for (i=0 ; i<node->numsurfaces ; i++, surf++)
 	{
+		dist = DotProduct (light->origin, surf->plane->normal) - surf->plane->dist;
+
+		if (dist >= 0)
+			sidebit = 0;
+		else
+			sidebit = SURF_PLANEBACK;
+
+		if ( (surf->flags & SURF_PLANEBACK) != sidebit )
+			continue;	
+				     
+		
 		if (surf->dlightframe != r_dlightframecount)
 		{
 			surf->dlightbits = 0;
@@ -421,9 +432,9 @@ void R_AddDynamicLights (msurface_t *surf)
 
 				if ( fdist < fminlight )
 				{
-					pfBL[0] += ( frad - fdist ) * dl->color[0];
-					pfBL[1] += ( frad - fdist ) * dl->color[1];
-					pfBL[2] += ( frad - fdist ) * dl->color[2];
+					pfBL[0] += ( fminlight - fdist ) * dl->color[0];
+					pfBL[1] += ( fminlight - fdist ) * dl->color[1];
+					pfBL[2] += ( fminlight - fdist ) * dl->color[2];
 				}
 			}
 		}

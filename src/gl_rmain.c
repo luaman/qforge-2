@@ -895,7 +895,7 @@ void	R_SetGL2D (void)
 	qglDisable (GL_CULL_FACE);
 	qglDisable (GL_BLEND);
 	qglEnable (GL_ALPHA_TEST);
-	qglColor4ubv (color_white);
+	qglColor4f (1,1,1,0.3);
 }
 
 /*

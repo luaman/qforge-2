@@ -30,11 +30,11 @@ from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
 (replace - with X when done)
 
 X Removing shadows on certain objects
-- Fixing dlight shine trough
+X Fixing dlight shine trough
 - Fix for left over icons on windows taskbar
 - Adding a clock to the console
 - Adding Q3A's cvar list
-- Transparent console
+X Transparent console
 - How to add .m32 texture support to the Quake2 engine and compile tools.
 - TGA textures
 X Stencil buffered shadows
