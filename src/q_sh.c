@@ -53,7 +53,7 @@ void *Hunk_Begin (int maxsize)
 /* merged in from q_sh*.c -- jaq */
 #if defined(__linux__)
 	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-#elif defined(__bsd__)
+#elif defined(__FreeBSD__) || defined(__bsd__)
 	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0);
 #elif defined(sun) || defined(__sgi)
 	membase = malloc(maxhunksize);

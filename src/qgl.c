@@ -70,7 +70,7 @@ static FILE * log_fp = NULL;
 #endif
 
 /* merged in from qgl_bsd.c -- jaq */
-#ifdef __bsd__
+#if defined(__bsd__) || defined(__FreeBSD__)
 /*
 //FX Mesa Functions
 fxMesaContext (*qfxMesaCreateContext)(GLuint win, GrScreenResolution_t, GrScreenRefresh_t, const GLint attribList[]);
@@ -81,7 +81,11 @@ fxMesaContext (*qfxMesaGetCurrentContext)(void);
 void (*qfxMesaSwapBuffers)(void);
 */
 
-XVisualInfo * (*qglXChooseVisual)( Display *dpy, int screen, int *attribList );+GLXContext (*qglXCreateContext)( Display *dpy, XVisualInfo *vis, GLXContext shareList, Bool direct );
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <GL/glx.h>
+XVisualInfo * (*qglXChooseVisual)( Display *dpy, int screen, int *attribList );
+GLXContext (*qglXCreateContext)( Display *dpy, XVisualInfo *vis, GLXContext shareList, Bool direct );
 void (*qglXDestroyContext)( Display *dpy, GLXContext ctx );
 Bool (*qglXMakeCurrent)( Display *dpy, GLXDrawable drawable, GLXContext ctx);
 void (*qglXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, GLuint mask );
@@ -98,8 +102,8 @@ void ( APIENTRY * qglBitmap )(GLsizei width, GLsizei height, GLfloat xorig, GLfl
 void ( APIENTRY * qglBlendFunc )(GLenum sfactor, GLenum dfactor);
 void ( APIENTRY * qglCallList )(GLuint list);
 void ( APIENTRY * qglCallLists )(GLsizei n, GLenum type, const GLvoid *lists);
-void ( APIENTRY * qglClear )(GLbitfield mask);
-void ( APIENTRY * qglClearAccum )(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+void ( APIENTRY * qglClear )(GLbitfield mask);void ( APIENTRY * qglClearAccum )(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+
 void ( APIENTRY * qglClearColor )(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 void ( APIENTRY * qglClearDepth )(GLclampd depth);
 void ( APIENTRY * qglClearIndex )(GLfloat c);
@@ -3015,7 +3019,7 @@ void QGL_Shutdown( void )
 	qglVertexPointer             = NULL;
 	qglViewport                  = NULL;
 /* merged in from qgl_bsd.c -- jaq */
-#ifdef __bsd__
+#if defined(__bsd__) || defined(__FreeBSD__)
 /*
 	qfxMesaCreateContext         = NULL;
 	qfxMesaCreateBestContext     = NULL;
@@ -3035,7 +3039,7 @@ void QGL_Shutdown( void )
 }
 
 /* merged in from qgl_bsd.c -- jaq */
-#ifdef __linux__
+#if defined(__linux__) || defined (__FreeBSD__)
 #define GPA( a ) dlsym( glw_state.OpenGLLib, a )
 
 void *qwglGetProcAddress(char *symbol)
@@ -3434,7 +3438,7 @@ qboolean QGL_Init( const char *dllname )
 	qglVertexPointer             = 	dllVertexPointer             = GPA( "glVertexPointer" );
 	qglViewport                  = 	dllViewport                  = GPA( "glViewport" );
 /* merged in from qgl_bsd.c -- jaq */
-#ifdef __bsd__
+#if defined(__bsd__) || defined(__FreeBSD__)
 /*
 	qfxMesaCreateContext         =  GPA("fxMesaCreateContext");
 	qfxMesaCreateBestContext     =  GPA("fxMesaCreateBestContext");

@@ -47,7 +47,7 @@
 /* merged from sys_*.c -- jaq */
 #if defined(__linux__) || defined(__sgi)
 	#include <mntent.h>
-#elif defined(__bsd__)
+#elif defined(__FreeBSD__) || defined(__bsd__)
 	#include <fstab.h>
 #elif defined(sun)
 	#include <sys/file.h>

@@ -76,7 +76,7 @@ endif
 # ref_sdlgl
 if BUILD_SDLGL
 ref_sdlgl_so_SOURCES = $(REF_GL_COMMON) rw_sdl.c
-ref_sdlgl_so_CFLAGS = -fPIC @SDL_CFLAGS@ -DOPENGL @OPENGL_CFLAGS@
+ref_sdlgl_so_CFLAGS = -fPIC -DOPENGL @SDL_CFLAGS@ @OPENGL_CFLAGS@
 ref_sdlgl_so_LDFLAGS = -shared
 ref_sdlgl_so_LDADD = @SDL_LIBS@ @OPENGL_LIBS@
 endif
@@ -85,7 +85,7 @@ endif
 if BUILD_SOFT
 if ASM_ARCH
 SOFT_ASM=$(REF_SOFT_ASM) d_copy.S
-rgreelse
+else
 SOFT_ASM=$(REF_SOFT_ASM)
 endif
 ref_soft_so_SOURCES = $(REF_SOFT_COMMON) $(SOFT_ASM) \

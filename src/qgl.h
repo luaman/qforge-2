@@ -40,7 +40,7 @@ void     QGL_Shutdown( void );
 #endif
 
 /*
-#ifdef __OpenBSD__
+#ifdef __OpenBSD__ || __FreeBSD__
 #define GPA(X) dlsym(glw_state.OpenGLLib, "_"##X)
 #else
 #define GPA(X) dlsym(glw_state.OpenGLLib, X)
@@ -50,6 +50,10 @@ void     QGL_Shutdown( void );
 #define qwglGetProcAddress(X) (glw_state.OpenGLLib ? GPA(X) : NULL)
 #endif
 */
+
+#ifdef __FreeBSD__
+extern void *qwglGetProcAddress(char *symbol);
+#endif
 
 extern  void ( APIENTRY * qglAccum )(GLenum op, GLfloat value);
 extern  void ( APIENTRY * qglAlphaFunc )(GLenum func, GLclampf ref);
@@ -447,7 +451,6 @@ extern BOOL ( WINAPI * qwglSetDeviceGammaRampEXT ) ( const unsigned char *pRed, 
 extern void * qwglGetProcAddress(char *symbol);
 //#endif
 
-extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
 
 // 3dfxSetPaletteEXT shunt
 void APIENTRY Fake_glColorTableEXT( GLenum target, GLenum internalformat,
@@ -455,6 +458,13 @@ void APIENTRY Fake_glColorTableEXT( GLenum target, GLenum internalformat,
 									const GLvoid *table );
 
 #endif // linux
+
+#if defined(__linux__) || defined(__bsd__) || defined(__FreeBSD__)
+
+extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
+
+#endif
+
 
 /* deprecated */
 #define GL_TEXTURE0_SGIS					0x835E
