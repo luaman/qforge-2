@@ -29,18 +29,13 @@
 #endif
 
 /* merged in from irix/vid_so.c -- jaq */
+/*
 #ifdef __sgi
 #define SO_FILE "/etc/quake2.conf"
 #endif
-
-#include <assert.h>
-
-/*
-#ifdef HAVE_DLOPEN
-# include <dlfcn.h> // ELF dl loader
-#endif
 */
 
+#include <assert.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
@@ -143,37 +138,34 @@ simply by setting the modified flag for the vid_ref variable, which will
 cause the entire video mode and refresh DLL to be reset on the next frame.
 ============
 */
-void VID_Restart_f (void)
-{
+void VID_Restart_f(void) {
 	vid_ref->modified = true;
 }
 
 /*
 ** VID_GetModeInfo
 */
-typedef struct vidmode_s
-{
-	const char *description;
-	int         width, height;
-	int         mode;
+typedef struct vidmode_s {
+    const char * description;
+    int width, height;
+    int mode;
 } vidmode_t;
 
-vidmode_t vid_modes[] =
-{
-	{ "Mode 0: 320x240",   320, 240,   0 },
-	{ "Mode 1: 400x300",   400, 300,   1 },
-	{ "Mode 2: 512x384",   512, 384,   2 },
-	{ "Mode 3: 640x480",   640, 480,   3 },
-	{ "Mode 4: 800x600",   800, 600,   4 },
-	{ "Mode 5: 960x720",   960, 720,   5 },
-	{ "Mode 6: 1024x768",  1024, 768,  6 },
-	{ "Mode 7: 1152x864",  1152, 864,  7 },
-	{ "Mode 8: 1280x1024",  1280, 1024, 8 },
-	{ "Mode 9: 1600x1200", 1600, 1200, 9 },
-	{ "Mode 10: 2048x1536", 2048, 1536, 10 },
-	{ "Mode 11: 1024x480", 1024, 480, 11 }, /* Sony VAIO Pocketbook */
-	{ "Mode 12: 1152x768", 1152, 768, 12 }, /* Apple TiBook */
-	{ "Mode 13: 1280x854", 1280, 854, 13 } /* Apple TiBook */
+vidmode_t vid_modes[] = {
+    { "Mode 0: 320x240",     320,  240,  0 },
+    { "Mode 1: 400x300",     400,  300,  1 },
+    { "Mode 2: 512x384",     512,  384,  2 },
+    { "Mode 3: 640x480",     640,  480,  3 },
+    { "Mode 4: 800x600",     800,  600,  4 },
+    { "Mode 5: 960x720",     960,  720,  5 },
+    { "Mode 6: 1024x768",   1024,  768,  6 },
+    { "Mode 7: 1152x864",   1152,  864,  7 },
+    { "Mode 8: 1280x1024",  1280, 1024,  8 },
+    { "Mode 9: 1600x1200",  1600, 1200,  9 },
+    { "Mode 10: 2048x1536", 2048, 1536, 10 },
+    { "Mode 11: 1024x480",  1024,  480, 11 }, /* Sony VAIO Pocketbook */
+    { "Mode 12: 1152x768",  1152,  768, 12 }, /* Apple TiBook */
+    { "Mode 13: 1280x854",  1280,  854, 13 }  /* Apple TiBook */
 };
 
 qboolean VID_GetModeInfo( unsigned int *width, unsigned int *height, int mode )
@@ -232,14 +224,14 @@ qboolean VID_LoadRefresh(char * name) {
 	
     /* clean up a previous reflib */
     if (reflib_active) {
+	re.Shutdown();
+	VID_FreeReflib();
 	if (KBD_Close_fp)
 	    KBD_Close_fp();
 	if (RW_IN_Shutdown_fp)
 	    RW_IN_Shutdown_fp();
 	KBD_Close_fp = NULL;
 	RW_IN_Shutdown_fp = NULL;
-	re.Shutdown();
-	VID_FreeReflib ();
     }
 
     Com_Printf( "------- Loading %s -------\n", name );

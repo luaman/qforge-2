@@ -25,7 +25,7 @@
 #ifndef __QGL_H__
 #define __QGL_H__
 
-#ifdef _WIN32
+ #ifdef _WIN32
 # include <windows.h>
 #endif
 
