@@ -34,12 +34,17 @@
 #define	SVF_NOCLIENT			0x00000001	// don't send entity to clients, even if it has effects
 #define	SVF_DEADMONSTER			0x00000002	// treat as CONTENTS_DEADMONSTER for collision
 #define	SVF_MONSTER				0x00000004	// treat as CONTENTS_MONSTER for collision
-/* ZOID
+//ROGUE -- added for things that are damageable, but not monsters
+// right now, only the tesla has this
+#define SVF_DAMAGEABLE			0x00000008
+//ROGUE end
+// ZOID
 #define SVF_PROJECTILE			0x00000008  // entity is a simple projectile, used for network optimisation
-if an entity is projectile, the model index/x/y/z/pitch/yaw are sent, encoded into
-seven (or eight) bytes.  This is to speed up projectiles.  Currently, only the
-hyperblaster makes use of this.  use for items that are moving with a constant
-velocity that don't change direction or model
+/* ZOID
+if an entity is projectile, the model index/x/y/z/pitch/yaw are sent, encoded
+into seven (or eight) bytes.  This is to speed up projectiles.  Currently,
+only the hyperblaster makes use of this.  use for items that are moving with
+a constant velocity that don't change direction or model
 ZOID */
 
 // edict->solid values
@@ -116,17 +121,10 @@ struct edict_s
 typedef struct
 {
 	// special messages
-#if 0
-	void	(*bprintf) (int printlevel, char *fmt, ...) __attribute__((format(printf,2,3)));
-	void	(*dprintf) (char *fmt, ...) __attribute__((format(printf,1,2)));
-	void	(*cprintf) (edict_t *ent, int printlevel, char *fmt, ...) __attribute__((format(printf,3,4)));
-	void	(*centerprintf) (edict_t *ent, char *fmt, ...) __attribute__((format(printf,2,3)));
-#else
 	void	(*bprintf) (int printlevel, char *fmt, ...);
 	void	(*dprintf) (char *fmt, ...);
 	void	(*cprintf) (edict_t *ent, int printlevel, char *fmt, ...);
 	void	(*centerprintf) (edict_t *ent, char *fmt, ...);
-#endif
 	void	(*sound) (edict_t *ent, int channel, int soundindex, float volume, float attenuation, float timeofs);
 	void	(*positioned_sound) (vec3_t origin, edict_t *ent, int channel, int soundinedex, float volume, float attenuation, float timeofs);
 
@@ -137,7 +135,7 @@ typedef struct
 	void	(*configstring) (int num, char *string);
 
 	//void	(*error) (char *fmt, ...) __attribute__((noreturn, format(printf,1,2)));
-	void	(*error) (char *fmt, ...) __attribute__((noreturn));
+	void (*error)(char *fmt, ...) __attribute__((noreturn));
 
 	// the *index functions create configstrings and some internal server state
 	int		(*modelindex) (char *name);

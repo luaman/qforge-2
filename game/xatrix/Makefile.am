@@ -55,6 +55,6 @@ game_so_SOURCES = \
 			p_weapon.c \
 			q_shared.c
 
-AM_CFLAGS = -fPIC
-AM_CPPFLAGS = -I../../src -I..
+AM_CFLAGS = -fPIC -Wall -Werror -pipe
+AM_CPPFLAGS = -I../../src -I.. -Dstricmp=strcasecmp
 LDFLAGS = -shared

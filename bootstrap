@@ -4,7 +4,21 @@
 
 # bootstrap the build when checking out from CVS
 
-aclocal
-autoheader
-automake --foreign --add-missing --copy
-autoconf
+if [ "$1" == "clean" ]; then
+	# clean up junk
+	
+	if [ -f Makefile ]; then 
+		make distclean
+	fi
+	find . -name Makefile.in -print0 | xargs -0 rm -f
+	rm -f config.h.in aclocal.m4 install-sh missing mkinstalldirs \
+	      stamp-h.in tags configure
+
+else
+
+	aclocal
+	autoheader
+	automake --foreign --add-missing --copy
+	autoconf
+
+fi
