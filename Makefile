@@ -49,7 +49,7 @@ SERVER_DIR=$(MOUNT_DIR)/server
 REF_SOFT_DIR=$(MOUNT_DIR)/ref_soft
 REF_GL_DIR=$(MOUNT_DIR)/ref_gl
 COMMON_DIR=$(MOUNT_DIR)/qcommon
-LINUX_DIR=$(MOUNT_DIR)/src
+SRC_DIR=$(MOUNT_DIR)/src
 GAME_DIR=$(MOUNT_DIR)/game
 CTF_DIR=$(MOUNT_DIR)/ctf
 XATRIX_DIR=$(MOUNT_DIR)/xatrix
@@ -204,10 +204,10 @@ QUAKE2_OBJS = \
 	$(BUILDDIR)/client/sv_user.o \
 	$(BUILDDIR)/client/sv_world.o \
 	\
-	$(BUILDDIR)/client/q_shlinux.o \
+	$(BUILDDIR)/client/q_sh.o \
 	$(BUILDDIR)/client/vid_menu.o \
 	$(BUILDDIR)/client/vid_so.o \
-	$(BUILDDIR)/client/sys_linux.o \
+	$(BUILDDIR)/client/main.o \
 	$(BUILDDIR)/client/glob.o \
 	$(BUILDDIR)/client/net_udp.o \
 	\
@@ -215,8 +215,8 @@ QUAKE2_OBJS = \
 	$(BUILDDIR)/client/pmove.o
 
 QUAKE2_LNX_OBJS = \
-	$(BUILDDIR)/client/cd_linux.o \
-	$(BUILDDIR)/client/snd_linux.o
+	$(BUILDDIR)/client/cd.o \
+	$(BUILDDIR)/client/snd.o
 
 QUAKE2_SDL_OBJS = \
 	$(BUILDDIR)/client/cd_sdl.o \
@@ -352,37 +352,37 @@ $(BUILDDIR)/client/sv_user.o :    $(SERVER_DIR)/sv_user.c
 $(BUILDDIR)/client/sv_world.o :   $(SERVER_DIR)/sv_world.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/q_shlinux.o :  $(LINUX_DIR)/q_shlinux.c
+$(BUILDDIR)/client/q_sh.o :  $(SRC_DIR)/q_sh.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/vid_menu.o :   $(LINUX_DIR)/vid_menu.c
+$(BUILDDIR)/client/vid_menu.o :   $(SRC_DIR)/vid_menu.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/vid_so.o :     $(LINUX_DIR)/vid_so.c
+$(BUILDDIR)/client/vid_so.o :     $(SRC_DIR)/vid_so.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/snd_mixa.o :   $(LINUX_DIR)/snd_mixa.S
+$(BUILDDIR)/client/snd_mixa.o :   $(SRC_DIR)/snd_mixa.S
 	$(DO_AS)
 
-$(BUILDDIR)/client/sys_linux.o :  $(LINUX_DIR)/sys_linux.c
+$(BUILDDIR)/client/main.o :  $(SRC_DIR)/main.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/glob.o :       $(LINUX_DIR)/glob.c
+$(BUILDDIR)/client/glob.o :       $(SRC_DIR)/glob.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/net_udp.o :    $(LINUX_DIR)/net_udp.c
+$(BUILDDIR)/client/net_udp.o :    $(SRC_DIR)/net_udp.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/cd_linux.o :   $(LINUX_DIR)/cd_linux.c
+$(BUILDDIR)/client/cd.o :   $(SRC_DIR)/cd.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/snd_linux.o :  $(LINUX_DIR)/snd_linux.c
+$(BUILDDIR)/client/snd.o :  $(SRC_DIR)/snd.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/cd_sdl.o :     $(LINUX_DIR)/cd_sdl.c
+$(BUILDDIR)/client/cd_sdl.o :     $(SRC_DIR)/cd_sdl.c
 	$(DO_CC) $(SDLCFLAGS)
 
-$(BUILDDIR)/client/snd_sdl.o :     $(LINUX_DIR)/snd_sdl.c
+$(BUILDDIR)/client/snd_sdl.o :     $(SRC_DIR)/snd_sdl.c
 	$(DO_CC) $(SDLCFLAGS)
 
 #############################################################################
@@ -936,7 +936,7 @@ REF_SOFT_OBJS = \
 	$(BUILDDIR)/ref_soft/r_sprite.o \
 	$(BUILDDIR)/ref_soft/r_surf.o \
 	$(BUILDDIR)/ref_soft/q_shared.o \
-	$(BUILDDIR)/ref_soft/q_shlinux.o \
+	$(BUILDDIR)/ref_soft/q_sh.o \
 	$(BUILDDIR)/ref_soft/glob.o
 
 ifeq ($(ARCH),i386)
@@ -1028,61 +1028,61 @@ $(BUILDDIR)/ref_soft/r_sprite.o :     $(REF_SOFT_DIR)/r_sprite.c
 $(BUILDDIR)/ref_soft/r_surf.o :       $(REF_SOFT_DIR)/r_surf.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/r_aclipa.o :     $(LINUX_DIR)/r_aclipa.S
+$(BUILDDIR)/ref_soft/r_aclipa.o :     $(SRC_DIR)/r_aclipa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_draw16.o :     $(LINUX_DIR)/r_draw16.S
+$(BUILDDIR)/ref_soft/r_draw16.o :     $(SRC_DIR)/r_draw16.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_drawa.o :      $(LINUX_DIR)/r_drawa.S
+$(BUILDDIR)/ref_soft/r_drawa.o :      $(SRC_DIR)/r_drawa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_edgea.o :      $(LINUX_DIR)/r_edgea.S
+$(BUILDDIR)/ref_soft/r_edgea.o :      $(SRC_DIR)/r_edgea.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_scana.o :      $(LINUX_DIR)/r_scana.S
+$(BUILDDIR)/ref_soft/r_scana.o :      $(SRC_DIR)/r_scana.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_spr8.o :       $(LINUX_DIR)/r_spr8.S
+$(BUILDDIR)/ref_soft/r_spr8.o :       $(SRC_DIR)/r_spr8.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_surf8.o :      $(LINUX_DIR)/r_surf8.S
+$(BUILDDIR)/ref_soft/r_surf8.o :      $(SRC_DIR)/r_surf8.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/math.o :         $(LINUX_DIR)/math.S
+$(BUILDDIR)/ref_soft/math.o :         $(SRC_DIR)/math.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/d_polysa.o :     $(LINUX_DIR)/d_polysa.S
+$(BUILDDIR)/ref_soft/d_polysa.o :     $(SRC_DIR)/d_polysa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_varsa.o :      $(LINUX_DIR)/r_varsa.S
+$(BUILDDIR)/ref_soft/r_varsa.o :      $(SRC_DIR)/r_varsa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/sys_dosa.o :     $(LINUX_DIR)/sys_dosa.S
+$(BUILDDIR)/ref_soft/sys_dosa.o :     $(SRC_DIR)/sys_dosa.S
 	$(DO_SHLIB_AS)
 
 $(BUILDDIR)/ref_soft/q_shared.o :     $(GAME_DIR)/q_shared.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/q_shlinux.o :    $(LINUX_DIR)/q_shlinux.c
+$(BUILDDIR)/ref_soft/q_sh.o :    $(SRC_DIR)/q_sh.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/glob.o :         $(LINUX_DIR)/glob.c
+$(BUILDDIR)/ref_soft/glob.o :         $(SRC_DIR)/glob.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/d_copy.o :       $(LINUX_DIR)/d_copy.S
+$(BUILDDIR)/ref_soft/d_copy.o :       $(SRC_DIR)/d_copy.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/rw_svgalib.o :   $(LINUX_DIR)/rw_svgalib.c
+$(BUILDDIR)/ref_soft/rw_svgalib.o :   $(SRC_DIR)/rw_svgalib.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/rw_in_svgalib.o : $(LINUX_DIR)/rw_in_svgalib.c
+$(BUILDDIR)/ref_soft/rw_in_svgalib.o : $(SRC_DIR)/rw_in_svgalib.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/rw_x11.o :       $(LINUX_DIR)/rw_x11.c
+$(BUILDDIR)/ref_soft/rw_x11.o :       $(SRC_DIR)/rw_x11.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/rw_sdl.o :       $(LINUX_DIR)/rw_sdl.c
+$(BUILDDIR)/ref_soft/rw_sdl.o :       $(SRC_DIR)/rw_sdl.c
 	$(DO_SHLIB_CC) $(SDLCFLAGS)
 
 #############################################################################
@@ -1100,9 +1100,9 @@ REF_GL_OBJS = \
 	$(BUILDDIR)/ref_gl/gl_rsurf.o \
 	$(BUILDDIR)/ref_gl/gl_warp.o \
 	\
-	$(BUILDDIR)/ref_gl/qgl_linux.o \
+	$(BUILDDIR)/ref_gl/qgl.o \
 	$(BUILDDIR)/ref_gl/q_shared.o \
-	$(BUILDDIR)/ref_gl/q_shlinux.o \
+	$(BUILDDIR)/ref_gl/q_sh.o \
 	$(BUILDDIR)/ref_gl/glob.o
 
 REF_GLX_OBJS = \
@@ -1151,28 +1151,28 @@ $(BUILDDIR)/ref_gl/gl_rsurf.o :       $(REF_GL_DIR)/gl_rsurf.c
 $(BUILDDIR)/ref_gl/gl_warp.o :        $(REF_GL_DIR)/gl_warp.c
 	$(DO_GL_SHLIB_CC)
 
-$(BUILDDIR)/ref_gl/qgl_linux.o :      $(LINUX_DIR)/qgl_linux.c
+$(BUILDDIR)/ref_gl/qgl.o :      $(SRC_DIR)/qgl.c
 	$(DO_GL_SHLIB_CC)
 
 $(BUILDDIR)/ref_gl/q_shared.o :       $(GAME_DIR)/q_shared.c
 	$(DO_GL_SHLIB_CC)
 
-$(BUILDDIR)/ref_gl/q_shlinux.o :      $(LINUX_DIR)/q_shlinux.c
+$(BUILDDIR)/ref_gl/q_sh.o :      $(SRC_DIR)/q_sh.c
 	$(DO_GL_SHLIB_CC)
 
-$(BUILDDIR)/ref_gl/glob.o :           $(LINUX_DIR)/glob.c
+$(BUILDDIR)/ref_gl/glob.o :           $(SRC_DIR)/glob.c
 	$(DO_GL_SHLIB_CC)
 
-$(BUILDDIR)/ref_gl/gl_glx.o :         $(LINUX_DIR)/gl_glx.c
+$(BUILDDIR)/ref_gl/gl_glx.o :         $(SRC_DIR)/gl_glx.c
 	$(DO_GL_SHLIB_CC) $(GLXCFLAGS)
 
-$(BUILDDIR)/ref_gl/gl_fxmesa.o :      $(LINUX_DIR)/gl_fxmesa.c
+$(BUILDDIR)/ref_gl/gl_fxmesa.o :      $(SRC_DIR)/gl_fxmesa.c
 	$(DO_GL_SHLIB_CC) $(FXGLCFLAGS)
 
-$(BUILDDIR)/ref_gl/rw_in_svgalib.o :  $(LINUX_DIR)/rw_in_svgalib.c
+$(BUILDDIR)/ref_gl/rw_in_svgalib.o :  $(SRC_DIR)/rw_in_svgalib.c
 	$(DO_GL_SHLIB_CC)
 
-$(BUILDDIR)/ref_gl/rw_sdl.o :         $(LINUX_DIR)/rw_sdl.c
+$(BUILDDIR)/ref_gl/rw_sdl.o :         $(SRC_DIR)/rw_sdl.c
 	$(DO_GL_SHLIB_CC) $(SDLGLCFLAGS)
 
 #############################################################################

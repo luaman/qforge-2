@@ -53,7 +53,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../ref_soft/r_local.h"
 #include "../client/keys.h"
-#include "rw_linux.h"
+#include "rw.h"
 
 /*****************************************************************************/
 

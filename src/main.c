@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../qcommon/qcommon.h"
 #include "../game/game.h"
-#include "rw_linux.h"
+#include "rw.h"
 
 cvar_t *nostdout;
 
