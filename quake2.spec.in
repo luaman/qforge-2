@@ -1,7 +1,7 @@
 Name: @PACKAGE@
 Summary: Quake2 - classic first person shooter
 Version: @VERSION@
-Release: 1
+Release: 2
 Source: http://osdn.dl.sourceforge.net/sourceforge/quake/@PACKAGE@-@VERSION@.tar.gz
 URL: http://www.quakeforge.net/
 Group: Amusements/Games
@@ -25,7 +25,7 @@ CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{prefix} \
 make
 
 %install
-make install-strip prefix=$RPM_BUILD_ROOT/%{prefix}
+make install-strip DESTDIR=$RPM_BUILD_ROOT
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -42,5 +42,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Mon Dec 23 2002 Paul Jenner <psj.home@ntlworld.com>
-- Initial spec file
+- Fixed install path using DESTDIR
 
+* Mon Dec 23 2002 Paul Jenner <psj.home@ntlworld.com>
+- Initial spec file
