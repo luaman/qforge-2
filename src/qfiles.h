@@ -232,7 +232,35 @@ typedef struct miptex_s
 	int			value;
 } miptex_t;
 
-
+/*
+==============================================================================
+.M32 texture File Format
+==============================================================================
+*/
+ 
+typedef struct miptex32_s {
+    int version;
+    char name[128];
+    char altname[128]; /* texture substitution */
+    char animname[128];        /* next frame in animation chain */
+    char damagename[128]; /* image that should be shown when damaged */
+    unsigned width[16], height[16];
+    unsigned offsets[16];
+    int flags;
+    int contents;
+    int value;
+    float scale_x, scale_y;
+    int mip_scale;
+    /* detail texturing info */
+    char dt_name[128]; /* detailed texture name */
+    float dt_scale_x, dt_scale_y;
+    float dt_u, dt_v;
+    float dt_alpha;
+    int dt_src_blend_mode, dt_dst_blend_mode;
+    int flags2;
+    float damage_health;
+    int unused[18];
+} miptex32_t;
 
 /*
 ==============================================================================

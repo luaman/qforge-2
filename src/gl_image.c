@@ -1354,6 +1354,35 @@ image_t *GL_LoadWal (char *name)
 	return image;
 }
 
+/* .M32 Support */
+/*
+ * ==============
+ * GL_LoadWal32
+ * ==============
+ */
+image_t *GL_LoadWal32 (char *name)
+{
+	miptex32_t	*mt;
+	int		width, height, ofs;
+	image_t		*image;
+
+	ri.FS_LoadFile (name, (void **)&mt);
+	if (!mt)
+	{
+		ri.Con_Printf (PRINT_ALL, "GL_FindImage: Can't Load %s\n", name);
+		return r_notexture;
+	}
+
+	width = LittleLong (mt->width[0]);
+	height = LittleLong (mt->height[0]);
+	ofs = LittleLong (mt->offsets[0]);
+
+	image = GL_LoadPic (name, (byte *)mt + ofs, width, height, it_wall, 32);
+	ri.FS_FreeFile ((void *)mt);
+
+	return image;
+}
+
 /*
 ===============
 GL_FindImage
@@ -1406,8 +1435,9 @@ image_t	*GL_FindImage (char *name, imagetype_t type)
 		if (!pic)
 			return NULL; // ri.Sys_Error (ERR_DROP, "GL_FindImage: can't load %s", name);
 		image = GL_LoadPic (name, pic, width, height, type, 32);
-	}
-	else
+	} else if (!strcmp(name+len-4, ".m32")) {
+	    image = GL_LoadWal32 (name);
+	} else
 		return NULL;	//	ri.Sys_Error (ERR_DROP, "GL_FindImage: bad extension on: %s", name);
 
 
