@@ -550,9 +550,9 @@ static void install_grabs(void)
 				 CurrentTime);
 
 	if (in_dgamouse->value) {
+#ifdef HAVE_XF86_DGA
 		int MajorVersion, MinorVersion;
 
-#ifdef HAVE_XF86_DGA
 		if (!XF86DGAQueryVersion(dpy, &MajorVersion, &MinorVersion)) { 
 			// unable to query, probalby not supported
 			ri.Con_Printf( PRINT_ALL, "Failed to detect XF86DGA Mouse\n" );
