@@ -41,12 +41,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <unistd.h>
 #include <dlfcn.h>
 
-#include "../ref_gl/gl_local.h"
+#include "gl_local.h"
 
-#include "../client/keys.h"
+#include "keys.h"
 
-#include "../src/rw.h"
-#include "../src/glw.h"
+#include "rw.h"
+#include "glw.h"
 
 #include <GL/glx.h>
 

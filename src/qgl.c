@@ -40,7 +40,7 @@
 #define QGL
 #endif
 
-#include "../ref_gl/gl_local.h"
+#include "gl_local.h"
 #include "glw.h"
 
 //#include <GL/glx.h>

@@ -40,7 +40,7 @@ char *strlwr (char *s);
 #endif
 */
 
-#include "../client/ref.h"
+#include "ref.h"
 
 #include "qgl.h"
 
