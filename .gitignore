@@ -1,7 +1,8 @@
-quake2
-*.plg
 *.bce
 *.bcp
 *.opt
+*.plg
+.vimrc
 debugi386
+quake2
 releasei386
