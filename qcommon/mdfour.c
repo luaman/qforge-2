@@ -4,7 +4,7 @@
 	An implementation of MD4 designed for use in the samba SMB
 	authentication protocol
 
-	Copyright (C) 1997-1998  Andrew Tridgell
+	Copyright (C) 1997-1998 Andrew Tridgell
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -38,8 +38,8 @@ static const char rcsid[] =
 # include <strings.h>
 #endif
 
-#include "QF/mdfour.h"
-#include "QF/uint32.h"
+#include "mdfour.h"
+#include "uint32.h"
 
 /* NOTE: This code makes no attempt to be fast!
    It assumes that a int is at least 32 bits long
