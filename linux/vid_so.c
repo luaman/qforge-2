@@ -205,7 +205,9 @@ qboolean VID_LoadRefresh( char *name )
 	char	*path;
 	struct stat st;
 	extern uid_t saved_euid;
+#if 0
 	FILE *fp;
+#endif
 	
 	if ( reflib_active )
 	{

@@ -3,3 +3,5 @@ quake2
 *.bce
 *.bcp
 *.opt
+debugi386
+releasei386

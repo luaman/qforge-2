@@ -78,7 +78,7 @@ GAME_DIR=$(MOUNT_DIR)/game
 CTF_DIR=$(MOUNT_DIR)/ctf
 XATRIX_DIR=$(MOUNT_DIR)/xatrix
 
-BASE_CFLAGS=-Dstricmp=strcasecmp
+BASE_CFLAGS=-Dstricmp=strcasecmp -Wall -Werror
 
 DEBUG_CFLAGS=$(BASE_CFLAGS) -g
 
@@ -263,13 +263,14 @@ QUAKE2_OBJS = \
 	$(BUILDDIR)/client/qmenu.o \
 	$(BUILDDIR)/client/m_flash.o \
 	\
+	$(BUILDDIR)/client/checksum.o \
 	$(BUILDDIR)/client/cmd.o \
 	$(BUILDDIR)/client/cmodel.o \
 	$(BUILDDIR)/client/common.o \
 	$(BUILDDIR)/client/crc.o \
 	$(BUILDDIR)/client/cvar.o \
 	$(BUILDDIR)/client/files.o \
-	$(BUILDDIR)/client/md4.o \
+	$(BUILDDIR)/client/mdfour.o \
 	$(BUILDDIR)/client/net_chan.o \
 	\
 	$(BUILDDIR)/client/sv_ccmds.o \
@@ -372,6 +373,9 @@ $(BUILDDIR)/client/qmenu.o :      $(CLIENT_DIR)/qmenu.c
 $(BUILDDIR)/client/m_flash.o :    $(GAME_DIR)/m_flash.c
 	$(DO_CC)
 
+$(BUILDDIR)/client/checksum.o :   $(COMMON_DIR)/checksum.c
+	$(DO_CC)
+
 $(BUILDDIR)/client/cmd.o :        $(COMMON_DIR)/cmd.c
 	$(DO_CC)
 
@@ -390,7 +394,7 @@ $(BUILDDIR)/client/cvar.o :       $(COMMON_DIR)/cvar.c
 $(BUILDDIR)/client/files.o :      $(COMMON_DIR)/files.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/md4.o :        $(COMMON_DIR)/md4.c
+$(BUILDDIR)/client/mdfour.o :     $(COMMON_DIR)/mdfour.c
 	$(DO_CC)
 
 $(BUILDDIR)/client/net_chan.o :   $(COMMON_DIR)/net_chan.c
@@ -435,7 +439,7 @@ $(BUILDDIR)/client/vid_menu.o :   $(LINUX_DIR)/vid_menu.c
 $(BUILDDIR)/client/vid_so.o :     $(LINUX_DIR)/vid_so.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/snd_mixa.o :   $(LINUX_DIR)/snd_mixa.s
+$(BUILDDIR)/client/snd_mixa.o :   $(LINUX_DIR)/snd_mixa.S
 	$(DO_AS)
 
 $(BUILDDIR)/client/sys_linux.o :  $(LINUX_DIR)/sys_linux.c
@@ -1100,37 +1104,37 @@ $(BUILDDIR)/ref_soft/r_sprite.o :     $(REF_SOFT_DIR)/r_sprite.c
 $(BUILDDIR)/ref_soft/r_surf.o :       $(REF_SOFT_DIR)/r_surf.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/r_aclipa.o :     $(LINUX_DIR)/r_aclipa.s
+$(BUILDDIR)/ref_soft/r_aclipa.o :     $(LINUX_DIR)/r_aclipa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_draw16.o :     $(LINUX_DIR)/r_draw16.s
+$(BUILDDIR)/ref_soft/r_draw16.o :     $(LINUX_DIR)/r_draw16.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_drawa.o :      $(LINUX_DIR)/r_drawa.s
+$(BUILDDIR)/ref_soft/r_drawa.o :      $(LINUX_DIR)/r_drawa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_edgea.o :      $(LINUX_DIR)/r_edgea.s
+$(BUILDDIR)/ref_soft/r_edgea.o :      $(LINUX_DIR)/r_edgea.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_scana.o :      $(LINUX_DIR)/r_scana.s
+$(BUILDDIR)/ref_soft/r_scana.o :      $(LINUX_DIR)/r_scana.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_spr8.o :       $(LINUX_DIR)/r_spr8.s
+$(BUILDDIR)/ref_soft/r_spr8.o :       $(LINUX_DIR)/r_spr8.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_surf8.o :      $(LINUX_DIR)/r_surf8.s
+$(BUILDDIR)/ref_soft/r_surf8.o :      $(LINUX_DIR)/r_surf8.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/math.o :         $(LINUX_DIR)/math.s
+$(BUILDDIR)/ref_soft/math.o :         $(LINUX_DIR)/math.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/d_polysa.o :     $(LINUX_DIR)/d_polysa.s
+$(BUILDDIR)/ref_soft/d_polysa.o :     $(LINUX_DIR)/d_polysa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/r_varsa.o :      $(LINUX_DIR)/r_varsa.s
+$(BUILDDIR)/ref_soft/r_varsa.o :      $(LINUX_DIR)/r_varsa.S
 	$(DO_SHLIB_AS)
 
-$(BUILDDIR)/ref_soft/sys_dosa.o :     $(LINUX_DIR)/sys_dosa.s
+$(BUILDDIR)/ref_soft/sys_dosa.o :     $(LINUX_DIR)/sys_dosa.S
 	$(DO_SHLIB_AS)
 
 $(BUILDDIR)/ref_soft/q_shared.o :     $(GAME_DIR)/q_shared.c
@@ -1142,7 +1146,7 @@ $(BUILDDIR)/ref_soft/q_shlinux.o :    $(LINUX_DIR)/q_shlinux.c
 $(BUILDDIR)/ref_soft/glob.o :         $(LINUX_DIR)/glob.c
 	$(DO_SHLIB_CC)
 
-$(BUILDDIR)/ref_soft/d_copy.o :       $(LINUX_DIR)/d_copy.s
+$(BUILDDIR)/ref_soft/d_copy.o :       $(LINUX_DIR)/d_copy.S
 	$(DO_SHLIB_AS)
 
 $(BUILDDIR)/ref_soft/rw_svgalib.o :   $(LINUX_DIR)/rw_svgalib.c
