@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef __linux__
 //#include <GL/fxmesa.h>
 #include <GL/glx.h>
+#include <dlfcn.h>
 #ifndef __GLW_LINUX_H
 #include "../linux/glw_linux.h"
 #endif

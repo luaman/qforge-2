@@ -2995,15 +2995,6 @@ void QGL_Shutdown( void )
 	qglXSwapBuffers              = NULL;
 }
 
-#define GPA( a ) dlsym( glw_state.OpenGLLib, a )
-
-void *qwglGetProcAddress(char *symbol)
-{
-	if (glw_state.OpenGLLib)
-		return GPA ( symbol );
-	return NULL;
-}
-
 /*
 ** QGL_Init
 **
