@@ -23,5 +23,5 @@ fi
 aclocal && \
 autoheader && \
 libtoolize --copy --automake && \
-automake --foreign --add-missing --copy && \
+automake1.6 --foreign --add-missing --copy && \
 autoconf

@@ -13,6 +13,9 @@ if [ -z "$1" ]; then
 	echo this script is going to cvs export from that tag
 fi
 
+# this script is prone to err, tell me what's happening
+set -x
+
 cd ~/src/quake2
 
 chmod -R u+w export
