@@ -326,7 +326,7 @@ void GL_DrawAliasShadow (dmdl_t *paliashdr, int posenum)
 
 	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
-	height = -lheight + 1.0;
+	height = -lheight + 0.1f;
 
 	/* stencilbuffer shadows */
 	if (have_stencil && gl_stencilshadow->value) {
@@ -856,11 +856,15 @@ void R_DrawAliasModel (entity_t *e)
 	if (currententity->flags & RF_DEPTHHACK)
 		qglDepthRange (gldepthmin, gldepthmax);
 
-#if 1
+//#if 1
 	if (gl_shadows->value && !(currententity->flags & (RF_TRANSLUCENT | RF_WEAPONMODEL)))
 	{
 		qglPushMatrix ();
-		R_RotateForEntity (e);
+
+		/* don't rotate shadows on ungodly axes */
+		qglTranslatef(e->origin[0], e->origin[1], e->origin[2]);
+		qglRotatef(e->angles[1], 0, 0, 1);
+
 		qglDisable (GL_TEXTURE_2D);
 		qglEnable (GL_BLEND);
 		qglColor4ubv (color_black);
@@ -869,6 +873,6 @@ void R_DrawAliasModel (entity_t *e)
 		qglDisable (GL_BLEND);
 		qglPopMatrix ();
 	}
-#endif
+//#endif
 	qglColor4ubv (color_white);
 }
