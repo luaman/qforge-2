@@ -404,10 +404,10 @@ case "${host}" in
 		AC_MSG_CHECKING(if SDL sound will be used)
 		AC_ARG_ENABLE(sdlsound,
 			[  --enable-sdlsound       enable SDL sound instead of native drivers ],
-			AC_MSG_RESULT(SDL sound enabled)
+			AC_MSG_RESULT(yes)
 			AC_DEFINE(BUILD_SDLQUAKE2, 1, [Define this if you want SDL sound instead of native drivers])
 			BUILD_SDLQUAKE2=yes,
-			AC_MSG_RESULT(SDL sound disabled\, using native drivers)
+			AC_MSG_RESULT(no)
 		)
 		;;
 	*)
