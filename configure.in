@@ -165,7 +165,7 @@ if test "x$HAVE_OPENGL" != xno; then
 				OPENGL_LIBS="$OPENGL_LIBS -lX11 -lXext"
 				HAVE_OPENGL=yes,
 				HAVE_OPENGL=no,
-				[$OPENGL_LIBS]
+				[$OPENGL_LIBS -lX11 -lXext]
 			),
 			[$OPENGL_LIBS]
 		)
