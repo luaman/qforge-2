@@ -207,6 +207,8 @@ const char *Default_MenuKey( menuframework_s *m, int key )
 	case K_MOUSE1:
 	case K_MOUSE2:
 	case K_MOUSE3:
+	case K_MOUSE4:
+	case K_MOUSE5:
 	case K_JOY1:
 	case K_JOY2:
 	case K_JOY3:
@@ -582,6 +584,7 @@ char *bindnames[][2] =
 {
 {"+attack", 		"attack"},
 {"weapnext", 		"next weapon"},
+{"weapprev",		"previous weapon"},
 {"+forward", 		"walk forward"},
 {"+back", 			"backpedal"},
 {"+left", 			"turn left"},
@@ -1083,7 +1086,7 @@ static void ControlsSetMenuItemValues( void )
 	s_options_sfxvolume_slider.curvalue		= Cvar_VariableValue( "s_volume" ) * 10;
 	s_options_cdvolume_box.curvalue 		= !Cvar_VariableValue("cd_nocd");
 
-	Cvar_SetValue ( "cd_shuffle", 0);
+	s_options_cdshuffle_box.curvalue		= Cvar_VariableValue("cd_shuffle");
 
 	s_options_quality_list.curvalue			= !Cvar_VariableValue( "s_loadas8bit" );
 	s_options_sensitivity_slider.curvalue	= ( sensitivity->value ) * 2;
@@ -1139,9 +1142,8 @@ static void UpdateVolumeFunc( void *unused )
 	Cvar_SetValue( "s_volume", s_options_sfxvolume_slider.curvalue / 10 );
 }
 
-static void CDShuffleFunc( void *unused )
-{
-	Cvar_SetValue("cd_shuffle", !s_options_cdshuffle_box.curvalue);
+static void CDShuffleFunc(void * unused) {
+	Cvar_SetValue("cd_shuffle", s_options_cdshuffle_box.curvalue);
 }
 
 static void UpdateCDVolumeFunc( void *unused )
@@ -1151,17 +1153,12 @@ static void UpdateCDVolumeFunc( void *unused )
 	if (s_options_cdvolume_box.curvalue)
 	{
 		CDAudio_Init();
-		if (s_options_cdshuffle_box.curvalue)
-		{
+		if (s_options_cdshuffle_box.curvalue) {
 			CDAudio_RandomPlay();
-		}
-		else
-		{
+		} else {
 			CDAudio_Play(atoi(cl.configstrings[CS_CDTRACK]), true);
 		}
-	}
-	else
-	{
+	} else {
 		CDAudio_Stop();
 	}
 }
@@ -2272,7 +2269,13 @@ void M_AddToServerList (netadr_t adr, char *info)
 			return;
 
 	local_server_netadr[m_num_servers] = adr;
+#ifdef HAVE_IPV6
+	// show the IP address as well, useful to idenfity whether the server
+	// is IPv6 or IPv4
+	Com_sprintf(local_server_names[m_num_servers], sizeof(local_server_names[0])-1, "%s %s", info, NET_AdrToString(adr));
+#else
 	strncpy (local_server_names[m_num_servers], info, sizeof(local_server_names[0])-1);
+#endif
 	m_num_servers++;
 }
 

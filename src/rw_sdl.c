@@ -166,6 +166,16 @@ void RW_IN_Commands (void)
 		if ( !(mouse_buttonstate & (1<<i)) && (mouse_oldbuttonstate & (1<<i)) )
 			in_state->Key_Event_fp (K_MOUSE1 + i, false);
 	}
+	/* can't put in loop because K_MOUSE4 doesn't come after K_MOUSE3 */
+	if ((mouse_buttonstate & (1<<3)) && !(mouse_oldbuttonstate & (1<<3)))
+		in_state->Key_Event_fp(K_MOUSE4, true);
+	if (!(mouse_buttonstate * (1<<3)) && (mouse_oldbuttonstate & (1<<3)))
+		in_state->Key_Event_fp(K_MOUSE4, false);
+	if ((mouse_buttonstate & (1<<4)) && !(mouse_oldbuttonstate & (1<<4)))
+		in_state->Key_Event_fp(K_MOUSE5, true);
+	if (!(mouse_buttonstate * (1<<4)) && (mouse_oldbuttonstate & (1<<4)))
+		in_state->Key_Event_fp(K_MOUSE5, false);
+	
 	mouse_oldbuttonstate = mouse_buttonstate;
 }
 
@@ -858,10 +868,14 @@ void KBD_Update(void)
 	bstate = SDL_GetMouseState(NULL, NULL);
 	if (SDL_BUTTON(1) & bstate)
 		mouse_buttonstate |= (1 << 0);
-	if (SDL_BUTTON(2) & bstate)
+	if (SDL_BUTTON(3) & bstate) /* quake2 has the right button be mouse2 */
 		mouse_buttonstate |= (1 << 1);
-	if (SDL_BUTTON(3) & bstate)
+	if (SDL_BUTTON(2) & bstate) /* quake2 has the middle button be mouse3 */
 		mouse_buttonstate |= (1 << 2);
+	if (SDL_BUTTON(6) & bstate)
+		mouse_buttonstate |= (1 << 3);
+	if (SDL_BUTTON(7) & bstate)
+		mouse_buttonstate |= (1 << 4);
 	
 	if (old_windowed_mouse != _windowed_mouse->value) {
 		old_windowed_mouse = _windowed_mouse->value;

@@ -35,17 +35,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 #define BUILDSTRING "Win32 DEBUG"
 #endif
-
+/*
 #ifdef _M_IX86
 #define	CPUSTRING	"x86"
 #elif defined _M_ALPHA
 #define	CPUSTRING	"AXP"
 #endif
-
-#elif defined __linux__
+*/
+#elif defined __linux__ || defined __bsd__
 
 #define BUILDSTRING "Linux"
-
+/*
 #ifdef __i386__
 #define CPUSTRING "i386"
 #elif defined __alpha__
@@ -53,24 +53,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 #define CPUSTRING "Unknown"
 #endif
-
+*/
 #elif defined __sun__
 
 #define BUILDSTRING "Solaris"
-
+/*
 #ifdef __i386__
 #define CPUSTRING "i386"
 #else
 #define CPUSTRING "sparc"
 #endif
-
+*/
 #else	// !WIN32
 
 #define BUILDSTRING "NON-WIN32"
-#define	CPUSTRING	"NON-WIN32"
+/* #define	CPUSTRING	"NON-WIN32" */
 
 #endif
 
+/* all that crud above should die -- jaq */
+#define CPUSTRING ARCH
 //============================================================================
 
 typedef struct sizebuf_s
@@ -528,7 +530,26 @@ NET
 #define	MAX_MSGLEN		1400		// max length of a message
 #define	PACKET_HEADER	10			// two ints and a short
 
-typedef enum {NA_LOOPBACK, NA_BROADCAST, NA_IP, NA_IPX, NA_BROADCAST_IPX} netadrtype_t;
+/* from relnev 0.9 -- jaq */
+#ifdef HAVE_IPV6
+typedef enum {
+	NA_LOOPBACK,
+	NA_BROADCAST,
+	NA_IP,
+	NA_IPX,
+	NA_BROADCAST_IPX,
+	NA_IP6,
+	NA_MULTICAST6
+} netadrtype_t;
+#else
+typedef enum {
+	NA_LOOPBACK,
+	NA_BROADCAST,
+	NA_IP,
+	NA_IPX,
+	NA_BROADCAST_IPX
+} netadrtype_t;
+#endif
 
 typedef enum {NS_CLIENT, NS_SERVER} netsrc_t;
 
@@ -536,7 +557,14 @@ typedef struct
 {
 	netadrtype_t	type;
 
+	/* from relnev 0.9 -- jaq */
+#ifdef HAVE_IPV6
+	/* TODO: use sockaddr_storage instead */
+	byte ip[16];
+	unsigned int scope_id;
+#else
 	byte	ip[4];
+#endif
 	byte	ipx[10];
 
 	unsigned short	port;

@@ -35,6 +35,10 @@
 
 #include "../qcommon/qcommon.h"
 
+#if defined(__FreeBSD__)
+#include <machine/param.h>
+#endif
+
 //===============================================================================
 
 byte *membase;
@@ -79,6 +83,24 @@ void *Hunk_Alloc (int size)
 int Hunk_End (void)
 {
 	byte *n;
+
+/* from relnev 0.9 -- jaq */
+#ifdef __FreeBSD__
+	size_t old_size = maxhunksize;
+	size_t new_size = curhunksize + sizeof(int);
+	void * unmap_base;
+	size_t unmap_len;
+
+	new_size = round_page(new_size);
+	old_size = round_page(old_size);
+	if (new_size > old_size)
+		n = 0; /* error */
+	else if (new_size < old_size) {
+		unmap_base = (caddr_t) (membase + new_size);
+		unmap_len = old_size - new_size;
+		n = munmap(unmap_base, unmap_len) + membase;
+	}
+#endif
 
 #ifdef __linux__
 	n = mremap(membase, maxhunksize, curhunksize + sizeof(int), 0);

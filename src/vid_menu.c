@@ -162,12 +162,14 @@ static void ApplyChanges( void *unused )
 		break;
 	case REF_GLX:
 		Cvar_Set( "vid_ref", "glx" );
+		/* below is wrong if we use different libs for different GL reflibs */
 		Cvar_Set( "gl_driver", "libGL.so" );
 		if (gl_driver->modified)
 			vid_ref->modified = true;
 		break;
 	case REF_SDLGL:
 		Cvar_Set( "vid_ref", "sdlgl" );
+		/* below is wrong if we use different libs for different GL reflibs */
 		Cvar_Set( "gl_driver", "libGL.so" );
 		if (gl_driver->modified)
 			vid_ref->modified = true;

@@ -79,6 +79,8 @@ enum QKEYS {
 	K_MOUSE1			= 200,
 	K_MOUSE2			= 201,
 	K_MOUSE3			= 202,
+	K_MOUSE4			= 241,
+	K_MOUSE5			= 242,
 
 //
 // joystick buttons
@@ -133,8 +135,8 @@ enum QKEYS {
 	K_LAST
 };
 
-extern char	   *keybindings[K_LAST];
-extern int		key_repeats[K_LAST];
+extern char * keybindings[K_LAST];
+extern int key_repeats[K_LAST];
 
 extern	int	anykeydown;
 extern char chat_buffer[];

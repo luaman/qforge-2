@@ -18,8 +18,15 @@ BUILD_GLX=YES		# X11 GLX driver. Works somewhat ok.
 BUILD_FXGL=NO		# FXMesa driver. Not tested. (used only for V1 and V2).
 BUILD_SDL=YES		# SDL software driver. Works fine for some people.
 BUILD_SDLGL=YES		# SDL OpenGL driver. Works fine for some people.
-BUILD_CTFDLL=YES		# gamei386.so for ctf
-# i can add support for building xatrix and rogue libs if needed
+BUILD_CTFDLL=YES	# game$(ARCH).so for ctf
+BUILD_XATRIX=NO		# game$(ARCH).so for xatrix
+BUILD_ROGUE=NO		# game$(ARCH).so for rogue
+
+# Other compile time options:
+# Compile with IPv6 (Protocol independent api, tested on FreeBSD)
+HAVE_IPV6=NO
+
+# hopefully end of configurable options
 
 # this nice line comes from the linux kernel makefile
 ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc/ -e s/sparc64/sparc/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
@@ -37,7 +44,6 @@ RELEASE_CFLAGS+=-O2 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -g
 #	-malign-jumps=2 -malign-functions=2
 endif
 
-# (hopefully) end of configurable options
 VERSION=3.21
 
 MOUNT_DIR=.
@@ -53,8 +59,16 @@ SRC_DIR=$(MOUNT_DIR)/src
 GAME_DIR=$(MOUNT_DIR)/game
 CTF_DIR=$(MOUNT_DIR)/ctf
 XATRIX_DIR=$(MOUNT_DIR)/xatrix
+ROGUE_DIR=$(MOUNT_DIR)/rogue
 
 BASE_CFLAGS=-Dstricmp=strcasecmp -Wall -Werror -pipe #-pedantic
+
+ifeq ($(HAVE_IPV6),YES)
+	BASE_CFLAGS+=-DHAVE_IPV6 -DHAVE_SIN6_LEN
+	NET_UDP=net_udp6
+else
+	NET_UDP=net_udp
+endif
 
 ifneq ($(ARCH),i386)
   BASE_CFLAGS+=-DC_ONLY
@@ -66,17 +80,17 @@ LDFLAGS=-lm -ldl -lpthread
 
 SVGALDFLAGS=-lvga
 
-XCFLAGS=
+XCFLAGS=-I/usr/X11R6/include
 XLDFLAGS=-L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
 
 SDLCFLAGS=$(shell sdl-config --cflags)
 SDLLDFLAGS=$(shell sdl-config --libs)
 
-FXGLCFLAGS=
+FXGLCFLAGS=-I/usr/X11R6/include
 FXGLLDFLAGS=-L/usr/local/glide/lib -L/usr/X11/lib -L/usr/local/lib \
 	-L/usr/X11R6/lib -lX11 -lXext -lGL -lvga
 
-GLXCFLAGS=
+GLXCFLAGS=-I/usr/X11R6/include
 GLXLDFLAGS=-L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
 
 SDLGLCFLAGS=$(SDLCFLAGS) -DOPENGL
@@ -104,6 +118,14 @@ TARGETS=$(BUILDDIR)/quake2 $(BUILDDIR)/game$(ARCH).$(SHLIBEXT)
 
 ifeq ($(strip $(BUILD_CTFDLL)),YES)
  TARGETS += $(BUILDDIR)/ctf/game$(ARCH).$(SHLIBEXT)
+endif
+
+ifeq ($(strip $(BUILD_XATRIX)),YES)
+	TARGETS+=$(BUILDDIR)/xatrix/game$(ARCH).$(SHLIBEXT)
+endif
+
+ifeq ($(strip $(BUILD_ROGUE)),YES)
+	TARGETS+=$(BUILDDIR)/rogue/game$(ARCH).$(SHLIBEXT)
 endif
 
  ifeq ($(strip $(BUILD_SDLQUAKE2)),YES)
@@ -145,8 +167,10 @@ build_debug:
 		$(BUILD_DEBUG_DIR)/ref_soft \
 		$(BUILD_DEBUG_DIR)/ref_gl \
 		$(BUILD_DEBUG_DIR)/game \
-		$(BUILD_DEBUG_DIR)/ctf
-	$(MAKE) targets BUILDDIR=$(BUILD_DEBUG_DIR) CFLAGS="$(DEBUG_CFLAGS)"
+		$(BUILD_DEBUG_DIR)/ctf \
+		$(BUILD_DEBUG_DIR)/xatrix \
+		$(BUILD_DEBUG_DIR)/rogue
+	$(MAKE) targets BUILDDIR=$(BUILD_DEBUG_DIR) CFLAGS="$(DEBUG_CFLAGS) -DLINUX_VERSION='\"$(VERSION) Debug\"'"
 
 build_release:
 	@-mkdir -p $(BUILD_RELEASE_DIR) \
@@ -154,8 +178,10 @@ build_release:
 		$(BUILD_RELEASE_DIR)/ref_soft \
 		$(BUILD_RELEASE_DIR)/ref_gl \
 		$(BUILD_RELEASE_DIR)/game \
-		$(BUILD_RELEASE_DIR)/ctf
-	$(MAKE) targets BUILDDIR=$(BUILD_RELEASE_DIR) CFLAGS="$(RELEASE_CFLAGS)"
+		$(BUILD_RELEASE_DIR)/ctf \
+		$(BUILD_RELEASE_DIR)/xatrix \
+		$(BUILD_RELEASE_DIR)/rogue
+	$(MAKE) targets BUILDDIR=$(BUILD_RELEASE_DIR) CFLAGS="$(RELEASE_CFLAGS) -DLINUX_VERSION='\"$(VERSION)\"'"
 
 targets: $(TARGETS)
 
@@ -209,7 +235,7 @@ QUAKE2_OBJS = \
 	$(BUILDDIR)/client/vid_so.o \
 	$(BUILDDIR)/client/main.o \
 	$(BUILDDIR)/client/glob.o \
-	$(BUILDDIR)/client/net_udp.o \
+	$(BUILDDIR)/client/$(NET_UDP).o \
 	\
 	$(BUILDDIR)/client/q_shared.o \
 	$(BUILDDIR)/client/pmove.o
@@ -371,6 +397,9 @@ $(BUILDDIR)/client/glob.o :       $(SRC_DIR)/glob.c
 	$(DO_CC)
 
 $(BUILDDIR)/client/net_udp.o :    $(SRC_DIR)/net_udp.c
+	$(DO_CC)
+
+$(BUILDDIR)/client/net_udp6.o :		$(SRC_DIR)/net_udp6.c
 	$(DO_CC)
 
 $(BUILDDIR)/client/cd.o :   $(SRC_DIR)/cd.c
@@ -705,6 +734,7 @@ $(BUILDDIR)/ctf/q_shared.o :   $(CTF_DIR)/q_shared.c
 
 XATRIX_OBJS = \
 	$(BUILDDIR)/xatrix/g_ai.o \
+	$(BUILDDIR)/xatrix/g_chase.o \
 	$(BUILDDIR)/xatrix/g_cmds.o \
 	$(BUILDDIR)/xatrix/g_combat.o \
 	$(BUILDDIR)/xatrix/g_func.o \
@@ -760,6 +790,9 @@ $(BUILDDIR)/xatrix/game$(ARCH).$(SHLIBEXT) : $(XATRIX_OBJS)
 	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(XATRIX_OBJS)
 
 $(BUILDDIR)/xatrix/g_ai.o :        $(XATRIX_DIR)/g_ai.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/xatrix/g_chase.o : 		$(XATRIX_DIR)/g_chase.c
 	$(DO_SHLIB_CC)
 
 $(BUILDDIR)/xatrix/g_cmds.o :      $(XATRIX_DIR)/g_cmds.c
@@ -912,6 +945,262 @@ $(BUILDDIR)/xatrix/p_weapon.o :    $(XATRIX_DIR)/p_weapon.c
 $(BUILDDIR)/xatrix/q_shared.o :    $(XATRIX_DIR)/q_shared.c
 	$(DO_SHLIB_CC)
 
+#############################################################################
+# ROGUE
+#############################################################################
+
+ROGUE_OBJS = \
+	$(BUILDDIR)/rogue/dm_ball.o \
+       $(BUILDDIR)/rogue/dm_tag.o \
+       $(BUILDDIR)/rogue/g_ai.o \
+       $(BUILDDIR)/rogue/g_chase.o \
+       $(BUILDDIR)/rogue/g_cmds.o \
+       $(BUILDDIR)/rogue/g_combat.o \
+       $(BUILDDIR)/rogue/g_func.o \
+       $(BUILDDIR)/rogue/g_items.o \
+       $(BUILDDIR)/rogue/g_main.o \
+       $(BUILDDIR)/rogue/g_misc.o \
+       $(BUILDDIR)/rogue/g_monster.o \
+       $(BUILDDIR)/rogue/g_newai.o \
+       $(BUILDDIR)/rogue/g_newdm.o \
+       $(BUILDDIR)/rogue/g_newfnc.o \
+       $(BUILDDIR)/rogue/g_newtarg.o \
+       $(BUILDDIR)/rogue/g_newtrig.o \
+       $(BUILDDIR)/rogue/g_newweap.o \
+       $(BUILDDIR)/rogue/g_phys.o \
+       $(BUILDDIR)/rogue/g_save.o \
+       $(BUILDDIR)/rogue/g_spawn.o \
+       $(BUILDDIR)/rogue/g_sphere.o \
+       $(BUILDDIR)/rogue/g_svcmds.o \
+       $(BUILDDIR)/rogue/g_target.o \
+       $(BUILDDIR)/rogue/g_trigger.o \
+       $(BUILDDIR)/rogue/g_turret.o \
+       $(BUILDDIR)/rogue/g_utils.o \
+       $(BUILDDIR)/rogue/g_weapon.o \
+       $(BUILDDIR)/rogue/m_actor.o \
+       $(BUILDDIR)/rogue/m_berserk.o \
+       $(BUILDDIR)/rogue/m_boss2.o \
+       $(BUILDDIR)/rogue/m_boss3.o \
+       $(BUILDDIR)/rogue/m_boss31.o \
+       $(BUILDDIR)/rogue/m_boss32.o \
+       $(BUILDDIR)/rogue/m_brain.o \
+       $(BUILDDIR)/rogue/m_carrier.o \
+       $(BUILDDIR)/rogue/m_chick.o \
+       $(BUILDDIR)/rogue/m_flash.o \
+       $(BUILDDIR)/rogue/m_flipper.o \
+       $(BUILDDIR)/rogue/m_float.o \
+       $(BUILDDIR)/rogue/m_flyer.o \
+       $(BUILDDIR)/rogue/m_gladiator.o \
+       $(BUILDDIR)/rogue/m_gunner.o \
+       $(BUILDDIR)/rogue/m_hover.o \
+       $(BUILDDIR)/rogue/m_infantry.o \
+       $(BUILDDIR)/rogue/m_insane.o \
+       $(BUILDDIR)/rogue/m_medic.o \
+       $(BUILDDIR)/rogue/m_move.o \
+       $(BUILDDIR)/rogue/m_mutant.o \
+       $(BUILDDIR)/rogue/m_parasite.o \
+       $(BUILDDIR)/rogue/m_soldier.o \
+       $(BUILDDIR)/rogue/m_stalker.o \
+       $(BUILDDIR)/rogue/m_supertank.o \
+       $(BUILDDIR)/rogue/m_tank.o \
+       $(BUILDDIR)/rogue/m_turret.o \
+       $(BUILDDIR)/rogue/m_widow.o \
+       $(BUILDDIR)/rogue/m_widow2.o \
+       $(BUILDDIR)/rogue/p_client.o \
+       $(BUILDDIR)/rogue/p_hud.o \
+       $(BUILDDIR)/rogue/p_trail.o \
+       $(BUILDDIR)/rogue/p_view.o \
+       $(BUILDDIR)/rogue/p_weapon.o \
+       $(BUILDDIR)/rogue/q_shared.o
+
+$(BUILDDIR)/rogue/game$(ARCH).$(SHLIBEXT) : $(ROGUE_OBJS)
+	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(ROGUE_OBJS)
+
+$(BUILDDIR)/rogue/dm_ball.o :      $(ROGUE_DIR)/dm_ball.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/dm_tag.o :       $(ROGUE_DIR)/dm_tag.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_ai.o :         $(ROGUE_DIR)/g_ai.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_chase.o :      $(ROGUE_DIR)/g_chase.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_cmds.o :       $(ROGUE_DIR)/g_cmds.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_combat.o :     $(ROGUE_DIR)/g_combat.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_func.o :       $(ROGUE_DIR)/g_func.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_items.o :      $(ROGUE_DIR)/g_items.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_main.o :       $(ROGUE_DIR)/g_main.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_misc.o :       $(ROGUE_DIR)/g_misc.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_monster.o :    $(ROGUE_DIR)/g_monster.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_newai.o :      $(ROGUE_DIR)/g_newai.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_newdm.o :      $(ROGUE_DIR)/g_newdm.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_newfnc.o :     $(ROGUE_DIR)/g_newfnc.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_newtarg.o :    $(ROGUE_DIR)/g_newtarg.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_newtrig.o :    $(ROGUE_DIR)/g_newtrig.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_newweap.o :    $(ROGUE_DIR)/g_newweap.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_phys.o :       $(ROGUE_DIR)/g_phys.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_save.o :       $(ROGUE_DIR)/g_save.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_spawn.o :      $(ROGUE_DIR)/g_spawn.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_sphere.o :     $(ROGUE_DIR)/g_sphere.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_svcmds.o :     $(ROGUE_DIR)/g_svcmds.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_target.o :     $(ROGUE_DIR)/g_target.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_trigger.o :    $(ROGUE_DIR)/g_trigger.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_turret.o :     $(ROGUE_DIR)/g_turret.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_utils.o :      $(ROGUE_DIR)/g_utils.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/g_weapon.o :     $(ROGUE_DIR)/g_weapon.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_actor.o :      $(ROGUE_DIR)/m_actor.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_berserk.o :    $(ROGUE_DIR)/m_berserk.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_boss2.o :      $(ROGUE_DIR)/m_boss2.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_boss3.o :      $(ROGUE_DIR)/m_boss3.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_boss31.o :     $(ROGUE_DIR)/m_boss31.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_boss32.o :     $(ROGUE_DIR)/m_boss32.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_brain.o :      $(ROGUE_DIR)/m_brain.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_carrier.o :    $(ROGUE_DIR)/m_carrier.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_chick.o :      $(ROGUE_DIR)/m_chick.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_flash.o :      $(ROGUE_DIR)/m_flash.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_flipper.o :    $(ROGUE_DIR)/m_flipper.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_float.o :      $(ROGUE_DIR)/m_float.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_flyer.o :      $(ROGUE_DIR)/m_flyer.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_gladiator.o :  $(ROGUE_DIR)/m_gladiator.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_gunner.o :     $(ROGUE_DIR)/m_gunner.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_hover.o :      $(ROGUE_DIR)/m_hover.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_infantry.o :   $(ROGUE_DIR)/m_infantry.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_insane.o :     $(ROGUE_DIR)/m_insane.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_medic.o :      $(ROGUE_DIR)/m_medic.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_move.o :       $(ROGUE_DIR)/m_move.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_mutant.o :     $(ROGUE_DIR)/m_mutant.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_parasite.o :   $(ROGUE_DIR)/m_parasite.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_soldier.o :    $(ROGUE_DIR)/m_soldier.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_stalker.o :    $(ROGUE_DIR)/m_stalker.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_supertank.o :  $(ROGUE_DIR)/m_supertank.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_tank.o :       $(ROGUE_DIR)/m_tank.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_turret.o :     $(ROGUE_DIR)/m_turret.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_widow.o :      $(ROGUE_DIR)/m_widow.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/m_widow2.o :     $(ROGUE_DIR)/m_widow2.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/p_client.o :     $(ROGUE_DIR)/p_client.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/p_hud.o :        $(ROGUE_DIR)/p_hud.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/p_trail.o :      $(ROGUE_DIR)/p_trail.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/p_view.o :       $(ROGUE_DIR)/p_view.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/p_weapon.o :     $(ROGUE_DIR)/p_weapon.c
+	$(DO_SHLIB_CC)
+
+$(BUILDDIR)/rogue/q_shared.o :     $(ROGUE_DIR)/q_shared.c
+	$(DO_SHLIB_CC)
 
 #############################################################################
 # REF_SOFT

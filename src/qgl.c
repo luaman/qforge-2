@@ -3065,6 +3065,10 @@ qboolean QGL_Init( const char *dllname )
 		putenv( envbuffer );
 	}
 
+	/* from relnev 0.9 -- jaq */
+	if (glw_state.OpenGLLib)
+		QGL_Shutdown();
+
 	if ( ( glw_state.OpenGLLib = dlopen( dllname, RTLD_LAZY | RTLD_GLOBAL ) ) == 0 )
 	{
 		char	fn[MAX_OSPATH];

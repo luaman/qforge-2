@@ -30,7 +30,7 @@
 #ifndef __GLW_H__
 #define __GLW_H__
 
-#ifdef __linux__
+#if defined __linux__  || defined __bsd__ || defined __sgi
 
 typedef struct
 {

@@ -84,18 +84,18 @@ void Sys_ConsoleOutput (char *string)
 	fputs(string, stdout);
 }
 
-void Sys_Printf (char *fmt, ...)
-{
-	va_list		argptr;
-	char		text[1024];
-	unsigned char		*p;
+void Sys_Printf (char *fmt, ...) {
+	va_list argptr;
+	char text[1024];
+	unsigned char * p;
 
 	va_start (argptr,fmt);
 	vsnprintf (text,1024,fmt,argptr);
 	va_end (argptr);
 
-	if (strlen(text) > sizeof(text))
-		Sys_Error("memory overwrite in Sys_Printf");
+	/* relnev 0.9 deleted -- jaq */
+	/* if (strlen(text) > sizeof(text))
+		Sys_Error("memory overwrite in Sys_Printf"); */
 
     if (nostdout && nostdout->value)
         return;
@@ -241,7 +241,10 @@ void *Sys_GetGameAPI (void *parms)
 	char	*path;
 	char	*str_p;
 
-	const char *gamename = "game"ARCH".so";
+	/* relnev 0.9 added -- jaq */
+	FILE * fp;
+
+	const char * gamename = "game"ARCH".so";
 
 	setreuid(getuid(), getuid());
 	setegid(getgid());
@@ -259,16 +262,22 @@ void *Sys_GetGameAPI (void *parms)
 		if (!path)
 			return NULL;		// couldn't find one anywhere
 		snprintf (name, MAX_OSPATH, "%s/%s", path, gamename);
-		game_library = dlopen (name, RTLD_NOW );
-		if (game_library)
-		{
+
+		/* relnev 0.9 added -- jaq */
+		/* skip it if it just doesn't exist */
+		fp = fopen(name, "rb");
+		if (fp == NULL)
+			continue;
+		fclose(fp);
+		
+		game_library = dlopen(name, RTLD_NOW);
+		if (game_library) {
 			Com_MDPrintf ("LoadLibrary (%s)\n",name);
 			break;
 		} else {
 			Com_MDPrintf ("LoadLibrary (%s)\n", name);
 			str_p = strchr(dlerror(), ':');	// skip the path (already shown)
-			if (str_p != NULL)
-			{
+			if (str_p != NULL) {
 				Com_MDPrintf (" **");
 				while (*str_p)
 					Com_MDPrintf ("%c", *(++str_p));
@@ -314,6 +323,9 @@ int main (int argc, char **argv)
 	// go back to real user for config loads
 	saved_euid = geteuid();
 	seteuid(getuid());
+
+	/* relnev 0.9 added -- jaq */
+	printf("Quake II -- Version %s\n", LINUX_VERSION);
 
 	Qcommon_Init(argc, argv);
 

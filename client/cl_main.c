@@ -423,6 +423,8 @@ void CL_SendConnectPacket (void)
 	netadr_t	adr;
 	int		port;
 
+	memset(&adr, 0, sizeof(adr));
+
 	if (!NET_StringToAdr (cls.servername, &adr))
 	{
 		Com_Printf ("Bad server address\n");
@@ -543,6 +545,8 @@ void CL_Rcon_f (void)
 					"issuing an rcon command.\n");
 		return;
 	}
+
+	memset(&to, 0, sizeof(to));
 
 	message[0] = (char)255;
 	message[1] = (char)255;
@@ -818,6 +822,13 @@ void CL_PingServers_f (void)
 		adr.port = BigShort(PORT_SERVER);
 		Netchan_OutOfBandPrint (NS_CLIENT, adr, va("info %i", PROTOCOL_VERSION));
 	}
+
+#ifdef HAVE_IPV6
+	Com_Printf("pinging multicast...\n");
+	adr.type = NA_MULTICAST6;
+	adr.port = BigShort(PORT_SERVER);
+	Netchan_OutOfBandPrint(NS_CLIENT, adr, va("info %i", PROTOCOL_VERSION));
+#endif
 
 	noipx = Cvar_Get ("noipx", "0", CVAR_NOSET);
 	if (!noipx->value)
@@ -1787,7 +1798,7 @@ void CL_Init (void)
 	// all archived variables will now be loaded
 
 	Con_Init ();	
-#if defined __linux__ || defined __sgi
+#if defined __linux__ || defined __FreeBSD__ || defined __sgi
 	S_Init ();	
 	VID_Init ();
 #else

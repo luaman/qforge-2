@@ -37,7 +37,7 @@
 #ifdef __linux__
 	#include <linux/soundcard.h>
 #else /* bsd */
-	#include <soundcard.h>
+	#include <soundcard.h>  /* freebsd might be <sys/soundcard.h> */
 #endif /* __linux__ */
 
 #else /* __sgi */
@@ -293,7 +293,8 @@ qboolean SNDDMA_Init(void) {
         if (fmt & AFMT_S16_NE) dma.samplebits = 16;
         else if (fmt & AFMT_U8) dma.samplebits = 8;
     }
-
+/* in relnev 0.9, from here until the next RELNEV 0.9 comment has been moved
+ * down to the following RELNEV 0.9 comment -- jaq */
 	dma.speed = (int)sndspeed->value;
 	if (!dma.speed) {
 		for (i=0 ; i<sizeof(tryrates)/4 ; i++)
@@ -341,6 +342,7 @@ qboolean SNDDMA_Init(void) {
 		dma.channels = 2;
 	else
 		dma.channels = 1;
+	/* RELNEV 0.9 end deletion */
 
     if (dma.samplebits == 16)
     {
@@ -377,6 +379,8 @@ qboolean SNDDMA_Init(void) {
 		return 0;
 	}
 
+	/* RELNEV 0.9 insert some here */
+
 	rc = ioctl(audio_fd, SNDCTL_DSP_SPEED, &dma.speed);
 	if (rc < 0)
 	{
@@ -386,6 +390,8 @@ qboolean SNDDMA_Init(void) {
 		audio_fd = -1;
 		return 0;
 	}
+
+	/* RELNEV 0.9 insert the mmap stuff here */
 
 // toggle the trigger & start her up
 
