@@ -1,22 +1,24 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 #include <assert.h>
 #include "r_local.h"
 
@@ -1189,39 +1191,28 @@ static void R_DrawPoly( int iswater )
 /*
 ** R_DrawAlphaSurfaces
 */
-void R_DrawAlphaSurfaces( void )
-{
-	msurface_t *s = r_alpha_surfaces;
+void R_DrawAlphaSurfaces(void) {
+    msurface_t * s = r_alpha_surfaces;
 
-	currentmodel = r_worldmodel;
+    currentmodel = r_worldmodel;
 
-	modelorg[0] = -r_origin[0];
-	modelorg[1] = -r_origin[1];
-	modelorg[2] = -r_origin[2];
+    modelorg[0] = -r_origin[0];
+    modelorg[1] = -r_origin[1];
+    modelorg[2] = -r_origin[2];
 
-	while ( s )
-	{
-		R_BuildPolygonFromSurface( s );
+    while (s) {
+	R_BuildPolygonFromSurface( s );
 
-//=======
-//PGM
-//		if (s->texinfo->flags & SURF_TRANS66)
-//			R_ClipAndDrawPoly( 0.60f, ( s->texinfo->flags & SURF_WARP) != 0, true );
-//		else
-//			R_ClipAndDrawPoly( 0.30f, ( s->texinfo->flags & SURF_WARP) != 0, true );
+	// PGM - pass down all the texinfo flags, not just SURF_WARP.
+	if (s->texinfo->flags & SURF_TRANS66)
+	    R_ClipAndDrawPoly(0.60f, (s->texinfo->flags & (SURF_WARP|SURF_FLOWING)), true);
+	else
+	    R_ClipAndDrawPoly(0.30f, (s->texinfo->flags & (SURF_WARP|SURF_FLOWING)), true);
 
-		// PGM - pass down all the texinfo flags, not just SURF_WARP.
-		if (s->texinfo->flags & SURF_TRANS66)
-			R_ClipAndDrawPoly( 0.60f, (s->texinfo->flags & (SURF_WARP|SURF_FLOWING)), true );
-		else
-			R_ClipAndDrawPoly( 0.30f, (s->texinfo->flags & (SURF_WARP|SURF_FLOWING)), true );
-//PGM
-//=======
+	s = s->nextalphasurface;
+    }
 
-		s = s->nextalphasurface;
-	}
-	
-	r_alpha_surfaces = NULL;
+    r_alpha_surfaces = NULL;
 }
 
 /*
