@@ -1,3 +1,4 @@
 * merge net_udp6.c into net_udp.c
 * kill off ctf/q_shared.c, it's identical to src/q_shared.c
-
+* clean up the #ifdefs that are throughout the code to be has-a
+  tests instead of is-a. (using HAVE_* from configure instead of __blerg__)
