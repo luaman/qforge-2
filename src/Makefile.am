@@ -30,6 +30,12 @@ else
 REF_SOFT_ASM =
 endif
 
+if ASM_ARCH
+QUAKE2_ASM=snd_mixa.S
+else
+QUAKE2_ASM=
+endif
+
 quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 		\
 		cl_cin.c cl_ents.c cl_fx.c cl_input.c cl_inv.c \
@@ -48,9 +54,10 @@ quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 		\
 		q_shared.c pmove.c \
 		\
-		m_flash.c
-#		\
-#		#snd_mixa.S
+		m_flash.c \
+		\
+		$(QUAKE2_ASM)
+
 quake2_CFLAGS = $(std_cflags) @INCLTDL@ @PTHREAD_CFLAGS@
 # the macro puts -pthread into cflags, but we want to link
 # with this flag too, so stick it into the ldflags if it's there...

@@ -78,7 +78,8 @@ LClampDone2:
 		ret
 	}
 }
-#else
+#else /* HAVE_MASM */
+# ifndef USE_ASM
 void S_WriteLinearBlastStereo16 (void) {
 	int		i;
 	int		val;
@@ -102,6 +103,7 @@ void S_WriteLinearBlastStereo16 (void) {
 			snd_out[i+1] = val;
 	}
 }
+# endif /* !USE_ASM */
 #endif /* HAVE_MASM */
 
 void S_TransferStereo16 (unsigned long *pbuf, int endtime)
@@ -429,7 +431,8 @@ LDone:
 		ret
 	}
 }
-#else
+#else /* HAVE_MASM */
+# ifndef USE_ASM
 void S_PaintChannelFrom8 (channel_t *ch, sfxcache_t *sc, int count, int offset) {
 	int 	data;
 	int		*lscale, *rscale;
@@ -459,6 +462,7 @@ void S_PaintChannelFrom8 (channel_t *ch, sfxcache_t *sc, int count, int offset) 
 	
 	ch->pos += count;
 }
+# endif /* !USE_ASM */
 #endif /* HAVE_MASM */
 
 void S_PaintChannelFrom16 (channel_t *ch, sfxcache_t *sc, int count, int offset)
