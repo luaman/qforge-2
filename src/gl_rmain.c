@@ -1446,6 +1446,9 @@ void R_Shutdown (void)
 R_BeginFrame
 @@@@@@@@@@@@@@@@@@@@@
 */
+
+extern void UpdateHardwareGamma();
+
 void R_BeginFrame( float camera_separation )
 {
 
@@ -1481,8 +1484,9 @@ void R_BeginFrame( float camera_separation )
 	{
 		vid_gamma->modified = false;
 
-		if ( gl_config.renderer & ( GL_RENDERER_VOODOO ) )
-		{
+		if (gl_state.hwgamma) {
+			UpdateHardwareGamma();
+		} else if (gl_config.renderer & (GL_RENDERER_VOODOO)) {
 			char envbuffer[1024];
 			float g;
 
