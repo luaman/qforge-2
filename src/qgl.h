@@ -29,9 +29,10 @@
 #endif
 
 #include <GL/gl.h>
+
 #ifdef HAVE_OPENGL_GLEXT
-#include <GL/glext.h>
-#endif // HAVE_OPENGL_GLEXT
+# include <GL/glext.h>
+#endif /* HAVE_OPENGL_GLEXT */
 
 qboolean QGL_Init( const char *dllname );
 void     QGL_Shutdown( void );
@@ -462,34 +463,32 @@ extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
 #define GL_TEXTURE0_SGIS					0x835E
 #define GL_TEXTURE1_SGIS					0x835F
 
+#ifndef HAVE_OPENGL_GLEXT
+/* these are in glext.h */
+/* extension constants */
+# define GL_POINT_SIZE_MIN_EXT				0x8126
+# define GL_POINT_SIZE_MAX_EXT				0x8127
+# define GL_POINT_FADE_THRESHOLD_SIZE_EXT	0x8128
+# define GL_DISTANCE_ATTENUATION_EXT			0x8129
 
-#ifndef HAVE_OPENGL_GLEXT // FIXME: these are in glext.h, delete after testing
-// extension constants
-#define GL_POINT_SIZE_MIN_EXT				0x8126
-#define GL_POINT_SIZE_MAX_EXT				0x8127
-#define GL_POINT_FADE_THRESHOLD_SIZE_EXT	0x8128
-#define GL_DISTANCE_ATTENUATION_EXT			0x8129
+# ifdef __sgi
+#  define GL_SHARED_TEXTURE_PALETTE_EXT		GL_TEXTURE_COLOR_TABLE_SGI
+# else
+#  define GL_SHARED_TEXTURE_PALETTE_EXT		0x81FB
+# endif
 
-#ifdef __sgi
-#define GL_SHARED_TEXTURE_PALETTE_EXT		GL_TEXTURE_COLOR_TABLE_SGI
-#else
-#define GL_SHARED_TEXTURE_PALETTE_EXT		0x81FB
-#endif
+# ifdef GL_DISTANCE_ATTENUATION_ARB
+#  define GL_DISTANCE_ATTENUATION_EXT GL_DISTANCE_ATTENUATION_ARB
+# endif /* GL_DISTANCE_ATTENUATION_ARB */
 
-#ifdef __sun__
-#ifdef GL_DISTANCE_ATTENUATION_ARB
-#define GL_DISTANCE_ATTENUATION_EXT GL_DISTANCE_ATTENUATION_ARB
-#endif // GL_DISTANCE_ATTENUATION_ARB
-#endif // __sun__
+# ifndef GL_TEXTURE0_ARB
+#  define GL_TEXTURE0_ARB						0x84C0
+# endif
+# ifndef GL_TEXTURE1_ARB
+#  define GL_TEXTURE1_ARB						0x84C1
+# endif
 
-#ifndef GL_TEXTURE0_ARB
-#define GL_TEXTURE0_ARB						0x84C0
-#endif
-#ifndef GL_TEXTURE1_ARB
-#define GL_TEXTURE1_ARB						0x84C1
-#endif
-
-#endif // HAVE_OPENGL_GLEXT, end of glext.h defines
+#endif /* HAVE_OPENGL_GLEXT */
 
 extern int QGL_TEXTURE0, QGL_TEXTURE1;
 

@@ -1152,8 +1152,11 @@ void Z_Free (void *ptr)
 
 	z = ((zhead_t *)ptr) - 1;
 
-	if (z->magic != Z_MAGIC)
+	if (z->magic != Z_MAGIC) {
+	    printf("free: %p failed\n", ptr);
+	    abort();
 		Com_Error (ERR_FATAL, "Z_Free: bad magic");
+	}
 
 	z->prev->next = z->next;
 	z->next->prev = z->prev;

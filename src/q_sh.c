@@ -51,12 +51,15 @@ void *Hunk_Begin (int maxsize)
 	maxhunksize = maxsize + sizeof(int);
 	curhunksize = 0;
 /* merged in from q_sh*.c -- jaq */
+/* FIXME: clean all this up into configure tests for mmap, MAP_ANONYMOUS and malloc */
 #if defined(__linux__)
 	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 #elif defined(__FreeBSD__) || defined(__bsd__) || defined(__NetBSD__)
 	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0);
 #elif defined(__sun__) || defined(__sgi)
 	membase = malloc(maxhunksize);
+	/* the following line is for debugging purposes */
+	memset(membase, 0, maxhunksize);
 #endif
 	if (membase == NULL || membase == (byte *)-1)
 		Sys_Error("unable to virtual allocate %d bytes", maxsize);
@@ -170,6 +173,18 @@ Sys_Milliseconds
 ================
 */
 int curtime;
+/* FIXME: replace with a configure test for gethrtime() */
+#ifdef __sun__
+extern hrtime_t base_hrtime
+
+int Sys_Milliseconds(void) {
+    hrtime_t curr_hrtime;
+
+    curr_hrtime = gethrtime();
+    curtime = (curr_hrtime - base_hrtime) / 1000000LL;
+    return curtime;
+}
+#else
 int Sys_Milliseconds (void)
 {
 	struct timeval tp;
@@ -188,6 +203,7 @@ int Sys_Milliseconds (void)
 	
 	return curtime;
 }
+#endif
 
 void Sys_Mkdir (char *path)
 {
@@ -214,8 +230,10 @@ static	DIR		*fdir;
 static qboolean CompareAttributes(char *path, char *name,
 	unsigned musthave, unsigned canthave )
 {
+#if 0
 	struct stat st;
 	char fn[MAX_OSPATH];
+#endif
 
 // . and .. never match
 	if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
@@ -223,10 +241,9 @@ static qboolean CompareAttributes(char *path, char *name,
 
 /* FIXME: what's the point of the return? -- jaq */
 #if 1
-	sprintf(fn, "%s/%s", path, name);
-#else
 	return true;
-#endif
+#else
+	sprintf(fn, "%s/%s", path, name);
 
 	if (stat(fn, &st) == -1)
 		return false; // shouldn't happen
@@ -238,6 +255,7 @@ static qboolean CompareAttributes(char *path, char *name,
 		return false;
 
 	return true;
+#endif
 }
 
 char *Sys_FindFirst (char *path, unsigned musthave, unsigned canhave)

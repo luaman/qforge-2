@@ -1209,3 +1209,7 @@ typedef struct
 extern int vidref_val;
 // PGM
 // ==================
+
+/* error save versions of fread and fwrite */
+size_t verify_fread(void *, size_t, size_t, FILE *);
+size_t verify_fwrite(void *, size_t, size_t, FILE *);

@@ -61,12 +61,39 @@
 #include "game.h"
 #include "rw.h"
 
+#ifdef SOL8_XIL_WORKAROUND
+#include <xil/xil.h>
+typedef struct {
+    qboolean restart_sound;
+    int s_rate;
+    int s_width;
+    int s_channels;
+
+    int width;
+    int height;
+    byte * pic;
+    byte * pic_pending;
+
+    /* order 1 huffman stuff */
+    int * hnodes1; /* [256][256][2] */
+    int numhnodes1[256];
+    int h_used[512];
+    int h_count[512];
+} cinematics_t;
+#endif
+    
+
 cvar_t *nostdout;
 
 unsigned	sys_frame_time;
 
 uid_t saved_euid;
 qboolean stdin_active = true;
+char display_name[1024];
+/* FIXME: replace with configure test for hrtime_t */
+#ifdef __sun__
+hrtime_t base_hrtime;
+#endif
 
 // =======================================================================
 // General routines
@@ -126,7 +153,7 @@ void Sys_Error (char *error, ...)
     va_list     argptr;
     char        string[1024];
 
-// change stdin to non blocking
+    /* change stdin to non blocking */
     fcntl (0, F_SETFL, fcntl (0, F_GETFL, 0) & ~FNDELAY);
 
 	CL_Shutdown ();
@@ -285,9 +312,42 @@ void Sys_SendKeyEvents (void)
 }
 
 /*****************************************************************************/
+#ifdef SOL8_XIL_WORKAROUND
+XilSystemState xil_state;
+#endif
 
 int main (int argc, char **argv) {
     int time, oldtime, newtime;
+    sigset_t sigs;
+
+#ifdef SOL8_XIL_WORKAROUND
+    {
+	extern cinematics_t cin;
+
+	if ((xil_state = xil_open()) == NULL) {
+	    fprintf(stderr, "Can't open XIL\n");
+	    exit(1);
+	}
+	memset(&cin, 0, sizeof(cin));
+    }
+#endif
+
+    /* save the contents of the DISPLAY environment variable.
+     * if we don't, it gets overwritten after reloading
+     * the renderer libraries (solaris) */
+    {
+	char * tmp_name = getenv("DISPLAY");
+	if (tmp_name == NULL) {
+	    display_name[0] = '\0';
+	} else {
+	    strncpy(display_name, tmp_name, sizeof(display_name));
+	}
+    }
+
+    /* block the SIGPOLL signal so that only the audio thread gets it */
+    sigemptyset(&sigs);
+    sigaddset(&sigs, SIGPOLL);
+    pthread_sigmask(SIG_BLOCK, &sigs, NULL);
 
     /* go back to real user for config loads */
     saved_euid = geteuid();
@@ -449,3 +509,39 @@ void Sys_MakeCodeWriteable (unsigned long startaddr, unsigned long length)
 }
 
 #endif
+
+size_t verify_fread(void * ptr, size_t size, size_t nitems, FILE * fp) {
+    size_t ret;
+    int err;
+
+    clearerr(fp);
+    ret = fread(ptr, size, nitems, fp);
+    err = errno;
+    if (ret != nitems) {
+	printf("verify_fread(...,%d,%d,...): return value: %d\n", size, nitems, ret);
+	if (ret == 0 && ferror(fp)) {
+	    printf("   error: %s\n", strerror(err));
+	    printf("   fileno=%d\n", fileno(fp));
+	}
+	/* sleep(5); */
+    }
+    return ret;
+}
+
+size_t verify_fwrite(void * ptr, size_t size, size_t nitems, FILE * fp) {
+    size_t ret;
+    int err;
+
+    clearerr(fp);
+    ret = fwrite(ptr, size, nitems, fp);
+    err = errno;
+    if (ret != nitems) {
+	printf("verify_fwrite(...,%d,%d,...) = %d\n", size, nitems, ret);
+	if (ret == 0 && ferror(fp)) {
+	    printf("   error: %s\n", strerror(err));
+	    printf("   fileno=%d\n", fileno(fp));
+	}
+    }
+    /* sleep(5); */
+    return ret;
+}

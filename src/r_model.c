@@ -1,26 +1,28 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * model loading and caching
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-// models.c -- model loading and caching
-
-// models are the only shared resource between a client and server running
-// on the same machine.
+/* models are the only shared resource between a client and server running
+ * on the same machine. */
 
 #include "r_local.h"
 
@@ -386,6 +388,9 @@ void Mod_LoadVertexes (lump_t *l)
 	count = l->filelen / sizeof(*in);
 	out = Hunk_Alloc ( (count+8)*sizeof(*out));		// extra for skybox
 
+	/* stop the games dumping core when changing levels */
+	memset(out, 0, (count + 6) * sizeof(*out));
+
 	loadmodel->vertexes = out;
 	loadmodel->numvertexes = count;
 
@@ -508,6 +513,9 @@ void Mod_LoadTexinfo (lump_t *l)
 		next = LittleLong (in->nexttexinfo);
 		if (next > 0)
 			out->next = loadmodel->texinfo + next;
+		else
+		    /* stop game dumping core when loading a new level */
+		    out->next = NULL;
 
 		Com_sprintf (name, sizeof(name), "textures/%s.wal", in->texture);
 		out->image = R_FindImage (name, it_wall);
