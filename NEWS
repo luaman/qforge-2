@@ -1,7 +1,20 @@
 NEWS for quake2
 ===============
 
-0.1
+0.2 (30/01/03)
+---
+
+* Major refresher segfault fixed.  Video refreshers can now be switched *in
+  the game* just like you expect!  No more libltdl!
+* Solaris support to core game, X11, and GLX refreshers.
+* RPM, Debian (CVS only), and Solaris packaging support.
+* X11 key repeat bug fixed.
+* Joystick support for Linux systems.
+* Build system bugfixes for FreeBSD and OpenBSD, general auto* fixes.
+* Updated documentation.
+* Numerous minor bugfixes.
+
+0.1 (17/09/02)
 ---
 
 * SDL support for software and OpenGL modes.
