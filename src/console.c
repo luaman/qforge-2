@@ -581,12 +581,12 @@ void Con_DrawConsole (float frac)
 	int				lines;
 	char			version[64];
 	char			dlbar[1024];
-
-	/* added for console clock */
 	time_t time_of_day;
-	char timebuf[26], *tmpbuf;
+	char timebuf[26];
+	size_t chrlen, pixlen; /* length in chars, length in pixels */
+
 	time_of_day = time (NULL);
-	tmpbuf = ctime( &time_of_day) ;
+	ctime_r(&time_of_day, timebuf);
 
 	lines = viddef.height * frac;
 	if (lines <= 0)
@@ -600,13 +600,17 @@ void Con_DrawConsole (float frac)
 	SCR_AddDirtyPoint (0,0);
 	SCR_AddDirtyPoint (viddef.width-1,lines-1);
 
+	/* game version */
 	Com_sprintf(version, sizeof(version), "v%s", VERSION);
-	for (x = 0; x < 5; x++)
-	    re.DrawChar(viddef.width-44+x*8, lines-12, 128 + version[x]);
+	chrlen = strlen(version);
+	pixlen = chrlen * 8 + 4; /* 4 pixel margin */
+	for (x = 0; x < chrlen; x++)
+	    re.DrawChar(viddef.width-pixlen+x*8, lines-12, 128+version[x]);
 	/* console clock */
-	Com_sprintf(timebuf, sizeof(timebuf), "%s", timebuf);
-	for (x = 0; x < 24; ++x)
-	    re.DrawChar(viddef.width-153+x*8, lines-25, 128 + tmpbuf[x]);
+	chrlen = strlen(timebuf);
+	pixlen = chrlen * 8;
+	for (x = 0; x < chrlen; ++x)
+	    re.DrawChar(viddef.width-pixlen+x*8, 0, 128+timebuf[x]);
 
 // draw the text
 	con.vislines = lines;
