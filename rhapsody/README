@@ -1,0 +1,5 @@
+This directory contains code specific to MacOS Rhapsody systems.  It is not
+actually used, so if you are porting Quake II to a MacOS system then use this
+code as a reference and merge it all into ../src
+
+Send any patches to quake2-devel@lists.quakeforge.net

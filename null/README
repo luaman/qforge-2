@@ -1,0 +1,6 @@
+This directory contains code for the null renderer -- useful for testing engine
+performance without having the graphics or sound pipelines as a bottleneck.  It
+is not actually used, but we'd like it to, so if you are keen then use this
+code as a reference and merge it all into ../src
+
+Send any patches to quake2-devel@lists.quakeforge.net
