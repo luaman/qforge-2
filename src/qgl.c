@@ -3065,6 +3065,11 @@ void *qwglGetProcAddress(char *symbol)
 
 qboolean QGL_Init( const char *dllname )
 {
+	int dlflags = RTLD_LAZY;
+
+#ifdef RTLD_GLOBAL
+	dlflags |= RTLD_GLOBAL;
+#endif
 	// update 3Dfx gamma irrespective of underlying DLL
 	{
 		char envbuffer[1024];
@@ -3081,7 +3086,7 @@ qboolean QGL_Init( const char *dllname )
 	if (glw_state.OpenGLLib)
 	    QGL_Shutdown();
 
-	if ((glw_state.OpenGLLib = dlopen(dllname, RTLD_LAZY)) == 0) {
+	if ((glw_state.OpenGLLib = dlopen(dllname, dlflags)) == 0) {
 		char	fn[MAX_OSPATH];
 		char	*path;
 
@@ -3093,7 +3098,7 @@ qboolean QGL_Init( const char *dllname )
 		
 		snprintf (fn, MAX_OSPATH, "%s/%s", path, dllname );
 
-		if ( ( glw_state.OpenGLLib = dlopen( fn, RTLD_LAZY ) ) == 0 ) {
+		if ( ( glw_state.OpenGLLib = dlopen( fn, dlflags ) ) == 0 ) {
 			ri.Con_Printf( PRINT_ALL, "%s\n", dlerror() );
 			return false;
 		}
