@@ -17,3 +17,4 @@ stamp-*
 compile
 libltdl
 ltmain.sh
+quake2-*.tar.gz
