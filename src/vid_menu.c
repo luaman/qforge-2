@@ -164,21 +164,21 @@ static void ApplyChanges( void *unused )
 	case REF_GLX:
 		Cvar_Set( "vid_ref", "glx" );
 		/* below is wrong if we use different libs for different GL reflibs */
-		Cvar_Set( "gl_driver", "libGL.so" );
+		Cvar_Set( "gl_driver", "libGL.so.1" );
 		if (gl_driver->modified)
 			vid_ref->modified = true;
 		break;
 	case REF_SDLGL:
 		Cvar_Set( "vid_ref", "sdlgl" );
 		/* below is wrong if we use different libs for different GL reflibs */
-		Cvar_Set( "gl_driver", "libGL.so" );
+		Cvar_Set( "gl_driver", "libGL.so.1" );
 		if (gl_driver->modified)
 			vid_ref->modified = true;
 		break;
 	case REF_FXGL:
 		Cvar_Set("vid_ref", "fxgl");
 		/* below is wrong if we use different libs for different GL reflibs */
-		Cvar_Set( "gl_driver", "libGL.so" );
+		Cvar_Set( "gl_driver", "libGL.so.1" );
 		if (gl_driver->modified)
 			vid_ref->modified = true;
 		break;
@@ -256,7 +256,7 @@ void VID_MenuInit( void )
 	int i;
 
 	if ( !gl_driver )
-		gl_driver = Cvar_Get( "gl_driver", "libGL.so", 0 );
+		gl_driver = Cvar_Get( "gl_driver", "libGL.so.1", 0 );
 	if ( !gl_picmip )
 		gl_picmip = Cvar_Get( "gl_picmip", "0", 0 );
 	if ( !gl_mode )
