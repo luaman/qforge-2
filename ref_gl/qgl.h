@@ -33,6 +33,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef __linux__
 //#include <GL/fxmesa.h>
 #include <GL/glx.h>
+#ifndef __GLW_LINUX_H
+#include "../linux/glw_linux.h"
+#endif
 #endif
 
 qboolean QGL_Init( const char *dllname );
@@ -40,6 +43,16 @@ void     QGL_Shutdown( void );
 
 #ifndef APIENTRY
 #  define APIENTRY
+#endif
+
+#ifdef __OpenBSD__
+#define GPA(X) dlsym(glw_state.OpenGLLib, "_"##X)
+#else
+#define GPA(X) dlsym(glw_state.OpenGLLib, X)
+#endif
+
+#ifndef qwglGetProcAddress
+#define qwglGetProcAddress(X) (glw_state.OpenGLLib ? GPA(X) : NULL)
 #endif
 
 extern  void ( APIENTRY * qglAccum )(GLenum op, GLfloat value);
@@ -433,7 +446,9 @@ extern BOOL ( WINAPI * qwglSetDeviceGammaRampEXT ) ( const unsigned char *pRed, 
 #ifdef __linux__
 
 // local function in dll
+#ifndef qwglGetProcAddress
 extern void *qwglGetProcAddress(char *symbol);
+#endif
 
 extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
 
