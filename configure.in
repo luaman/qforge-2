@@ -1,4 +1,3 @@
-dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
 dnl stick the revision info into the resulting configure script
@@ -71,10 +70,12 @@ else
 	AC_SUBST(SYSTEM_LIBS)
 fi
 
-dnl Check for ossaudio on NetBSD
-OSS_LIBS=""
-AC_CHECK_LIB([ossaudio], [_oss_ioctl], [OSS_LIBS="-lossaudio"])
-AC_SUBST(OSS_LIBS)
+dnl -----------------------------
+dnl checks for graphics libraries
+dnl -----------------------------
+
+AC_MSG_CHECKING([available graphics options])
+AC_MSG_RESULT([])
 
 dnl -----------------
 dnl Check for SVGAlib
@@ -103,7 +104,7 @@ if test "x${ac_with_svgalib}" != xno ; then
 		SVGALIB_LIBS="$SVGALIB_LIBS -L$withval/lib"
 	fi
 
-	# set CPPFLAGS for the coming tests
+	# save and set CPPFLAGS for the coming tests
 	save_CPPFLAGS="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS $SVGALIB_CFLAGS"
 
@@ -135,7 +136,7 @@ if test "x${ac_with_svgalib}" != xno ; then
 			AC_MSG_WARN([
 *** You have explicitly asked for SVGAlib support, but the required libraries
 *** and development files could not be found.
-*** SVGAlib based refreshers will NOT be built])
+*** SVGAlib based refreshers will NOT be built.])
 		fi
 	fi
 
@@ -224,7 +225,7 @@ if test "x${ac_with_opengl}" != xno ; then
 		OPENGL_CFLAGS="$OPENGL_CFLAGS -I$withval/include"
 		OPENGL_LIBS="$OPENGL_CFLAGS -L$withval/lib"
 	fi
-	# set CPPFLAGS for coming tests
+	# save and set CPPFLAGS for coming tests
 	save_CPPFLAGS="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS $OPENGL_CFLAGS"
 
@@ -273,7 +274,7 @@ if test "x${ac_with_opengl}" != xno ; then
 			AC_MSG_WARN([
 *** You have explicitly asked for OpenGL support, but the required libraries
 *** and development files could not be found.
-*** OpenGL based refreshers will NOT be built])
+*** OpenGL based refreshers will NOT be built.])
 		fi
 	fi
 
@@ -308,6 +309,23 @@ dnl ---------------------
 
 HAVE_ZIP=disabled
 
+dnl --------------------------
+dnl Checks for sound libraries
+dnl --------------------------
+
+AC_MSG_CHECKING([available sound options])
+AC_MSG_RESULT([])
+
+dnl ------------------
+dnl Check for ossaudio
+dnl ------------------
+
+OSS_CFLAGS=""
+OSS_LIBS=""
+AC_CHECK_LIB([ossaudio], [_oss_ioctl], [OSS_LIBS="-lossaudio"])
+AC_SUBST(OSS_CFLAGS)
+AC_SUBST(OSS_LIBS)
+
 dnl ---------------
 dnl Check for libao
 dnl ---------------
@@ -330,7 +348,7 @@ if test "x${ac_with_ao}" != xno ; then
 		AO_CFLAGS="$AO_CFLAGS -I$withval/include"
 		AO_LIBS="$AO_LIBS -L$withval/lib"
 	fi
-	dnl set CPPFLAGS for coming tests
+	dnl save and set CPPFLAGS for coming tests
 	save_CPPFLAGS="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS $AO_CFLAGS"
 	dnl test for installed library first, for people who may have
@@ -357,7 +375,8 @@ if test "x${ac_with_ao}" != xno ; then
 		if test "x${ac_with_ao}" = xyes ; then
 			AC_MSG_WARN([
 *** You have explicitly asked for libao support, but the required libraries
-*** and development files could not be found.])
+*** and development files could not be found.
+*** libao audio driver will NOT be built.])
 		fi
 	fi
 	dnl clean up
@@ -365,6 +384,68 @@ if test "x${ac_with_ao}" != xno ; then
 else
 	HAVE_AO=disabled
 fi
+AM_CONDITIONAL(USE_AO, test "x$HAVE_AO" = xyes)
+
+dnl --------------
+dnl Check for ALSA
+dnl --------------
+
+HAVE_ALSA=no
+AC_ARG_WITH(alsa,
+	AC_HELP_STRING([--with-alsa(=DIR)],
+		[use alsa (optionally, found in DIR)]),
+	dnl argument was given, check for --without
+	if test "x${with_alsa}" != xno ; then
+		ac_with_alsa=yes
+	else
+		ac_with_alsa=no
+	fi,
+	ac_with_alsa=auto
+)
+if test "x${ac_with_alsa}" != xno ; then
+	dnl --with-alsa was explicitly given, so look in the given dir
+	if test "x${ac_with_alsa}" != xauto ; then
+		ALSA_CFLAGS="$ALSA_CFLAGS -I$withval/include"
+		ALSA_LIBS="$ALSA_LIBS -L$withval/lib"
+	fi
+	dnl save and set CPPFLAGS for coming tests
+	save_CPPFLAGS="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS $ALSA_CFLAGS"
+	dnl test for installed library first, for people who may have
+	dnl the libs installed but no headers
+	AC_CHECK_LIB(asound, snd_pcm_open,
+		ALSA_LIBS="$ALSA_LIBS -lasound"
+		HAVE_ALSA=maybe,
+		HAVE_ALSA=no,
+		[$ALSA_LIBS])
+	dnl check the header
+	if test "x$HAVE_ALSA" = xmaybe ; then
+		AC_CHECK_HEADER(sys/asoundlib.h,
+			HAVE_ALSA=yes,
+			HAVE_ALSA=no
+		)
+	fi
+	dnl sum up
+	if test "x$HAVE_ALSA" = xyes ; then
+		AC_DEFINE(HAVE_ALSA, 1, [Define this if you have ALSA])
+		AC_SUBST(ALSA_CFLAGS)
+		AC_SUBST(ALSA_LIBS)
+	else
+		dnl if we were explicitly told to use alsa and it's not there
+		if test "x${ac_with_alsa}" = xyes ; then
+			AC_MSG_WARN([
+*** You have explicitly asked for ALSA support, but the required libraries
+*** and development files could not be found.
+*** ALSA audio driver will NOT be built.])
+		fi
+	fi
+	dnl clean up
+	CPPFLAGS="$save_CPPFLAGS"
+else
+	HAVE_ALSA=disabled
+fi
+AM_CONDITIONAL(USE_ALSA, test "x$HAVE_ALSA" = xyes)
+	
 
 dnl -----------------------
 dnl Checks for header files
@@ -686,17 +767,11 @@ dnl -----------------------------------------------------------
 
 if test $quake2_config_ok = no ; then
 
-dnl AC_MSG_RESULT([
-dnl Quake2Forge $VERSION: Automatic configuration FAILED.
-dnl 
-dnl The file config.log has full details.
-dnl 
-dnl The following required libraries are missing or misconfigured
-dnl on your system:
-dnl ])
-
-dnl if test "x$HAVE_OPENGL" != xyes
-echo "nothing yet"
+AC_MSG_RESULT([
+Quake2Forge $VERSION: Automatic configuration FAILED.
+ 
+The file config.log has full details.
+])
 
 else
 
@@ -745,8 +820,8 @@ if test "x${ac_with_opengl}" = xyes ; then
 *** OpenGL was specifically requested but the development files
 *** and libraries could not be found.
 ])
-		if test "x${with_svgalib}" != xyes ; then
-			AC_MSG_RESULT([*** The path given was `$with_svgalib'.])
+		if test "x${with_opengl}" != xyes ; then
+			AC_MSG_RESULT([*** The path given was `$with_opengl'.])
 		fi
 	fi
 fi
@@ -755,7 +830,31 @@ AC_MSG_RESULT([      SDL: ............. $HAVE_SDL])
 dnl AC_MSG_RESULT([   Framebuffer: ..... $HAVE_FB])
 dnl AC_MSG_RESULT([   AAlib: ........... $HAVE_AA])
 
-AC_MSG_RESULT([    libao .............. $HAVE_AO])
+AC_MSG_RESULT([    Audio drivers:])
+AC_MSG_RESULT([      ALSA ............. $HAVE_ALSA])
+if test "x${ac_with_alsa}" = xyes ; then
+	if test "x${HAVE_ALSA}" != xyes ; then
+		AC_MSG_RESULT([
+*** ALSA was specifically requested but the development files
+*** and libraries could not be found.
+])
+		if test "x${with_alsa}" != xyes ; then
+			AC_MSG_RESULT([*** The path given was `$with_alsa'.])
+		fi
+	fi
+fi
+AC_MSG_RESULT([      libao ............ $HAVE_AO])
+if test "x${ac_with_ao}" = xyes ; then
+	if test "x${HAVE_AO}" != xyes ; then
+		AC_MSG_RESULT([
+*** libao was specifically requested but the development files
+*** and libraries could not be found.
+])
+		if test "x${with_ao}" != xyes ; then
+			AC_MSG_RESULT([*** The path given was `$with_ao'.])
+		fi
+	fi
+fi
 
 AC_MSG_RESULT([
   Installation directories:

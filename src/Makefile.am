@@ -1,5 +1,3 @@
-# $Id$
-
 SUBDIRS = . baseq2 ctf xatrix rogue
 
 std_cflags = -pipe @WARN_CFLAGS@ @OPT_CFLAGS@
@@ -44,10 +42,18 @@ else
 QUAKE2_ASM=
 endif
 
+if USE_ALSA
+SOUND = cd.c snd_alsa.c snd_dma.c snd_mix.c snd_mem.c
+else
+if USE_AO
+SOUND = cd.c snd_ao.c snd_dma.c snd_mix.c snd_mem.c
+else
 if BUILD_SDLQUAKE2
 SOUND = cd_sdl.c snd_sdl.c snd_dma.c snd_mix.c snd_mem.c
 else
-SOUND = cd.c snd_ao.c snd_dma.c snd_mix.c snd_mem.c
+SOUND = cd.c snd_oss.c snd_dma.c snd_mix.c snd_mem.c
+endif
+endif
 endif
 
 quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c q_glob.c net_udp.c \
@@ -83,17 +89,35 @@ EXTRA_ref_tdfx_la_SOURCES =  rw_in_svgalib.c gl_fxmesa.c
 EXTRA_ref_softx_la_SOURCES = rw_x11.c
 
 EXTRA_quake2_SOURCES = snd_mixa.S cd_sdl.c snd_sdl.c snd_dma.c \
-			snd_mix.c snd_mem.c cd.c snd_ao.c
+			snd_mix.c snd_mem.c cd.c \
+			snd_oss.c snd_ao.c snd_alsa.c
 
+if USE_ALSA
+quake2_CFLAGS = $(std_cflags) @ALSA_CFLAGS@
+else
+if USE_AO
+quake2_CFLAGS = $(std_cflags) @AO_CFLAGS@
+else
 if BUILD_SDLQUAKE2
 quake2_CFLAGS = $(std_cflags) @SDL_CFLAGS@
 else
-quake2_CFLAGS = $(std_cflags)
+quake2_CFLAGS = $(std_cflags) @OSS_CFLAGS@
 endif
-if BUILD_SDLQUAKE2
-quake2_LDADD = @DL_LIBS@ @AO_LIBS@ @SDL_LIBS@ @SYSTEM_LIBS@ -lm
+endif
+endif
+
+if USE_ALSA
+quake2_LDADD = @DL_LIBS@ @ALSA_LIBS@ @SYSTEM_LIBS@ -lm
 else
+if USE_AO
 quake2_LDADD = @DL_LIBS@ @AO_LIBS@ @SYSTEM_LIBS@ -lm
+else
+if BUILD_SDLQUAKE2
+quake2_LDADD = @DL_LIBS@ @SDL_LIBS@ @SYSTEM_LIBS@ -lm
+else
+quake2_LDADD = @DL_LIBS@ @OSS_LIBS@ @SYSTEM_LIBS@ -lm
+endif
+endif
 endif
 
 # ref_glx
