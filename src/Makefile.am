@@ -4,7 +4,7 @@
 
 SUBDIRS = .
 
-bin_PROGRAMS = quake2 ref_glx.so
+bin_PROGRAMS = quake2 ref_glx.so ref_softx.so
 
 quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 				\
@@ -28,7 +28,7 @@ quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 				\
 				#snd_mixa.S
 
-REF_GL = q_sh.c q_shared.c glob.c \
+REF_GL_COMMON = q_sh.c q_shared.c glob.c \
 		qgl.c \
 		\
 		gl_draw.c \
@@ -41,20 +41,88 @@ REF_GL = q_sh.c q_shared.c glob.c \
 		gl_rsurf.c \
 		gl_warp.c
 
-ref_glx_so_SOURCES = $(REF_GL) gl_glx.c
+# GLX
+ref_glx_so_SOURCES = $(REF_GL_COMMON) gl_glx.c
 
-#ref_fxgl_so_SOURCES = $(REF_GL) rw_in_svgalib.c gl_fxmesa.c
+# 3dFX
+#ref_fxgl_so_SOURCES = $(REF_GL_COMMON) rw_in_svgalib.c gl_fxmesa.c
 
-#ref_sdlgl_so_SOURCES = $(REF_GL) rw_sdl.c
+# SDL
+#ref_sdlgl_so_SOURCES = $(REF_GL_COMMON) rw_sdl.c
+
+REF_SOFT_COMMON = \
+		r_aclip.c \
+		r_alias.c \
+		r_bsp.c \
+		r_draw.c \
+		r_edge.c \
+		r_image.c \
+		r_light.c \
+		r_main.c \
+		r_misc.c \
+		r_model.c \
+		r_part.c \
+		r_poly.c \
+		r_polyse.c \
+		r_rast.c \
+		r_scan.c \
+		r_sprite.c \
+		r_surf.c \
+		q_shared.c \
+		q_sh.c \
+		glob.c
+
+REF_SOFT_ASM = \
+		r_aclipa.S \
+		r_draw16.S \
+		r_drawa.S \
+		r_edgea.S \
+		r_scana.S \
+		r_spr8.S\
+		r_surf8.S \
+		math.S \
+		d_polysa.S \
+		r_varsa.S \
+		sys_dosa.S
+
+# SVGAlib
+#ref_soft_so_SOURCES = $(REF_SOFT_COMMON) rw_svgalib.c rw_in_svgalib.c d_copy.S
+
+# X11
+ref_softx_so_SOURCES = $(REF_SOFT_COMMON) rw_x11.c
+
+# SDL
+#ref_softsdl_so_SOURCES = $(REF_SOFT_COMMON) rw_sdl.c
+
+$(BUILDDIR)/ref_soft.$(SHLIBEXT) : $(REF_SOFT_OBJS) $(REF_SOFT_SVGA_OBJS)
+	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(REF_SOFT_OBJS) \
+		$(REF_SOFT_SVGA_OBJS) $(SVGALDFLAGS)
+
+$(BUILDDIR)/ref_softx.$(SHLIBEXT) : $(REF_SOFT_OBJS) $(REF_SOFT_X11_OBJS)
+	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(REF_SOFT_OBJS) \
+		$(REF_SOFT_X11_OBJS) $(XLDFLAGS)
+
+$(BUILDDIR)/ref_softsdl.$(SHLIBEXT) : $(REF_SOFT_OBJS) $(REF_SOFT_SDL_OBJS)
+	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(REF_SOFT_OBJS) \
+		$(REF_SOFT_SDL_OBJS) $(SDLLDFLAGS)
 
 AM_CFLAGS = -Wall -Werror -pipe
 AM_CPPFLAGS = -Dstricmp=strcasecmp -I../game
 
-ref_glx_so_CFLAGS = -fPIC
-ref_glx_so_LDFLAGS = -shared
+ref_glx_so_CFLAGS = -fPIC -I/usr/X11R6/include
+ref_glx_so_LDFLAGS = -shared -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
 
-#ref_fxgl_so_CFLAGS = -fPIC
-#ref_fxgl_so_LDFLAGS = -shared
+#ref_fxgl_so_CFLAGS = -fPIC -I/usr/X11R6/include
+#ref_fxgl_so_LDFLAGS = -shared -L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXext -lGL -lvga
 
-#ref_sdlgl_so_CFLAGS = -fPIC
-#ref_sdlgl_so_LDFLAGS = -shared
+#ref_sdlgl_so_CFLAGS = -fPIC $(shell sdl-config --cflags) -DOPENGL
+#ref_sdlgl_so_LDFLAGS = -shared $(shell sdl-config --libs)
+
+#ref_soft_so_CFLAGS = -fPIC
+#ref_soft_so_LDFLAGS = -shared -lvga
+
+ref_softx_so_CFLAGS = -fPIC -I/usr/X11R6/include
+ref_softx_so_LDFLAGS = -shared -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
+
+#ref_softsdl_so_CFLAGS = -fPIC $(shell sdl-config --cflags)
+#ref_softsdl_so_LDFLAGS = -shared $(shell sdl-config --libs)
