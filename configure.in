@@ -540,7 +540,8 @@ dnl The following required libraries are missing or misconfigured
 dnl on your system:
 dnl ])
 
-if test "x$HAVE_OPENGL" != xyes
+dnl if test "x$HAVE_OPENGL" != xyes
+echo "nothing yet"
 
 else
 
