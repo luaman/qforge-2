@@ -6,8 +6,8 @@ std_cflags = -Wall -Werror -pipe @OPT_CFLAGS@
 module_ldflags = -module -avoid-version -rpath $(pkglibdir)
 
 bin_PROGRAMS = quake2
-pkglib_PROGRAMS = @VID_REFS@
-EXTRA_PROGRAMS = ref_soft.la ref_softx.la ref_softsdl.la \
+pkglib_LTLIBRARIES = @VID_REFS@
+EXTRA_LTLIBRARIES = ref_soft.la ref_softx.la ref_softsdl.la \
 		ref_glx.la ref_sdlgl.la ref_tdfx.la
 
 # Common source files
@@ -78,8 +78,8 @@ if BUILD_GLX
 ref_glx_la_SOURCES = $(REF_GL_COMMON) gl_glx.c
 #ref_glx_la_CFLAGS = $(std_cflags) -fPIC @X_CFLAGS@ @OPENGL_CFLAGS@
 ref_glx_la_CFLAGS = $(std_cflags) -fPIC @X_CFLAGS@
-#ref_glx_la_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @OPENGL_LIBS@ @DL_LIBS@
-ref_glx_la_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @DL_LIBS@
+#ref_glx_la_LIBADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @OPENGL_LIBS@ @DL_LIBS@
+ref_glx_la_LIBADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @DL_LIBS@
 ref_glx_la_LDFLAGS = $(module_ldflags)
 endif
 
@@ -87,7 +87,7 @@ endif
 if BUILD_TDFX
 ref_tdfx_la_SOURCES = $(REF_GL_COMMON) rw_in_svgalib.c gl_fxmesa.c
 ref_tdfx_la_CFLAGS = $(std_cflags) -fPIC @SVGALIB_CFLAGS@
-ref_tdfx_la_LDADD = @SVGALIB_LIBS@
+ref_tdfx_la_LIBADD = @SVGALIB_LIBS@
 ref_tdfx_la_LDFLAGS = $(module_ldflags)
 endif
 
@@ -96,8 +96,8 @@ if BUILD_SDLGL
 ref_sdlgl_la_SOURCES = $(REF_GL_COMMON) rw_sdl.c
 ref_sdlgl_la_CFLAGS = $(std_cflags) -fPIC -DOPENGL @SDL_CFLAGS@ @OPENGL_CFLAGS@
 #ref_sdlgl_la_CFLAGS = $(std_cflags) -fPIC -DOPENGL @SDL_CFLAGS@
-ref_sdlgl_la_LDADD = @SDL_LIBS@ @OPENGL_LIBS@
-#ref_sdlgl_la_LDADD = @SDL_LIBS@
+ref_sdlgl_la_LIBADD = @SDL_LIBS@ @OPENGL_LIBS@
+#ref_sdlgl_la_LIBADD = @SDL_LIBS@
 ref_sdlgl_la_LDFLAGS = $(module_ldflags)
 endif
 
@@ -111,7 +111,7 @@ endif
 ref_soft_la_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) $(DCOPY_S) \
 	rw_svgalib.c rw_in_svgalib.c
 ref_soft_la_CFLAGS = $(std_cflags) -fPIC @SVGALIB_CFLAGS@
-ref_soft_la_LDADD = @SVGALIB_LIBS@
+ref_soft_la_LIBADD = @SVGALIB_LIBS@
 ref_soft_la_LDFLAGS = $(module_ldflags)
 endif
 
@@ -119,7 +119,7 @@ endif
 if BUILD_SOFTX
 ref_softx_la_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_x11.c
 ref_softx_la_CFLAGS = $(std_cflags) -fPIC @X_CFLAGS@
-ref_softx_la_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@
+ref_softx_la_LIBADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@
 ref_softx_la_LDFLAGS = $(module_ldflags)
 endif
 
@@ -127,6 +127,6 @@ endif
 if BUILD_SOFTSDL
 ref_softsdl_la_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_sdl.c
 ref_softsdl_la_CFLAGS = $(std_cflags) -fPIC @SDL_CFLAGS@
-ref_softsdl_la_LDADD = @SDL_LIBS@
+ref_softsdl_la_LIBADD = @SDL_LIBS@
 ref_softsdl_la_LDFLAGS = $(module_ldflags)
 endif
