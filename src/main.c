@@ -256,7 +256,7 @@ void *Sys_GetGameAPI (void *parms) {
     lt_dlsetsearchpath(path);
         
     /* load the module */
-    game_library = lt_dlopenext("game.so");
+    game_library = lt_dlopenext("game");
     
     if (game_library) {
 	Com_MDPrintf("LoadLibrary (%s)\n", name);

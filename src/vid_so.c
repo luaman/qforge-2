@@ -417,7 +417,7 @@ void VID_CheckChanges (void)
 		cl.refresh_prepped = false;
 		cls.disable_screen = true;
 
-		sprintf( name, "ref_%s.so", vid_ref->string );
+		sprintf( name, "ref_%s", vid_ref->string );
 		if ( !VID_LoadRefresh( name ) )
 		{
 			if ( strcmp (vid_ref->string, "soft") == 0 || 
