@@ -61,11 +61,11 @@ DO_SHLIB_AS=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -DELF -x assembler-with-cpp -o $@ -c 
 
 TARGETS=$(BUILDDIR)/quake2 \
 	$(BUILDDIR)/game$(ARCH).$(SHLIBEXT) \
-	$(BUILDDIR)/ref_softx.$(SHLIBEXT) \
-	$(BUILDDIR)/ref_gl.$(SHLIBEXT) \
-	$(BUILDDIR)/ctf/game$(ARCH).$(SHLIBEXT) \
+	$(BUILDDIR)/ref_softx.$(SHLIBEXT)
+#	$(BUILDDIR)/ref_gl.$(SHLIBEXT) \
+#	$(BUILDDIR)/ctf/game$(ARCH).$(SHLIBEXT) \
 #	$(BUILDDIR)/ref_soft.$(SHLIBEXT) \
-	$(BUILDDIR)/xatrix/game$(ARCH).$(SHLIBEXT)
+#	$(BUILDDIR)/xatrix/game$(ARCH).$(SHLIBEXT)
 
 build_debug:
 	@-mkdir $(BUILD_DEBUG_DIR) \
