@@ -11,12 +11,13 @@ if [ -z "$1" ]; then
 	echo tag is something like version_0_1 for version 0.1
 	echo you should have already tagged the repository, as
 	echo this script is going to cvs export from that tag
+	exit 1
 fi
 
 # this script is prone to err, tell me what's happening
 set -x
 
-cd ~/src/quake2
+cd ~/src/quake2/old
 
 chmod -R u+w export
 rm -rf export
@@ -25,7 +26,7 @@ mkdir export
 
 cd export
 
-cvs -d :ext:gozer:/project/cvs export -r $1 quake2
+cvs -d :ext:zuul:/project/cvs export -r $1 quake2
 
 cd ../cvs
 
@@ -34,10 +35,6 @@ cvs2cl -S --no-wrap
 cd ../export/quake2
 
 cp ../../cvs/ChangeLog .
-
-./bootstrap
-
-./configure
 
 make distcheck
 
@@ -51,6 +48,12 @@ tar zxf quake2-$VERSION.tar.gz
 
 tar jcf quake2-$VERSION.tar.bz2 quake2-$VERSION/
 
-md5sum quake2-$VERSION.* | tee quake2-$VERSION.release
+zip -qr quake2-$VERSION.zip quake2-$VERSION/
+
+md5sum quake2-$VERSION.* | grep -v 'release' | tee quake2-$VERSION.release
+
+scp quake2-$VERSION.* zuul:/home/anonftp/quake2forge
 
 rm -r quake2-$VERSION
+
+pwd

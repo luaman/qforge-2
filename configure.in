@@ -597,9 +597,9 @@ dnl -----------------
 
 WARN_CFLAGS=""
 dnl USE_WARN=""
-AC_MSG_CHECKING(whether to enable compiler warnings)
+AC_MSG_CHECKING(whether to abort on compiler warnings)
 AC_ARG_ENABLE(warn,
-        [  --disable-warn          disable compiler warnings ],
+        [  --disable-warn          don't abort on compiler warnings ],
 	AC_MSG_RESULT(no),
 	AC_MSG_RESULT(yes)
 	dnl USE_WARN="yes"
@@ -717,6 +717,8 @@ AC_DEFINE_UNQUOTED(PKGLIBDIR, "$PKGLIBDIR", [Define this to the path containing 
 
 eval PKGDATADIR="$datadir/$PACKAGE"
 AC_DEFINE_UNQUOTED(PKGDATADIR, "$PKGDATADIR", [Define this to the path containing the game data (\${prefix}/share/quake2/)])
+
+eval BINDIR="$bindir"
 
 dnl ---------------------------------
 dnl Work out what refreshers to build
@@ -861,7 +863,7 @@ fi
 AC_MSG_RESULT([
   Installation directories:
 
-    Program: ........... ${prefix}/bin
+    Program: ........... $BINDIR
     Audio/Video plugins: $PKGLIBDIR
     Game data: ......... $PKGDATADIR
 
