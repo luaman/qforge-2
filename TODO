@@ -10,3 +10,4 @@
 - the video refresher loader code in src/vid_menu.c needs cleaning up, it's
   utter bollocks at the moment.  all the structs are very fragile, depending
   on specific ordering of each element.
+- fix va_list as per  http://gozer.quakeforge.net/list-archives/quakeforge-cvs/2002-April/000151.html, http://www.quakeforge.net/cgi-bin/viewcvs.cgi/quakeforge/libs/util/dstring.c.diff?r1=1.8&r2=1.9
