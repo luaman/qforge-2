@@ -14,6 +14,7 @@ http://gozer.quakeforge.net/list-archives/quakeforge-cvs/2002-April/000151.html
 - investigate the possibility of savegames not being tied to a particular build
 - split out assembler per arch/os (we currently have gas i386 and win i386)
 - make sure that we give back the mouse and keyboard if the game crashes
+- split out the sound code into separate modules, like the vid_refs already do
 
 from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
 (replace - with X when done)
