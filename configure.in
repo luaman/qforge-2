@@ -531,9 +531,16 @@ dnl -----------------------------------------------------------
 
 if test $quake2_config_ok = no ; then
 
-	AC_MSG_RESULT([
-doing nothing just now
-])
+dnl AC_MSG_RESULT([
+dnl Quake2Forge $VERSION: Automatic configuration FAILED.
+dnl 
+dnl The file config.log has full details.
+dnl 
+dnl The following required libraries are missing or misconfigured
+dnl on your system:
+dnl ])
+
+if test "x$HAVE_OPENGL" != xyes
 
 else
 
