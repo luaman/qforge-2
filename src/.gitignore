@@ -6,3 +6,7 @@ debugi386-glibc
 releasei386
 releasei386-glibc
 .libs
+.deps
+Makefile.in
+Makefile
+quake2
