@@ -1,18 +1,23 @@
 Name: @PACKAGE@
-Summary: Quake2 - classic first person shooter
+Summary: quake2 - improved version of id Software's classic Quake II engine
 Version: @VERSION@
 Release: 2
-Source: http://osdn.dl.sourceforge.net/sourceforge/quake/@PACKAGE@-@VERSION@.tar.gz
-URL: http://www.quakeforge.net/
 Group: Amusements/Games
-BuildRoot: /var/tmp/%{name}-%{version}-buildroot
 Copyright: GPL
+Vendor: The QuakeForge Project
+URL: http://www.quakeforge.net/
 Packager: Paul Jenner <psj.home@ntlworld.com>
+Source: http://osdn.dl.sourceforge.net/sourceforge/quake/@PACKAGE@-@VERSION@.tar.gz
+BuildRoot: /var/tmp/%{name}-%{version}-buildroot
 Prefix: %{_prefix}
 
 %description
-Quake2 is the classic first person shooter from id Software. The source was
-recently released under the GPL.
+Quake II is the classic first person shooter from id Software.  This package
+contains only the game binaries, you will need to either install the
+commercial data from the Quake II CD-ROM, or install some free data files
+(which are available from id Software's FTP site).  This game currently
+supports software rendering with X11, SDL or SVGAlib, and hardware accelerated
+rendering with OpenGL (directly or with SDL).
 
 %prep
 rm -rf $RPM_BUILD_ROOT
