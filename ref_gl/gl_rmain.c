@@ -1503,8 +1503,8 @@ void R_BeginFrame( float camera_separation )
 	qglDisable (GL_BLEND);
 	qglEnable (GL_ALPHA_TEST);
 
-//	qglDisable (GL_TEXTURE_2D);		//WTF? why do I need to toggle this?
-//	qglEnable (GL_TEXTURE_2D);
+	qglDisable (GL_TEXTURE_2D);		//FIXME WTF? why do I need to toggle this?
+	qglEnable (GL_TEXTURE_2D);
 	qglColor4f (1,1,1,1);
 
 	/*
