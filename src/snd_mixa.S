@@ -3,6 +3,9 @@
 // x86 assembly-language sound code
 //
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 #include "qasm.h"
 
 #if	id386

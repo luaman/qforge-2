@@ -20,10 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __ASM_I386__
 #define __ASM_I386__
 
-#if defined ELF && !defined __OpenBSD__
-#define C(label) label
-#else
+#ifdef HAVE_SYM_PREFIX_UNDERSCORE
 #define C(label) _##label
+#else
+#define C(label) label
 #endif
 
 

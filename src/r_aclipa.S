@@ -3,6 +3,9 @@
 // x86 assembly-language Alias model transform and project code.
 //
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 #include "../src/qasm.h"
 #include "d_ifacea.h"
 

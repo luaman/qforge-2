@@ -3,6 +3,9 @@
 // x86 assembly-language edge-processing code.
 //
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 #include "../src/qasm.h"
 
 #if	id386

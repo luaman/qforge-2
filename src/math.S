@@ -2,6 +2,9 @@
 // math.s
 // x86 assembly-language math routines.
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 #define GLQUAKE	1	// don't include unneeded defs
 #include "../src/qasm.h"
 

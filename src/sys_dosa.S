@@ -2,6 +2,9 @@
 // sys_dosa.s
 // x86 assembly-language DOS-dependent routines.
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 #include "../src/qasm.h"
 
 

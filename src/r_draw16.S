@@ -4,6 +4,9 @@
 // subdivision.
 //
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 #include "../src/qasm.h"
 #include "d_ifacea.h"
 
