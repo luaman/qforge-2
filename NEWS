@@ -1,6 +1,13 @@
 NEWS for quake2
 ===============
 
+0.2.1 (06/02/03)
+-----
+
+* Important fix to the build system to include *all* the source files,
+  especially the i386 assembler, when building the release tarballs on
+  non-i386 architectures.
+
 0.2 (30/01/03)
 ---
 

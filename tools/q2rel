@@ -41,7 +41,7 @@ cp ../../cvs/ChangeLog .
 
 make distcheck
 
-VERSION=`echo $1 | sed -e 's/version_//' -e 's/_/./'`
+VERSION=`echo $1 | sed -e 's/version_//' -e 's/_/./g'`
 
 cp quake2-$VERSION.tar.gz ../../release
 

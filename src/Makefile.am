@@ -68,6 +68,14 @@ quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c q_glob.c net_udp.c \
 		\
 		$(QUAKE2_ASM) $(SOUND)
 
+# include the asm and so forth when building on non-x86 architectures
+EXTRA_ref_soft_la_SOURCES = r_aclipa.S r_draw16.S r_drawa.S r_edgea.S \
+				r_scana.S r_spr8.S r_surf8.S math.S \
+				d_polysa.S r_varsa.S sys_dosa.S
+
+EXTRA_quake2_SOURCES = snd_mixa.S cd_sdl.c snd_sdl.c snd_dma.c \
+			snd_mix.c snd_mem.c cd.c snd.c
+
 if BUILD_SDLQUAKE2
 quake2_CFLAGS = $(std_cflags) @PTHREAD_CFLAGS@ @SDL_CFLAGS@
 else
