@@ -46,7 +46,4 @@ Software's FTP site:
 
 ftp://idsoftware.com/idstuff/quake2/sources/
 
-uncompress them, and run them in src/xatrix or src/rogue
-
-In src/Makefile.am, swap the comments on the SUBDIR lines, and run ./bootstrap
-from the top level.  Rerun configure and make.
+uncompress them, and run the shar in src/xatrix or src/rogue
