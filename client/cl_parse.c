@@ -97,7 +97,7 @@ qboolean	CL_CheckOrDownloadFile (char *filename)
 
 //	FS_CreatePath (name);
 
-	fp = Qopen (name, "r+b");
+	fp = Qopen (name, "r+bz");
 	if (fp) { // it exists
 		int len;
 		Qseek(fp, 0, SEEK_END);

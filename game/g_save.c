@@ -496,7 +496,7 @@ void ReadGame (char *filename)
 
 	gi.FreeTags (TAG_GAME);
 
-	f = Qopen (filename, "rb");
+	f = Qopen (filename, "rbz");
 	if (!f)
 		gi.error ("Couldn't open %s", filename);
 
@@ -691,7 +691,7 @@ void ReadLevel (char *filename)
 	void	*base;
 	edict_t	*ent;
 
-	f = Qopen (filename, "rb");
+	f = Qopen (filename, "rbz");
 	if (!f)
 		gi.error ("Couldn't open %s", filename);
 

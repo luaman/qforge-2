@@ -219,7 +219,7 @@ int FS_FOpenFile (char *filename, QFile **file)
 		if (!strncmp (filename, link->from, link->fromlength))
 		{
 			Com_sprintf (netpath, sizeof(netpath), "%s%s",link->to, filename+link->fromlength);
-			*file = Qopen (netpath, "rb");
+			*file = Qopen (netpath, "rbz");
 			if (*file)
 			{		
 				Com_DPrintf ("link file: %s\n",netpath);
@@ -258,7 +258,7 @@ int FS_FOpenFile (char *filename, QFile **file)
 			
 			Com_sprintf (netpath, sizeof(netpath), "%s/%s",search->filename, filename);
 			
-			*file = Qopen (netpath, "rb");
+			*file = Qopen (netpath, "rbz");
 			if (!*file)
 				continue;
 			
@@ -293,7 +293,7 @@ int FS_FOpenFile (char *filename, QFile **file)
 	{
 		Com_sprintf (netpath, sizeof(netpath), "%s/%s",FS_Gamedir(), filename);
 		
-		*file = Qopen (netpath, "rb");
+		*file = Qopen (netpath, "rbz");
 		if (!*file)
 			return -1;
 		
