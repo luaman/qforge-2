@@ -327,7 +327,8 @@ qboolean R_Init( void *hInstance, void *wndProc )
 
 	R_Register ();
 	Draw_GetPalette ();
-	SWimp_Init( hInstance, wndProc );
+	if (SWimp_Init( hInstance, wndProc ) == false)
+		return false;
 
 	// create the window
 	R_BeginFrame( 0 );

@@ -358,8 +358,8 @@ CL_ParseBaseline
 */
 void CL_ParseBaseline (void)
 {
-	entity_state_t	*es;
-	int				bits;
+	entity_state_t *es;
+	unsigned int	bits;
 	int				newnum;
 	entity_state_t	nullstate;
 
@@ -379,8 +379,8 @@ CL_LoadClientinfo
 */
 void CL_LoadClientinfo (clientinfo_t *ci, char *s)
 {
-	int i;
-	char		*t;
+	int			i;
+	char	   *t;
 	char		model_name[MAX_QPATH];
 	char		skin_name[MAX_QPATH];
 	char		model_filename[MAX_QPATH];

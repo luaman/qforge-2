@@ -50,11 +50,12 @@ static int cdfile = -1;
 
 //static char cd_dev[64] = "/dev/cdrom";
 
-cvar_t	*cd_volume;
+cvar_t *cd_volume;
 cvar_t *cd_nocd;
 cvar_t *cd_dev;
 
 void CDAudio_Pause(void);
+
 
 static void CDAudio_Eject(void)
 {
@@ -82,10 +83,10 @@ static int CDAudio_GetAudioDiskInfo(void)
 	cdValid = false;
 
 	if ( ioctl(cdfile, CDROMREADTOCHDR, &tochdr) == -1 ) 
-    {
-      Com_DPrintf("ioctl cdromreadtochdr failed\n");
-	  return -1;
-    }
+	{
+		Com_DPrintf("ioctl cdromreadtochdr failed\n");
+		return -1;
+	}
 
 	if (tochdr.cdth_trk0 < 1)
 	{
@@ -150,10 +151,10 @@ void CDAudio_Play(int track, qboolean looping)
 	ti.cdti_ind1 = 99;
 
 	if ( ioctl(cdfile, CDROMPLAYTRKIND, &ti) == -1 ) 
-    {
+	{
 		Com_DPrintf("ioctl cdromplaytrkind failed\n");
 		return;
-    }
+	}
 
 	if ( ioctl(cdfile, CDROMRESUME) == -1 ) 
 		Com_DPrintf("ioctl cdromresume failed\n");
@@ -166,6 +167,78 @@ void CDAudio_Play(int track, qboolean looping)
 		CDAudio_Pause ();
 }
 
+void CDAudio_RandomPlay(void)
+{
+	int track, i = 0, free_tracks = 0, remap_track;
+	float f;
+	unsigned char track_bools[100];
+	struct cdrom_tocentry entry;
+	struct cdrom_ti ti;
+
+	if (cdfile == -1 || !enabled)
+		return;
+
+	// create array of available audio tracknumbers
+
+	for (; i < maxTrack; i++)
+	{
+		entry.cdte_track = remap[i];
+		entry.cdte_format = CDROM_MSF;
+		if ( ioctl(cdfile, CDROMREADTOCENTRY, &entry) == -1 )
+		{
+			track_bools[i] = 0;
+		}
+		else 
+			track_bools[i] = (entry.cdte_ctrl != CDROM_DATA_TRACK);
+
+		free_tracks += track_bools[i];
+	}
+
+	if (!free_tracks)
+	{
+		Com_DPrintf("CDAudio_RandomPlay: Unable to find and play a random audio track, insert an audio cd please");
+		return;
+	}
+
+	// choose random audio track
+	do
+	{
+		do
+		{
+			f = ((float)rand()) / ((float)RAND_MAX + 1.0);
+			track = (int)(maxTrack  * f);
+		}
+		while(!track_bools[track]);
+
+		remap_track = remap[track];
+
+		if (playing)
+		{
+			if (playTrack == remap_track)
+				return;
+			CDAudio_Stop();
+		}
+
+		ti.cdti_trk0 = remap_track;
+		ti.cdti_trk1 = remap_track;
+		ti.cdti_ind0 = 1;
+		ti.cdti_ind1 = 99;
+
+		if ( ioctl(cdfile, CDROMPLAYTRKIND, &ti) == -1 ) 
+		{
+			track_bools[track] = 0;
+			free_tracks--;
+		}
+		else
+		{
+			playLooping = true;
+			playTrack = remap_track;
+			playing = true;
+			return;
+		}
+	}
+	while (free_tracks > 0);
+}
 
 void CDAudio_Stop(void)
 {
@@ -379,6 +452,9 @@ int CDAudio_Init(void)
 	cvar_t			*cv;
 	extern uid_t saved_euid;
 
+	if (initialized)
+		return 0;
+
 	cv = Cvar_Get ("nocdaudio", "0", CVAR_NOSET);
 	if (cv->value)
 		return -1;
@@ -436,4 +512,5 @@ void CDAudio_Shutdown(void)
 	CDAudio_Stop();
 	close(cdfile);
 	cdfile = -1;
+	initialized = false;
 }

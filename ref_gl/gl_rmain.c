@@ -871,7 +871,6 @@ void R_RenderView (refdef_t *fd)
 	}
 }
 
-
 void	R_SetGL2D (void)
 {
 	// set 2D virtual screen size
@@ -887,6 +886,7 @@ void	R_SetGL2D (void)
 	qglEnable (GL_ALPHA_TEST);
 	qglColor4ubv (color_white);
 }
+
 /*
 static void GL_DrawColoredStereoLinePair( float r, float g, float b, float y )
 {

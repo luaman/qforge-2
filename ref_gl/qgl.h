@@ -29,15 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #include <GL/gl.h>
-
-#ifdef __linux__
-//#include <GL/fxmesa.h>
-#include <GL/glx.h>
-#include <dlfcn.h>
-#ifndef __GLW_LINUX_H
-#include "../linux/glw_linux.h"
-#endif
-#endif
+#include <GL/glext.h>
 
 qboolean QGL_Init( const char *dllname );
 void     QGL_Shutdown( void );
@@ -46,6 +38,7 @@ void     QGL_Shutdown( void );
 #  define APIENTRY
 #endif
 
+/*
 #ifdef __OpenBSD__
 #define GPA(X) dlsym(glw_state.OpenGLLib, "_"##X)
 #else
@@ -55,6 +48,7 @@ void     QGL_Shutdown( void );
 #ifndef qwglGetProcAddress
 #define qwglGetProcAddress(X) (glw_state.OpenGLLib ? GPA(X) : NULL)
 #endif
+*/
 
 extern  void ( APIENTRY * qglAccum )(GLenum op, GLfloat value);
 extern  void ( APIENTRY * qglAlphaFunc )(GLenum func, GLclampf ref);
@@ -447,37 +441,24 @@ extern BOOL ( WINAPI * qwglSetDeviceGammaRampEXT ) ( const unsigned char *pRed, 
 #ifdef __linux__
 
 // local function in dll
-#ifndef qwglGetProcAddress
+//#ifndef qwglGetProcAddress // FIXME
 extern void *qwglGetProcAddress(char *symbol);
-#endif
+//#endif
 
 extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
 
-/*
-//FX Mesa Functions
-extern fxMesaContext (*qfxMesaCreateContext)(GLuint win, GrScreenResolution_t, GrScreenRefresh_t, const GLint attribList[]);
-extern fxMesaContext (*qfxMesaCreateBestContext)(GLuint win, GLint width, GLint height, const GLint attribList[]);
-extern void (*qfxMesaDestroyContext)(fxMesaContext ctx);
-extern void (*qfxMesaMakeCurrent)(fxMesaContext ctx);
-extern fxMesaContext (*qfxMesaGetCurrentContext)(void);
-extern void (*qfxMesaSwapBuffers)(void);
-*/
-
-//GLX Functions
-extern XVisualInfo * (*qglXChooseVisual)( Display *dpy, int screen, int *attribList );
-extern GLXContext (*qglXCreateContext)( Display *dpy, XVisualInfo *vis, GLXContext shareList, Bool direct );
-extern void (*qglXDestroyContext)( Display *dpy, GLXContext ctx );
-extern Bool (*qglXMakeCurrent)( Display *dpy, GLXDrawable drawable, GLXContext ctx);
-extern void (*qglXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, GLuint mask );
-extern void (*qglXSwapBuffers)( Display *dpy, GLXDrawable drawable );
-
 // 3dfxSetPaletteEXT shunt
 void APIENTRY Fake_glColorTableEXT( GLenum target, GLenum internalformat,
-                             GLsizei width, GLenum format, GLenum type,
-                             const GLvoid *table );
+									GLsizei width, GLenum format, GLenum type,
+									const GLvoid *table );
 
 #endif // linux
 
+/* deprecated */
+#define GL_TEXTURE0_SGIS					0x835E
+#define GL_TEXTURE1_SGIS					0x835F
+
+#if 0 // FIXME: these are in glext.h, delete after testing
 /*
 ** extension constants
 */
@@ -492,10 +473,10 @@ void APIENTRY Fake_glColorTableEXT( GLenum target, GLenum internalformat,
 #define GL_SHARED_TEXTURE_PALETTE_EXT		0x81FB
 #endif
 
-#define GL_TEXTURE0_SGIS					0x835E
-#define GL_TEXTURE1_SGIS					0x835F
 #define GL_TEXTURE0_ARB						0x84C0
 #define GL_TEXTURE1_ARB						0x84C1
+
+#endif // FIXME: end of glext.h defines
 
 extern int GL_Texture0, GL_Texture1;
 

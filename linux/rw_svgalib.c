@@ -56,7 +56,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 int		VGA_width, VGA_height, VGA_rowbytes, VGA_bufferrowbytes, VGA_planar;
 byte	*VGA_pagebase;
-char	*framebuffer_ptr;
+byte	*framebuffer_ptr;
 
 void VGA_UpdatePlanarScreen (void *srcbuffer);
 

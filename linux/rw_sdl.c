@@ -13,15 +13,11 @@
 ** SWimp_SwitchFullscreen
 */
 
-#include <ctype.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/mman.h>
 #include <unistd.h>
-#include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/mman.h>
 
 #include "SDL.h"
 
@@ -45,7 +41,7 @@ static qboolean                 X11_active = false;
 
 static SDL_Surface *surface;
 #ifndef OPENGL
-static int sdl_palettemode;
+static unsigned int sdl_palettemode;
 #endif
 
 struct
@@ -120,7 +116,7 @@ void RW_IN_Init(in_state_t *in_state_p)
 	// mouse variables
 	_windowed_mouse = ri.Cvar_Get ("_windowed_mouse", "0", CVAR_ARCHIVE);
 	m_filter = ri.Cvar_Get ("m_filter", "0", 0);
-    in_mouse = ri.Cvar_Get ("in_mouse", "1", CVAR_ARCHIVE);
+	in_mouse = ri.Cvar_Get ("in_mouse", "1", CVAR_ARCHIVE);
 	my_freelook = ri.Cvar_Get( "freelook", "0", 0);
 	my_lookstrafe = ri.Cvar_Get ("lookstrafe", "0", 0);
 	
@@ -391,16 +387,20 @@ void GetEvent(SDL_Event *event)
 	case SDL_MOUSEBUTTONUP:
 		break;
 	case SDL_KEYDOWN:
-#if 0
 		if ( (KeyStates[SDLK_LALT] || KeyStates[SDLK_RALT]) &&
 			(event->key.keysym.sym == SDLK_RETURN) ) {
-			/* SDL_WM_ToggleFullScreen(surface); */
-				
+			cvar_t	*fullscreen;
+
+			SDL_WM_ToggleFullScreen(surface);
+
 			if (surface->flags & SDL_FULLSCREEN) {
-				ri.Cvar_SetValue( "vid_fullscreen", /*1*/ 0 );
+				ri.Cvar_SetValue( "vid_fullscreen", 1 );
 			} else {
-				ri.Cvar_SetValue( "vid_fullscreen", /*0*/ 1 );
+				ri.Cvar_SetValue( "vid_fullscreen", 0 );
 			}
+
+			fullscreen = ri.Cvar_Get( "vid_fullscreen", "0", 0 );
+			fullscreen->modified = false;	// we just changed it with SDL.
 
 			break; /* ignore this key */
 		}
@@ -416,7 +416,7 @@ void GetEvent(SDL_Event *event)
 			
 			break; /* ignore this key */
 		}
-#endif		
+
 		KeyStates[event->key.keysym.sym] = 1;
 		
 		key = XLateKey(event->key.keysym.sym);
@@ -495,6 +495,41 @@ int GLimp_Init( void *hInstance, void *wndProc )
 }
 #endif
 
+static void SetSDLIcon(void)
+{
+#include "q2icon.xbm"
+	SDL_Surface	   *icon;
+	SDL_Color		color;
+	Uint8		   *ptr;
+	int				i, mask;
+
+	icon = SDL_CreateRGBSurface(SDL_SWSURFACE, q2icon_width, q2icon_height, 8,
+								0, 0, 0, 0);
+	if (icon == NULL)
+		return; /* oh well... */
+	SDL_SetColorKey(icon, SDL_SRCCOLORKEY, 0);
+
+	color.r = 255;
+	color.g = 255;
+	color.b = 255;
+	SDL_SetColors(icon, &color, 0, 1); /* just in case */
+	color.r = 0;
+	color.g = 16;
+	color.b = 0;
+	SDL_SetColors(icon, &color, 1, 1);
+
+	ptr = (Uint8 *)icon->pixels;
+	for (i = 0; i < sizeof(q2icon_bits); i++) {
+		for (mask = 1; mask != 0x100; mask <<= 1) {
+			*ptr = (q2icon_bits[i] & mask) ? 1 : 0;
+			ptr++;
+		}               
+	}
+
+	SDL_WM_SetIcon(icon, NULL);
+	SDL_FreeSurface(icon);
+}
+
 /*
 ** SWimp_InitGraphics
 **
@@ -543,7 +578,9 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 	flags = /*SDL_DOUBLEBUF|*/SDL_SWSURFACE|SDL_HWPALETTE;
 	if (fullscreen)
 		flags |= SDL_FULLSCREEN;
-	
+
+	SetSDLIcon(); /* currently uses q2icon.xbm data */
+
 	if ((surface = SDL_SetVideoMode(vid.width, vid.height, 8, flags)) == NULL) {
 		Sys_Error("(SOFTSDL) SDL SetVideoMode failed: %s\n", SDL_GetError());
 		return false;
@@ -594,6 +631,8 @@ static qboolean GLimp_InitGraphics( qboolean fullscreen )
 	flags = SDL_OPENGL;
 	if (fullscreen)
 		flags |= SDL_FULLSCREEN;
+
+	SetSDLIcon(); /* currently uses q2icon.xbm data */
 		
 	if ((surface = SDL_SetVideoMode(vid.width, vid.height, 0, flags)) == NULL) {
 		Sys_Error("(SDLGL) SDL SetVideoMode failed: %s\n", SDL_GetError());

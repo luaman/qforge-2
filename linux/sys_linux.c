@@ -218,12 +218,15 @@ void *Sys_GetGameAPI (void *parms)
 
 	char	name[MAX_OSPATH];
 	char	*path;
+	char	*str_p;
 #if defined __i386__
 	const char *gamename = "gamei386.so";
 #elif defined __alpha__
 	const char *gamename = "gameaxp.so";
 #elif defined __powerpc__
 	const char *gamename = "gameppc.so";
+#elif defined __sparc__
+	const char *gamename = "gamesparc.so";
 #else
 #error Unknown arch
 #endif
@@ -247,10 +250,18 @@ void *Sys_GetGameAPI (void *parms)
 		game_library = dlopen (name, RTLD_NOW );
 		if (game_library)
 		{
-			Com_DPrintf ("LoadLibrary (%s)\n",name);
+			Com_MDPrintf ("LoadLibrary (%s)\n",name);
 			break;
 		} else {
-			Com_DPrintf ("LoadLibrary (%s) failed\n", name, dlerror());
+			Com_MDPrintf ("LoadLibrary (%s)\n", name);
+			str_p = strchr(dlerror(), ':');	// skip the path (already shown)
+			if (str_p != NULL)
+			{
+				Com_MDPrintf (" **");
+				while (*str_p)
+					Com_MDPrintf ("%c", *(++str_p));
+				Com_MDPrintf ("\n");
+			}
 		}
 	}
 
@@ -284,11 +295,6 @@ void Sys_SendKeyEvents (void)
 
 /*****************************************************************************/
 
-char *Sys_GetClipboardData(void)
-{
-	return NULL;
-}
-
 int main (int argc, char **argv)
 {
 	int 	time, oldtime, newtime;
@@ -318,7 +324,6 @@ int main (int argc, char **argv)
         Qcommon_Frame (time);
 		oldtime = newtime;
     }
-
 }
 
 #if 0

@@ -2209,7 +2209,7 @@ void CL_AddParticles (void)
 		}
 		else
 		{
-			time = 0;
+			time = 0.0;
 			alpha = p->alpha;
 		}
 

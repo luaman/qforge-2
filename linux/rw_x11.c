@@ -65,6 +65,7 @@ static GC				x_gc;
 static Visual			*x_vis;
 static XVisualInfo		*x_visinfo;
 static int win_x, win_y;
+static Atom wmDeleteWindow;
 
 #define KEY_MASK (KeyPressMask | KeyReleaseMask)
 #define MOUSE_MASK (ButtonPressMask | ButtonReleaseMask | \
@@ -168,14 +169,14 @@ PIXEL24 xlib_rgb24(int r,int g,int b)
 void st2_fixup( XImage *framebuf, int x, int y, int width, int height)
 {
 	int yi;
-	unsigned char *src;
+	byte *src;
 	PIXEL16 *dest;
 	register int count, n;
 
 	if( (x<0)||(y<0) )return;
 
 	for (yi = y; yi < (y+height); yi++) {
-		src = &framebuf->data [yi * framebuf->bytes_per_line];
+		src = (byte *)&framebuf->data [yi * framebuf->bytes_per_line];
 
 		// Duff's Device
 		count = width;
@@ -204,14 +205,14 @@ void st2_fixup( XImage *framebuf, int x, int y, int width, int height)
 void st3_fixup( XImage *framebuf, int x, int y, int width, int height)
 {
 	int yi;
-	unsigned char *src;
+	byte *src;
 	PIXEL24 *dest;
 	register int count, n;
 
 	if( (x<0)||(y<0) )return;
 
 	for (yi = y; yi < (y+height); yi++) {
-		src = &framebuf->data [yi * framebuf->bytes_per_line];
+		src = (byte *)&framebuf->data [yi * framebuf->bytes_per_line];
 
 		// Duff's Device
 		count = width;
@@ -276,6 +277,8 @@ static cvar_t *m_pitch;
 static cvar_t *m_forward;
 static cvar_t *freelook;
 
+static Time myxtime;
+
 static void Force_CenterView_f (void)
 {
 	in_state->viewangles[PITCH] = 0;
@@ -316,17 +319,6 @@ void RW_IN_Init(in_state_t *in_state_p)
 	mouse_avail = true;
 }
 
-void RW_IN_Shutdown(void)
-{
-	if (mouse_avail) {
-		mouse_avail = false;
-		
-		ri.Cmd_RemoveCommand ("+mlook");
-		ri.Cmd_RemoveCommand ("-mlook");
-		ri.Cmd_RemoveCommand ("force_centerview");
-	}
-}
-
 /*
 ===========
 IN_Commands
@@ -339,13 +331,21 @@ void RW_IN_Commands (void)
 	if (!mouse_avail) 
 		return;
    
-	for (i=0 ; i<3 ; i++) {
+	for (i=0 ; i<5 ; i++) {
 		if ( (mouse_buttonstate & (1<<i)) && !(mouse_oldbuttonstate & (1<<i)) )
 			in_state->Key_Event_fp (K_MOUSE1 + i, true);
-
 		if ( !(mouse_buttonstate & (1<<i)) && (mouse_oldbuttonstate & (1<<i)) )
 			in_state->Key_Event_fp (K_MOUSE1 + i, false);
 	}
+	if ( (mouse_buttonstate & (1<<3)) && !(mouse_oldbuttonstate & (1<<3)) )
+		in_state->Key_Event_fp (K_MWHEELUP, true);
+	if ( !(mouse_buttonstate & (1<<3)) && (mouse_oldbuttonstate & (1<<3)) )
+		in_state->Key_Event_fp (K_MWHEELUP, false);
+	if ( (mouse_buttonstate & (1<<4)) && !(mouse_oldbuttonstate & (1<<4)) )
+		in_state->Key_Event_fp (K_MWHEELDOWN, true);
+	if ( !(mouse_buttonstate & (1<<4)) && (mouse_oldbuttonstate & (1<<4)) )
+		in_state->Key_Event_fp (K_MWHEELDOWN, false);
+
 	mouse_oldbuttonstate = mouse_buttonstate;
 }
 
@@ -508,7 +508,64 @@ void RW_IN_Activate(qboolean active)
 	if (active)
 		IN_ActivateMouse();
 	else
-		IN_DeactivateMouse ();
+		IN_DeactivateMouse();
+}
+
+void RW_IN_Shutdown(void)
+{
+	if (mouse_avail) {
+		RW_IN_Activate (false);
+
+		mouse_avail = false;
+
+		ri.Cmd_RemoveCommand ("+mlook");
+		ri.Cmd_RemoveCommand ("-mlook");
+		ri.Cmd_RemoveCommand ("force_centerview");
+	}
+}
+
+/*****************************************************************************/
+
+char *RW_Sys_GetClipboardData()
+{
+	Window sowner;
+	Atom type, property;
+	unsigned long len, bytes_left, tmp;
+	unsigned char *data;
+	int format, result;
+	char *ret = NULL;
+
+	sowner = XGetSelectionOwner(dpy, XA_PRIMARY);
+
+	if (sowner != None) {
+		property = XInternAtom(dpy,
+							   "GETCLIPBOARDDATA_PROP",
+							   False);
+
+		XConvertSelection(dpy,
+						  XA_PRIMARY, XA_STRING,
+						  property, win, myxtime); /* myxtime == time of last X event */
+		XFlush(dpy);
+
+		XGetWindowProperty(dpy,
+						   win, property,
+						   0, 0, False, AnyPropertyType,
+						   &type, &format, &len,
+						   &bytes_left, &data);
+		if (bytes_left > 0) {
+			result =
+				XGetWindowProperty(dpy,
+								   win, property,
+								   0, bytes_left, True, AnyPropertyType,
+								   &type, &format, &len,
+								   &tmp, &data);
+			if (result == Success) {
+				ret = strdup(data);
+			}
+			XFree(data);
+		}
+	}
+	return ret;
 }
 
 /*****************************************************************************/
@@ -760,6 +817,7 @@ void HandleEvents(void)
 
 		switch(event.type) {
 		case KeyPress:
+			myxtime = event.xkey.time;
 		case KeyRelease:
 			if (in_state && in_state->Key_Event_fp)
 				in_state->Key_Event_fp (XLateKey(&event.xkey), event.type == KeyPress);
@@ -789,10 +847,9 @@ void HandleEvents(void)
 			}
 			break;
 
-
-			break;
-
 		case ButtonPress:
+			myxtime = event.xbutton.time;
+
 			b=-1;
 			if (event.xbutton.button == 1)
 				b = 0;
@@ -800,6 +857,10 @@ void HandleEvents(void)
 				b = 2;
 			else if (event.xbutton.button == 3)
 				b = 1;
+			else if (event.xbutton.button == 4)
+				in_state->Key_Event_fp (K_MWHEELUP, 1);
+			else if (event.xbutton.button == 5)
+				in_state->Key_Event_fp (K_MWHEELDOWN, 1);
 			if (b>=0)
 				mouse_buttonstate |= 1<<b;
 			break;
@@ -812,6 +873,10 @@ void HandleEvents(void)
 				b = 2;
 			else if (event.xbutton.button == 3)
 				b = 1;
+			else if (event.xbutton.button == 4)
+				in_state->Key_Event_fp (K_MWHEELUP, 0);
+			else if (event.xbutton.button == 5)
+				in_state->Key_Event_fp (K_MWHEELDOWN, 0);
 			if (b>=0)
 				mouse_buttonstate &= ~(1<<b);
 			break;
@@ -838,6 +903,11 @@ void HandleEvents(void)
 				config_notify_height != vid.height)
 				XMoveResizeWindow(dpy, win, win_x, win_y, vid.width, vid.height);
 			config_notify = 1;
+			break;
+
+		case ClientMessage:
+			if (event.xclient.data.l[0] == wmDeleteWindow)
+				ri.Cmd_ExecuteText(EXEC_NOW, "quit");
 			break;
 
 		default:
@@ -869,7 +939,7 @@ int SWimp_Init( void *hInstance, void *wndProc )
 	vid_ypos = ri.Cvar_Get ("vid_ypos", "22", CVAR_ARCHIVE);
 
 // open the display
-	dpy = XOpenDisplay(0);
+	dpy = XOpenDisplay(NULL);
 	if (!dpy)
 	{
 		if (getenv("DISPLAY"))
@@ -981,6 +1051,7 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 	   int attribmask = CWEventMask  | CWColormap | CWBorderPixel;
 	   XSetWindowAttributes attribs;
 	   XSizeHints *sizehints;
+	   XWMHints *wmhints;
 	   Colormap tmpcmap;
 	   
 	   tmpcmap = XCreateColormap(dpy, root, x_vis, AllocNone);
@@ -1006,12 +1077,37 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 			sizehints->flags = PMinSize | PMaxSize | PBaseSize;
 		}
 		
+		wmhints = XAllocWMHints();
+		if (wmhints) {
+			#include "q2icon.xbm"
+
+			Pixmap icon_pixmap, icon_mask;
+			unsigned long fg, bg;
+			int i;
+
+			fg = BlackPixel(dpy, x_visinfo->screen);
+			bg = WhitePixel(dpy, x_visinfo->screen);
+			icon_pixmap = XCreatePixmapFromBitmapData(dpy, win, (char *)q2icon_bits, q2icon_width, q2icon_height, fg, bg, x_visinfo->depth);
+			for (i = 0; i < sizeof(q2icon_bits); i++)
+				q2icon_bits[i] = ~q2icon_bits[i];
+			icon_mask = XCreatePixmapFromBitmapData(dpy, win, (char *)q2icon_bits, q2icon_width, q2icon_height, bg, fg, x_visinfo->depth);
+
+				wmhints->flags = IconPixmapHint|IconMaskHint;
+				wmhints->icon_pixmap = icon_pixmap;
+				wmhints->icon_mask = icon_mask;
+		}
+
 		XSetWMProperties(dpy, win, NULL, NULL, NULL, 0,
-			sizehints, None, None);
+						 sizehints, wmhints, None);
 		if (sizehints)
 			XFree(sizehints);
-		
+		if (wmhints)
+			XFree(wmhints);
+
 		XStoreName(dpy, win, "Quake II");
+
+		wmDeleteWindow = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+		XSetWMProtocols(dpy, win, &wmDeleteWindow, 1);
 
 		if (x_visinfo->class != TrueColor)
 			XFreeColormap(dpy, tmpcmap);
@@ -1080,7 +1176,7 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 
 	current_framebuffer = 0;
 	vid.rowbytes = x_framebuffer[0]->bytes_per_line;
-	vid.buffer = x_framebuffer[0]->data;
+	vid.buffer = (byte *)x_framebuffer[0]->data;
 
 //	XSynchronize(dpy, False);
 
@@ -1111,7 +1207,7 @@ void SWimp_EndFrame (void)
 		else
 			ResetFrameBuffer();
 		vid.rowbytes = x_framebuffer[0]->bytes_per_line;
-		vid.buffer = x_framebuffer[current_framebuffer]->data;
+		vid.buffer = (byte *)x_framebuffer[current_framebuffer]->data;
 		vid.recalc_refdef = 1;				// force a surface cache flush
 		Con_CheckResize();
 		Con_Clear_f();
@@ -1132,7 +1228,7 @@ void SWimp_EndFrame (void)
 		while (!oktodraw) 
 			HandleEvents();
 		current_framebuffer = !current_framebuffer;
-		vid.buffer = x_framebuffer[current_framebuffer]->data;
+		vid.buffer = (byte *)x_framebuffer[current_framebuffer]->data;
 		XSync(dpy, False);
 	}
 	else
@@ -1239,6 +1335,8 @@ void SWimp_Shutdown( void )
 
 	XDestroyWindow(	dpy, win );
 
+	win = 0;
+
 //	XAutoRepeatOn(dpy);
 //	XCloseDisplay(dpy);
 
@@ -1298,5 +1396,3 @@ void KBD_Update(void)
 void KBD_Close(void)
 {
 }
-
-

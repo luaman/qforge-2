@@ -550,6 +550,7 @@ int Menu_TallySlots( menuframework_s *menu )
 
 	return total;
 }
+
 /*
 void Menulist_DoEnter( menulist_s *l )
 {
@@ -563,6 +564,7 @@ void Menulist_DoEnter( menulist_s *l )
 		l->generic.callback( l );
 }
 */
+
 void MenuList_Draw( menulist_s *l )
 {
 	const char **n;
@@ -623,6 +625,7 @@ void Slider_Draw( menuslider_s *s )
 	Draw_Char( RCOLUMN_OFFSET + s->generic.x + i*8 + s->generic.parent->x + 8, s->generic.y + s->generic.parent->y, 130);
 	Draw_Char( ( int ) ( 8 + RCOLUMN_OFFSET + s->generic.parent->x + s->generic.x + (SLIDER_RANGE-1)*8 * s->range ), s->generic.y + s->generic.parent->y, 131);
 }
+
 /*
 void SpinControl_DoEnter( menulist_s *s )
 {
@@ -634,6 +637,7 @@ void SpinControl_DoEnter( menulist_s *s )
 		s->generic.callback( s );
 }
 */
+
 void SpinControl_DoSlide( menulist_s *s, int dir )
 {
 	s->curvalue += dir;

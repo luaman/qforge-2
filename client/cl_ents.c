@@ -387,10 +387,10 @@ rest of the data stream.
 */
 void CL_ParsePacketEntities (frame_t *oldframe, frame_t *newframe)
 {
-	int			newnum;
-	int			bits;
-	entity_state_t	*oldstate = 0;
-	int			oldindex, oldnum;
+	int					newnum;
+	unsigned int		bits;
+	entity_state_t	   *oldstate = NULL;
+	int					oldindex, oldnum;
 
 	newframe->parse_entities = cl.parse_entities;
 	newframe->num_entities = 0;

@@ -1360,6 +1360,8 @@ void CL_AddPlayerBeams (void)
 	frame_t		*oldframe;
 	player_state_t	*ps, *ops;
 
+	framenum = 0;
+
 //PMM
 	if (hand)
 	{
@@ -1502,10 +1504,12 @@ void CL_AddPlayerBeams (void)
 			{
 				framenum = 1;
 			}
+/*
 		}
 		else
 		{
 			framenum = 1;
+*/
 		}
 
 		// if it's the heatbeam, draw the particle effect

@@ -26,7 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
-#include <ctype.h>
 
 #include "../client/client.h"
 
@@ -69,6 +68,10 @@ void (*RW_IN_Move_fp)(usercmd_t *cmd);
 void (*RW_IN_Frame_fp)(void);
 
 void Real_IN_Init (void);
+
+/** CLIPBOARD *************************************************************/
+
+char *(*RW_Sys_GetClipboardData_fp)(void);
 
 /*
 ==========================================================================
@@ -186,6 +189,7 @@ void VID_FreeReflib (void)
 	RW_IN_Commands_fp = NULL;
 	RW_IN_Move_fp = NULL;
 	RW_IN_Frame_fp = NULL;
+	RW_Sys_GetClipboardData_fp = NULL;
 
 	memset (&re, 0, sizeof(re));
 	reflib_library = NULL;
@@ -205,9 +209,6 @@ qboolean VID_LoadRefresh( char *name )
 	char	*path;
 	struct stat st;
 	extern uid_t saved_euid;
-#if 0
-	FILE *fp;
-#endif
 	
 	if ( reflib_active )
 	{
@@ -225,20 +226,6 @@ qboolean VID_LoadRefresh( char *name )
 
 	//regain root
 	seteuid(saved_euid);
-
-#if 0
-	if ((fp = fopen(so_file, "r")) == NULL) {
-		Com_Printf( "LoadLibrary(\"%s\") failed: can't open %s (required for location of ref libraries)\n", name, so_file);
-		return false;
-	}
-	fgets(fn, sizeof(fn), fp);
-	fclose(fp);
-	while (*fn && isspace(fn[strlen(fn) - 1]))
-		fn[strlen(fn) - 1] = 0;
-
-	strcat(fn, "/");
-	strcat(fn, name);
-#endif
 
 	path = Cvar_Get ("basedir", ".", CVAR_NOSET)->string;
 
@@ -319,6 +306,9 @@ qboolean VID_LoadRefresh( char *name )
 		(RW_IN_Move_fp = dlsym(reflib_library, "RW_IN_Move")) == NULL ||
 		(RW_IN_Frame_fp = dlsym(reflib_library, "RW_IN_Frame")) == NULL)
 		Sys_Error("No RW_IN functions in REF.\n");
+
+	/* this one is optional */
+	RW_Sys_GetClipboardData_fp = dlsym(reflib_library, "RW_Sys_GetClipboardData");
 
 	Real_IN_Init();
 
@@ -531,3 +521,10 @@ void Do_Key_Event(int key, qboolean down)
 	Key_Event(key, down, Sys_Milliseconds());
 }
 
+char *Sys_GetClipboardData(void)
+{
+	if (RW_Sys_GetClipboardData_fp)
+		return RW_Sys_GetClipboardData_fp();
+    else
+		return NULL;
+}

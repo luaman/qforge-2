@@ -123,12 +123,12 @@ void Sys_Mkdir (char *path)
 
 char *strlwr (char *s)
 {
-	char *str = s;
+	char *p = s;
 	while (*s) {
 		*s = tolower(*s);
 		s++;
 	}
-	return str;
+	return p;
 }
 
 //============================================

@@ -126,7 +126,7 @@ qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 			return true;
 		return false;
 	}
-	return true;
+	return false;
 }
 
 char	*NET_AdrToString (netadr_t a)
@@ -280,7 +280,7 @@ qboolean	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_messag
 {
 	int 	ret;
 	struct sockaddr_in	from;
-	int		fromlen;
+	socklen_t		fromlen;
 	int		net_socket;
 	int		protocol;
 	int		err;
@@ -367,7 +367,10 @@ void NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to)
 			return;
 	}
 	else
+	{
 		Com_Error (ERR_FATAL, "NET_SendPacket: bad address type");
+		return;
+	}
 
 	NetadrToSockadr (&to, &addr);
 
