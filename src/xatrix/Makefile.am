@@ -1,7 +1,8 @@
 # $Id$
 
 if DO_XATRIX
-bin_PROGRAMS = game.so
+pkglibdir=$(libdir)/@PACKAGE@/xatrix
+pkglib_PROGRAMS = game.so
 
 game_so_SOURCES = g_ai.c g_chase.c g_cmds.c g_combat.c g_func.c \
 		g_items.c g_main.c g_misc.c g_monster.c g_phys.c \

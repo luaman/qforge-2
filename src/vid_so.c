@@ -42,7 +42,11 @@
 #include <unistd.h>
 #include <errno.h>
 
+/* libtool dynamic loader */
+#include <ltdl.h>
+
 /* merged in from bsd -- jaq */
+/*
 #ifndef RTLD_NOW
 #define RTLD_NOW RTLD_LAZY
 #endif
@@ -54,6 +58,7 @@
 #ifdef __OpenBSD__
 #define dlsym(X, Y) dlsym(X, "_"##Y)
 #endif
+*/
 
 #include "client.h"
 #include "rw.h"
@@ -62,9 +67,11 @@
 refexport_t	re;
 
 /* merged from irix/vid_so.c -- jaq */
+/*
 #ifdef REF_HARD_LINKED
 refexport_t GetRefAPI(refimport_t rimp);
 #endif
+*/
 
 // Console variables that we need to access from this module
 cvar_t		*vid_gamma;
@@ -75,7 +82,7 @@ cvar_t		*vid_fullscreen;
 
 // Global variables used internally by this module
 viddef_t	viddef;				// global video state; used by other modules
-void		*reflib_library;		// Handle to refresh DLL 
+lt_dlhandle reflib_library = NULL; // Handle to refresh DLL 
 qboolean	reflib_active = 0;
 
 #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
@@ -213,9 +220,13 @@ void VID_FreeReflib (void)
 		if (RW_IN_Shutdown_fp)
 			RW_IN_Shutdown_fp();
 /* merged from irix/vid_so.c -- jaq */
+/*
 #ifndef REF_HARD_LINKED
-		dlclose(reflib_library);
+*/
+		lt_dlclose(reflib_library);
+/*
 #endif
+*/
 	}
 
 	KBD_Init_fp = NULL;
@@ -239,193 +250,142 @@ void VID_FreeReflib (void)
 VID_LoadRefresh
 ==============
 */
-qboolean VID_LoadRefresh( char *name )
-{
-	refimport_t	ri;
-/* from irix/vid_so.c -- jaq */
-#ifndef REF_HARD_LINKED
-	GetRefAPI_t	GetRefAPI;
-#endif
-	char	fn[MAX_OSPATH];
-	char	*path;
-	struct stat st;
-	extern uid_t saved_euid;
+qboolean VID_LoadRefresh(char * name) {
+    refimport_t	ri;
+    GetRefAPI_t GetRefAPI;
+    extern uid_t saved_euid;
 	
-	if ( reflib_active )
-	{
-		if (KBD_Close_fp)
-			KBD_Close_fp();
-		if (RW_IN_Shutdown_fp)
-			RW_IN_Shutdown_fp();
-		KBD_Close_fp = NULL;
-		RW_IN_Shutdown_fp = NULL;
-		re.Shutdown();
-		VID_FreeReflib ();
-	}
+    /* clean up a previous reflib */
+    if (reflib_active) {
+	if (KBD_Close_fp)
+	    KBD_Close_fp();
+	if (RW_IN_Shutdown_fp)
+	    RW_IN_Shutdown_fp();
+	KBD_Close_fp = NULL;
+	RW_IN_Shutdown_fp = NULL;
+	re.Shutdown();
+	VID_FreeReflib ();
+    }
 
-/* from irix/vid_so.c -- jaq */
-#ifndef REF_HARD_LINKED
+    Com_Printf( "------- Loading %s -------\n", name );
 
-	Com_Printf( "------- Loading %s -------\n", name );
+    //regain root
+    seteuid(saved_euid);
 
-	//regain root
-	seteuid(saved_euid);
+    lt_dlsetsearchpath(".:"PKGLIBDIR);
 
-	path = Cvar_Get ("basedir", ".", CVAR_NOSET)->string;
+    // permission checking
+    if (strstr(name, "softx") == NULL &&
+	strstr(name, "glx") == NULL &&
+	strstr(name, "softsdl") == NULL &&
+	strstr(name, "sdlgl") == NULL &&
+	strstr(name, "fxgl") == NULL) { /* ref_soft doesn't require root */
+	/*
+	  if (st.st_uid != 0) {
+	  Com_Printf( "LoadLibrary(\"%s\") failed: ref is not owned by root\n", name);
+	  return false;
+	  }
+	  if ((st.st_mode & 0777) & ~0700) {
+	  Com_Printf( "LoadLibrary(\"%s\") failed: invalid permissions, must be 700 for security considerations\n", name);
+	  return false;
+	  }
+	*/
+    } else {
+	/* ref_soft requires we give up root now */
+	setreuid(getuid(), getuid());
+	setegid(getgid());
+    }
+    
+    if ((reflib_library = lt_dlopenext(name)) == 0) {
+	Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name , lt_dlerror());
+	return false;
+    }
+    
+    Com_Printf( "LoadLibrary(\"%s\")\n", name );
+    
+    ri.Cmd_AddCommand = Cmd_AddCommand;
+    ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
+    ri.Cmd_Argc = Cmd_Argc;
+    ri.Cmd_Argv = Cmd_Argv;
+    ri.Cmd_ExecuteText = Cbuf_ExecuteText;
+    ri.Con_Printf = VID_Printf;
+    ri.Sys_Error = VID_Error;
+    ri.FS_LoadFile = FS_LoadFile;
+    ri.FS_FreeFile = FS_FreeFile;
+    ri.FS_Gamedir = FS_Gamedir;
+    ri.Cvar_Get = Cvar_Get;
+    ri.Cvar_Set = Cvar_Set;
+    ri.Cvar_SetValue = Cvar_SetValue;
+    ri.Vid_GetModeInfo = VID_GetModeInfo;
+    ri.Vid_MenuInit = VID_MenuInit;
+    ri.Vid_NewWindow = VID_NewWindow;
+    
+    if ((GetRefAPI = (GetRefAPI_t) lt_dlsym(reflib_library, "GetRefAPI")) == 0)
+	Com_Error(ERR_FATAL, "dlsym failed on %s", name);
+    
+    re = GetRefAPI( ri );
+    
+    if (re.api_version != API_VERSION) {
+	VID_FreeReflib ();
+	Com_Error (ERR_FATAL, "%s has incompatible api_version", name);
+    }
+    
+    /* Init IN (Mouse) */
+    in_state.IN_CenterView_fp = IN_CenterView;
+    in_state.Key_Event_fp = Do_Key_Event;
+    in_state.viewangles = cl.viewangles;
+    in_state.in_strafe_state = &in_strafe.state;
 
-	snprintf (fn, MAX_OSPATH, "%s/%s", path, name );
-	
-	if (stat(fn, &st) == -1) {
-		Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name, strerror(errno));
-		return false;
-	}
-	
-	// permission checking
-	if (strstr(fn, "softx") == NULL &&
-	    strstr(fn, "glx") == NULL &&
-	    strstr(fn, "softsdl") == NULL &&
-	    strstr(fn, "sdlgl") == NULL &&
-		strstr(fn, "fxgl") == NULL) { // softx doesn't require root	
-#if 0
-		if (st.st_uid != 0) {
-			Com_Printf( "LoadLibrary(\"%s\") failed: ref is not owned by root\n", name);
-			return false;
-		}
-		if ((st.st_mode & 0777) & ~0700) {
-			Com_Printf( "LoadLibrary(\"%s\") failed: invalid permissions, must be 700 for security considerations\n", name);
-			return false;
-		}
-#endif
-	} else {
-		// softx requires we give up root now
-		setreuid(getuid(), getuid());
-		setegid(getgid());
-	}
+    if ((RW_IN_Init_fp = (void (*)(in_state_t *)) lt_dlsym(reflib_library, "RW_IN_Init")) == NULL ||
+	(RW_IN_Shutdown_fp = (void(*)(void)) lt_dlsym(reflib_library, "RW_IN_Shutdown")) == NULL ||
+	(RW_IN_Activate_fp = (void(*)(qboolean)) lt_dlsym(reflib_library, "RW_IN_Activate")) == NULL ||
+	(RW_IN_Commands_fp = (void(*)(void)) lt_dlsym(reflib_library, "RW_IN_Commands")) == NULL ||
+	(RW_IN_Move_fp = (void(*)(usercmd_t *)) lt_dlsym(reflib_library, "RW_IN_Move")) == NULL ||
+	(RW_IN_Frame_fp = (void(*)(void)) lt_dlsym(reflib_library, "RW_IN_Frame")) == NULL)
+	Sys_Error("No RW_IN functions in REF.\n");
+    
+    /* this one is optional */
+    RW_Sys_GetClipboardData_fp = (char*(*)(void)) lt_dlsym(reflib_library, "RW_Sys_GetClipboardData");
+    
+    Real_IN_Init();
 
-	if ( ( reflib_library = dlopen( fn, RTLD_LAZY | RTLD_GLOBAL ) ) == 0 )
-	{
-		Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name , dlerror());
-		return false;
-	}
-
-	Com_Printf( "LoadLibrary(\"%s\")\n", fn );
-#endif /* REF_HARD_LINKED */
-
-	ri.Cmd_AddCommand = Cmd_AddCommand;
-	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
-	ri.Cmd_Argc = Cmd_Argc;
-	ri.Cmd_Argv = Cmd_Argv;
-	ri.Cmd_ExecuteText = Cbuf_ExecuteText;
-	ri.Con_Printf = VID_Printf;
-	ri.Sys_Error = VID_Error;
-	ri.FS_LoadFile = FS_LoadFile;
-	ri.FS_FreeFile = FS_FreeFile;
-	ri.FS_Gamedir = FS_Gamedir;
-	ri.Cvar_Get = Cvar_Get;
-	ri.Cvar_Set = Cvar_Set;
-	ri.Cvar_SetValue = Cvar_SetValue;
-	ri.Vid_GetModeInfo = VID_GetModeInfo;
-	ri.Vid_MenuInit = VID_MenuInit;
-	ri.Vid_NewWindow = VID_NewWindow;
-
-#ifndef REF_HARD_LINKED
-	if ( ( GetRefAPI = (GetRefAPI_t) dlsym( reflib_library, "GetRefAPI" ) ) == 0 )
-		Com_Error( ERR_FATAL, "dlsym failed on %s", name );
-#endif
-
-	re = GetRefAPI( ri );
-
-	if (re.api_version != API_VERSION)
-	{
-		VID_FreeReflib ();
-		Com_Error (ERR_FATAL, "%s has incompatible api_version", name);
-	}
-
-	/* Init IN (Mouse) */
-	in_state.IN_CenterView_fp = IN_CenterView;
-	in_state.Key_Event_fp = Do_Key_Event;
-	in_state.viewangles = cl.viewangles;
-	in_state.in_strafe_state = &in_strafe.state;
-
-#ifndef REF_HARD_LINKED
-	if ((RW_IN_Init_fp = (void (*)(in_state_t *)) dlsym(reflib_library, "RW_IN_Init")) == NULL ||
-		(RW_IN_Shutdown_fp = (void(*)(void)) dlsym(reflib_library, "RW_IN_Shutdown")) == NULL ||
-		(RW_IN_Activate_fp = (void(*)(qboolean)) dlsym(reflib_library, "RW_IN_Activate")) == NULL ||
-		(RW_IN_Commands_fp = (void(*)(void)) dlsym(reflib_library, "RW_IN_Commands")) == NULL ||
-		(RW_IN_Move_fp = (void(*)(usercmd_t *)) dlsym(reflib_library, "RW_IN_Move")) == NULL ||
-		(RW_IN_Frame_fp = (void(*)(void)) dlsym(reflib_library, "RW_IN_Frame")) == NULL)
-		Sys_Error("No RW_IN functions in REF.\n");
-
-	/* this one is optional */
-	RW_Sys_GetClipboardData_fp = (char*(*)(void)) dlsym(reflib_library, "RW_Sys_GetClipboardData");
-
-	Real_IN_Init();
-#else /* ref-hard-linked */
-	{
-		void RW_IN_Init(in_state_t *in_state_p);
-		void RW_IN_Shutdown(void);
-		void RW_IN_Commands (void);
-		void RW_IN_Move (usercmd_t *cmd);
-		void RW_IN_Frame (void);
-		void RW_IN_Activate(void);
-		
-		RW_IN_Init_fp = RW_IN_Init;
-		RW_IN_Shutdown_fp = RW_IN_Shutdown;
-		RW_IN_Activate_fp = (void(*)(qboolean))RW_IN_Activate;
-		RW_IN_Commands_fp = RW_IN_Commands;
-		RW_IN_Move_fp = RW_IN_Move;
-		RW_IN_Frame_fp = RW_IN_Frame;
-	}
-#endif
-
-	if ( re.Init( 0, 0 ) == -1 )
-	{
-		re.Shutdown();
-		VID_FreeReflib ();
-		return false;
-	}
+    if (re.Init(0, 0) == -1) {
+	re.Shutdown();
+	VID_FreeReflib ();
+	return false;
+    }
 
 /* merged in from irix/vid_so.c */
+/*
 #ifdef __sgi
-	/* give up root now */
-	setreuid(getuid(), getuid());
-	setegid(getgid());
+    give up root now
+    setreuid(getuid(), getuid());
+    setegid(getgid());
 #endif
+*/
 
-	/* Init KBD */
-#ifndef REF_HARD_LINKED
-	if ((KBD_Init_fp = (void(*)(Key_Event_fp_t)) dlsym(reflib_library, "KBD_Init")) == NULL ||
-		(KBD_Update_fp = (void(*)(void)) dlsym(reflib_library, "KBD_Update")) == NULL ||
-		(KBD_Close_fp = (void(*)(void)) dlsym(reflib_library, "KBD_Close")) == NULL)
-		Sys_Error("No KBD functions in REF.\n");
-#else
-	{
-		void KBD_Init(void);
-		void KBD_Update(void);
-		void KBD_Close(void);
+    /* Init KBD */
+    if ((KBD_Init_fp = (void(*)(Key_Event_fp_t)) lt_dlsym(reflib_library, "KBD_Init")) == NULL ||
+	(KBD_Update_fp = (void(*)(void)) lt_dlsym(reflib_library, "KBD_Update")) == NULL ||
+	(KBD_Close_fp = (void(*)(void)) lt_dlsym(reflib_library, "KBD_Close")) == NULL)
+	Sys_Error("No KBD functions in REF.\n");
 
-		KBD_Init_fp = (void(*)(Key_Event_fp_t))KBD_Init;
-		KBD_Update_fp = KBD_Update;
-		KBD_Close_fp = KBD_Close;
-	}
-#endif
-	KBD_Init_fp(Do_Key_Event);
-
-	/* for some reason irix has this swapped with elsewhere, kinda dodgy, needs
-	 * cleaning */
-#ifndef __sgi
-	Key_ClearStates();
-	
-	// give up root now
-	setreuid(getuid(), getuid());
-	setegid(getgid());
-#else
-	Real_IN_Init();
-#endif
-
-	Com_Printf( "------------------------------------\n");
-	reflib_active = true;
-	return true;
+    KBD_Init_fp(Do_Key_Event);
+    
+    /* for some reason irix has this swapped with elsewhere, kinda dodgy, needs
+     * cleaning */
+    Key_ClearStates();
+    
+    // give up root now
+    setreuid(getuid(), getuid());
+    setegid(getgid());
+    /* sgi
+    Real_IN_Init();
+    */
+    
+    Com_Printf( "------------------------------------\n");
+    reflib_active = true;
+    return true;
 }
 
 /*

@@ -2,10 +2,14 @@
 
 SUBDIRS = . baseq2 ctf xatrix rogue
 
-bin_PROGRAMS = quake2 @VID_REFS@
+ALL_CFLAGS = -Wall -Werror -pipe
+AM_LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
+#AM_LDFLAGS = -shared
 
-EXTRA_PROGRAMS = ref_soft.so ref_softx.so ref_softsdl.so \
-		ref_glx.so ref_sdlgl.so ref_fxgl.so
+bin_PROGRAMS = quake2
+pkglib_PROGRAMS = @VID_REFS@
+EXTRA_PROGRAMS = ref_soft.la ref_softx.la ref_softsdl.la \
+		ref_glx.la ref_sdlgl.la ref_tdfx.la
 
 # Common source files
 REF_GL_COMMON = q_sh.c q_shared.c glob.c qgl.c \
@@ -48,66 +52,54 @@ quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 		m_flash.c
 #		\
 #		#snd_mixa.S
-
-quake2_LDFLAGS = -lm -pthread @DL_LIBS@
-
-#AM_CFLAGS = -Wall -Werror -pipe -I/usr/X11R6/include $(shell sdl-config --cflags) -DOPENGL  -fPIC
-AM_CFLAGS = -Wall -Werror -pipe
+quake2_CFLAGS = $(ALL_CFLAGS) @INCLTDL@
+quake2_LDFLAGS = -lm -pthread
+quake2_LDADD = @LIBLTDL@
 
 # ref_glx
 if BUILD_GLX
-ref_glx_so_SOURCES = $(REF_GL_COMMON) gl_glx.c
-ref_glx_so_CFLAGS = -fPIC @X_CFLAGS@ @OPENGL_CFLAGS@
-ref_glx_so_LDFLAGS = -shared
-#ref_glx_so_LDADD = -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm -lGL
-ref_glx_so_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @OPENGL_LIBS@
+ref_glx_la_SOURCES = $(REF_GL_COMMON) gl_glx.c
+ref_glx_la_CFLAGS = $(ALL_CFLAGS) -fPIC @X_CFLAGS@ @OPENGL_CFLAGS@
+ref_glx_la_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@ @OPENGL_LIBS@ @DL_LIBS@
 endif
 
-# ref_fxgl
-if BUILD_FXGL
-ref_fxgl_so_SOURCES = $(REF_GL_COMMON) rw_in_svgalib.c gl_fxmesa.c
-ref_fxgl_so_CFLAGS = -fPIC @GLIDE_CFLAGS@ @X_CFLAGS@ @SVGALIB_CFLAGS@
-#ref_fxgl_so_LDFLAGS = -shared -L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXext -lGL -lvga
-#ref_fxgl_so_LDFADD = -L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXext -lGL -lvga
-ref_fxgl_so_LDFLAGS = -shared
-ref_fxgl_so_LDADD = @GLIDE_LIBS@ @X_LIBS@ @SVGALIB_LIBS@
+# ref_tdfx
+if BUILD_TDFX
+ref_tdfx_la_SOURCES = $(REF_GL_COMMON) rw_in_svgalib.c gl_fxmesa.c
+ref_tdfx_la_CFLAGS = $(ALL_CFLAGS) -fPIC @GLIDE_CFLAGS@ @X_CFLAGS@ @SVGALIB_CFLAGS@
+ref_tdfx_la_LDADD = @GLIDE_LIBS@ @X_LIBS@ @SVGALIB_LIBS@
 endif
 
 # ref_sdlgl
 if BUILD_SDLGL
-ref_sdlgl_so_SOURCES = $(REF_GL_COMMON) rw_sdl.c
-ref_sdlgl_so_CFLAGS = -fPIC -DOPENGL @SDL_CFLAGS@ @OPENGL_CFLAGS@
-ref_sdlgl_so_LDFLAGS = -shared
-ref_sdlgl_so_LDADD = @SDL_LIBS@ @OPENGL_LIBS@
+ref_sdlgl_la_SOURCES = $(REF_GL_COMMON) rw_sdl.c
+ref_sdlgl_la_CFLAGS = $(ALL_CFLAGS) -fPIC -DOPENGL @SDL_CFLAGS@ @OPENGL_CFLAGS@
+ref_sdlgl_la_LDADD = @SDL_LIBS@ @OPENGL_LIBS@
 endif
 
 # ref_soft
 if BUILD_SOFT
 if ASM_ARCH
-SOFT_ASM=$(REF_SOFT_ASM) d_copy.S
+DCOPY_S = d_copy.S
 else
-SOFT_ASM=$(REF_SOFT_ASM)
+DCOPY_S =
 endif
-ref_soft_so_SOURCES = $(REF_SOFT_COMMON) $(SOFT_ASM) \
+ref_soft_la_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) $(DCOPY_S) \
 	rw_svgalib.c rw_in_svgalib.c
-ref_soft_so_CFLAGS = -fPIC @SVGALIB_CFLAGS@
-ref_soft_so_LDFLAGS = -shared
-ref_soft_so_LDADD = @SVGALIB_LIBS@
+ref_soft_la_CFLAGS = $(ALL_CFLAGS) -fPIC @SVGALIB_CFLAGS@
+ref_soft_la_LDADD = @SVGALIB_LIBS@
 endif
 
 # ref_softx
 if BUILD_SOFTX
-ref_softx_so_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_x11.c
-ref_softx_so_CFLAGS = -fPIC @X_CFLAGS@
-ref_softx_so_LDFLAGS = -shared
-#ref_softx_so_LDADD = -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
-ref_softx_so_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@
+ref_softx_la_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_x11.c
+ref_softx_la_CFLAGS = $(ALL_CFLAGS) -fPIC @X_CFLAGS@
+ref_softx_la_LDADD = @X_PRE_LIBS@ @X_LIBS@ @XTRA_LIBS@ @X_EXTRA_LIBS@
 endif
 
 # ref_softsdl
 if BUILD_SOFTSDL
-ref_softsdl_so_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_sdl.c
-ref_softsdl_so_CFLAGS = -fPIC @SDL_CFLAGS@
-ref_softsdl_so_LDFLAGS = -shared
-ref_softsdl_so_LDADD = @SDL_LIBS@
+ref_softsdl_la_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_sdl.c
+ref_softsdl_la_CFLAGS = $(ALL_CFLAGS) -fPIC @SDL_CFLAGS@
+ref_softsdl_la_LDADD = @SDL_LIBS@
 endif

@@ -1,6 +1,7 @@
 # $Id$
 
-bin_PROGRAMS = game.so
+pkglibdir=$(libdir)/@PACKAGE@/ctf
+pkglib_PROGRAMS = game.so
 game_so_SOURCES = \
 			g_ai.c \
 			g_chase.c \

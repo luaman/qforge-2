@@ -15,3 +15,5 @@ missing
 mkinstalldirs
 stamp-*
 compile
+libltdl
+ltmain.sh

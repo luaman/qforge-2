@@ -53,9 +53,8 @@
 	#include <sys/file.h>
 #endif
 
-#ifdef HAVE_DLOPEN
-# include <dlfcn.h>
-#endif
+/* libtool dynamic loader */
+#include <ltdl.h>
 
 /* merged from sys_bsd.c -- jaq */
 #ifndef RTLD_NOW
@@ -119,12 +118,12 @@ void Sys_Printf (char *fmt, ...) {
 	}
 }
 
-void Sys_Quit (void)
-{
-	CL_Shutdown ();
-	Qcommon_Shutdown ();
-    fcntl (0, F_SETFL, fcntl (0, F_GETFL, 0) & ~FNDELAY);
-	_exit(0);
+void Sys_Quit (void) {
+    CL_Shutdown();
+    Qcommon_Shutdown();
+    lt_dlexit();
+    fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) & ~FNDELAY);
+    _exit(0);
 }
 
 void Sys_Init(void)
@@ -223,89 +222,61 @@ char *Sys_ConsoleInput(void)
 
 /*****************************************************************************/
 
-static void *game_library;
+static lt_dlhandle game_library = NULL;
+typedef game_export_t * gameapi_t(game_import_t *);
 
-/*
-=================
-Sys_UnloadGame
-=================
-*/
-void Sys_UnloadGame (void)
-{
-	if (game_library) 
-		dlclose (game_library);
-	game_library = NULL;
+void Sys_UnloadGame(void) {
+    if (game_library) 
+	lt_dlclose(game_library);
+    game_library = NULL;
 }
 
-/*
-=================
-Sys_GetGameAPI
+/* Loads the game dll */
+void *Sys_GetGameAPI (void *parms) {
+    gameapi_t * GetGameAPI;
+    cvar_t * gamename;
+    char path[MAX_OSPATH];
+    char * str_p;
+    
+    setreuid(getuid(), getuid());
+    setegid(getgid());
+    
+    if (game_library)
+	Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
-Loads the game dll
-=================
-*/
-void *Sys_GetGameAPI (void *parms)
-{
-	game_export_t *(*GetGameAPI) (game_import_t *);
+    gamename = Cvar_Get("gamedir", BASEDIRNAME, CVAR_LATCH|CVAR_SERVERINFO);
 
-	char	name[MAX_OSPATH];
-	char	*path;
-	char	*str_p;
-
-	/* relnev 0.9 added -- jaq */
-	FILE * fp;
-
-	const char * gamename = "game.so";
-
-	setreuid(getuid(), getuid());
-	setegid(getgid());
-
-	if (game_library)
-		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
-
-	Com_Printf("------- Loading %s -------\n", gamename);
-
-	// now run through the search paths
-	path = NULL;
-	while (1)
-	{
-		path = FS_NextPath (path);
-		if (!path)
-			return NULL;		// couldn't find one anywhere
-		snprintf (name, MAX_OSPATH, "%s/%s", path, gamename);
-
-		/* relnev 0.9 added -- jaq */
-		/* skip it if it just doesn't exist */
-		fp = fopen(name, "rb");
-		if (fp == NULL)
-			continue;
-		fclose(fp);
-		
-		game_library = dlopen(name, RTLD_NOW);
-		if (game_library) {
-			Com_MDPrintf ("LoadLibrary (%s)\n",name);
-			break;
-		} else {
-			Com_MDPrintf ("LoadLibrary (%s)\n", name);
-			str_p = strchr(dlerror(), ':');	// skip the path (already shown)
-			if (str_p != NULL) {
-				Com_MDPrintf (" **");
-				while (*str_p)
-					Com_MDPrintf ("%c", *(++str_p));
-				Com_MDPrintf ("\n");
-			}
-		}
+    Com_Printf("------- Loading %s -------\n", gamename->string);
+    
+    /* set the module search path */
+    snprintf(path, MAX_OSPATH, ".:"PKGLIBDIR"/%s", gamename->string);
+    lt_dlsetsearchpath(path);
+        
+    /* load the module */
+    game_library = lt_dlopenext("game.so");
+    
+    if (game_library) {
+	Com_MDPrintf("LoadLibrary (%s)\n", gamename->string);
+    } else {
+	Com_MDPrintf("LoadLibrary (%s)\n", gamename->string);
+	//str_p = strchr(lt_dlerror(), ':'); // skip the path (already shown)
+	str_p = (char *) lt_dlerror();
+	if (str_p != NULL) {
+	    Com_MDPrintf (" **");
+	    while (*str_p)
+		Com_MDPrintf ("%c", *(++str_p));
+	    Com_MDPrintf ("\n");
 	}
-
-	GetGameAPI = (game_export_t * (*)(game_import_t *)) dlsym(game_library, "GetGameAPI");
-
-	if (!GetGameAPI)
-	{
-		Sys_UnloadGame ();		
-		return NULL;
-	}
-
-	return GetGameAPI (parms);
+    }
+    
+    GetGameAPI = (gameapi_t *) lt_dlsym(game_library, "GetGameAPI");
+    
+    if (!GetGameAPI) {
+	Sys_UnloadGame ();		
+	return NULL;
+    }
+    
+    return GetGameAPI(parms);
 }
 
 /*****************************************************************************/
@@ -327,38 +298,37 @@ void Sys_SendKeyEvents (void)
 
 /*****************************************************************************/
 
-int main (int argc, char **argv)
-{
-	int 	time, oldtime, newtime;
+int main (int argc, char **argv) {
+    int time, oldtime, newtime;
 
-	// go back to real user for config loads
-	saved_euid = geteuid();
-	seteuid(getuid());
+    /* go back to real user for config loads */
+    saved_euid = geteuid();
+    seteuid(getuid());
 
-	/* relnev 0.9 added -- jaq */
-	printf("QuakeIIForge %s\n", VERSION);
+    printf("QuakeIIForge %s\n", VERSION);
 
-	Qcommon_Init(argc, argv);
+    /* initialiase libltdl */
+    lt_dlinit();
+    
+    Qcommon_Init(argc, argv);
 
-	/* sys_irix.c had this and the fcntl line 3 lines down commented out */
+    /* sys_irix.c had this and the fcntl line 3 lines down commented out */
+    fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) | FNDELAY);
+
+    nostdout = Cvar_Get("nostdout", "0", 0);
+    if (!nostdout->value)
 	fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) | FNDELAY);
 
-	nostdout = Cvar_Get("nostdout", "0", 0);
-	if (!nostdout->value) {
-		fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) | FNDELAY);
-//		printf ("Linux Quake -- Version %0.3f\n", LINUX_VERSION);
-	}
-
+    /* main loop */
     oldtime = Sys_Milliseconds ();
-    while (1)
-    {
-// find time spent rendering last frame
-		do {
-			newtime = Sys_Milliseconds ();
-			time = newtime - oldtime;
-		} while (time < 1);
-        Qcommon_Frame (time);
-		oldtime = newtime;
+    while (1) {
+	/* find time spent rendering last frame */
+	do {
+	    newtime = Sys_Milliseconds();
+	    time = newtime - oldtime;
+	} while (time < 1);
+        Qcommon_Frame(time);
+	oldtime = newtime;
     }
 }
 

@@ -1,10 +1,11 @@
 dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
-dnl usual stuff
-AC_PREREQ(2.50)
-AC_INIT(src/main.c)
+dnl stick the revision info into the resulting configure script
 AC_REVISION($Revision$) dnl
+AC_PREREQ(2.50)
+
+AC_INIT(src/main.c)
 AM_CONFIG_HEADER(config.h)
 
 dnl get the build and target hosts
@@ -23,8 +24,14 @@ dnl Checks for programs
 dnl -------------------
 
 AC_PROG_CC
-#AC_PROG_RANLIB
-#AC_PROG_LIBTOOL
+
+dnl libtool is evil
+AC_LIBTOOL_DLOPEN
+AC_LIBLTDL_CONVENIENCE
+AC_PROG_LIBTOOL
+AC_CONFIG_SUBDIRS(libltdl)
+AC_SUBST(INCLTDL)
+AC_SUBST(LIBLTDL)
 
 HAVE_MASM=""
 AC_SUBST(HAVE_MASM)
@@ -271,8 +278,9 @@ dnl -----------------------------
 #AC_CHECK_FUNCS([bzero floor getcwd gethostbyname getmntent getpagesize gettimeofday memmove memset mkdir munmap pow putenv select socket sqrt strcasecmp strchr strdup strerror strrchr strstr])
 AC_FUNC_VA_COPY
 AC_FUNC__VA_COPY
-AC_CHECK_FUNCS(dlopen)
 
+dnl Check for dynamic loader -- needed for the GL refreshers
+AC_CHECK_FUNCS(dlopen)
 DL_LIBS=""
 if test "x$ac_cv_func_dlopen" != "xyes"; then
 	AC_CHECK_LIB(dl, 
@@ -331,6 +339,25 @@ fi
 AM_CONDITIONAL(DO_XATRIX, test "$DO_XATRIX" = "yes")
 AM_CONDITIONAL(DO_ROGUE, test "$DO_ROGUE" = "yes")
 
+dnl ----------------------
+dnl Fill in path variables
+dnl ----------------------
+
+dnl $libdir usually gets set to ${exec_prefix}/lib,
+dnl $exec_prefix is likely to be "NONE"
+dnl Autoconf usually sets pkglibdir correctly in the Makefile, but not in
+dnl the configure script :(
+eval tmp_libdir="$libdir"
+if test "x$tmp_libdir" != "xNONE/lib"; then
+	eval PKGLIBDIR="$libdir/$PACKAGE"
+else
+	eval PKGLIBDIR="$prefix/lib/$PACKAGE"
+fi
+AC_DEFINE_UNQUOTED(PKGLIBDIR, "$PKGLIBDIR", [Define this to the path containing the dynamic modules (\${exec-prefix}/lib/quake2/)])
+
+eval PKGDATADIR="$datadir/$PACKAGE"
+AC_DEFINE_UNQUOTED(PKGDATADIR, "$PKGDATADIR", [Define this to the path containing the game data (\${prefix}/share/quake2/)])
+
 dnl ---------------------------------
 dnl Work out what refreshers to build
 dnl ---------------------------------
@@ -338,32 +365,32 @@ dnl ---------------------------------
 VID_REFS=""
 
 if test "x$HAVE_SVGALIB" = xyes; then
-	VID_REFS="$VID_REFS ref_soft.so"
+	VID_REFS="$VID_REFS ref_soft.la"
 	BUILD_SOFT="yes"
 fi
 
 if test "x$HAVE_X" = xyes; then
-	VID_REFS="$VID_REFS ref_softx.so"
+	VID_REFS="$VID_REFS ref_softx.la"
 	BUILD_SOFTX="yes"
 fi
 
 if test "x$HAVE_SDL" = xyes; then
-	VID_REFS="$VID_REFS ref_softsdl.so"
+	VID_REFS="$VID_REFS ref_softsdl.la"
 	BUILD_SOFTSDL="yes"
 fi
 
 if test "x$HAVE_X" = xyes -a "x$HAVE_OPENGL" = xyes; then
-	VID_REFS="$VID_REFS ref_glx.so"
+	VID_REFS="$VID_REFS ref_glx.la"
 	BUILD_GLX="yes"
 fi
 
 if test "x$HAVE_X" = xyes -a "x$HAVE_GLIDE" = xyes -a "x$HAVE_SVGALIB" = xyes; then
-	VIDREFS="$VID_REFS ref_fxgl.so"
-	BUILD_FXGL="yes"
+	VID_REFS="$VID_REFS ref_tdfx.la"
+	BUILD_TDFX="yes"
 fi
 
 if test "x$HAVE_X" = xyes -a "x$HAVE_OPENGL" = xyes -a "x$HAVE_SDL" = xyes; then
-	VID_REFS="$VID_REFS ref_sdlgl.so"
+	VID_REFS="$VID_REFS ref_sdlgl.la"
 	BUILD_SDLGL="yes"
 fi
 
@@ -371,7 +398,7 @@ AM_CONDITIONAL(BUILD_SOFT, test "x$BUILD_SOFT" = xyes)
 AM_CONDITIONAL(BUILD_SOFTX, test "x$BUILD_SOFTX" = xyes)
 AM_CONDITIONAL(BUILD_SOFTSDL, test "x$BUILD_SOFTSDL" = xyes)
 AM_CONDITIONAL(BUILD_GLX, test "x$BUILD_GLX" = xyes)
-AM_CONDITIONAL(BUILD_FXGL, test "x$BUILD_FXGL" = xyes)
+AM_CONDITIONAL(BUILD_TDFX, test "x$BUILD_TDFX" = xyes)
 AM_CONDITIONAL(BUILD_SDLGL, test "x$BUILD_SDLGL" = xyes)
 
 AC_SUBST(VID_REFS)
@@ -390,6 +417,7 @@ AC_CONFIG_FILES([
 ])
 AC_OUTPUT
 
+VID_REFS=`echo $VID_REFS | sed -e 's/ref_//g' -e 's/\.la//g'`
 AC_MSG_RESULT([
-	Video refreshers: ${VID_REFS- no}
+	Video refreshers: ${VID_REFS- none}
 ])
