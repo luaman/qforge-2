@@ -37,12 +37,12 @@
 /*****************************************************************************/
 
 static qboolean			doShm;
-static Display			*x_disp;
+Display			*x_disp;
 static Colormap			x_cmap;
 static Window			x_win;
 static GC				x_gc;
 static Visual			*x_vis;
-static XVisualInfo		*x_visinfo;
+XVisualInfo		*x_visinfo;
 //static XImage			*x_image;
 
 #define STD_EVENT_MASK (StructureNotifyMask | KeyPressMask \

@@ -40,8 +40,8 @@ SVGALDFLAGS=-lvga
 XLDFLAGS=-L/usr/X11R6/lib -lX11 -lXext
 XCFLAGS=
 
-GLLDFLAGS=-L/usr/local/glide/lib -L/usr/X11/lib -L/usr/local/lib \
-	-L/usr/local/src/Mesa-2.6/lib -lMesaGL -lglide2x -lX11 -lXext -lvga
+GLLDFLAGS=-L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib \
+	-lGL -lX11 -lXext -lvga
 GLCFLAGS=-I/usr/local/src/Mesa-2.6/include -I/usr/local/glide/include
 
 SHLIBEXT=so
@@ -61,8 +61,8 @@ DO_SHLIB_AS=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -DELF -x assembler-with-cpp -o $@ -c 
 
 TARGETS=$(BUILDDIR)/quake2 \
 	$(BUILDDIR)/game$(ARCH).$(SHLIBEXT) \
-	$(BUILDDIR)/ref_softx.$(SHLIBEXT)
-#	$(BUILDDIR)/ref_gl.$(SHLIBEXT) \
+	$(BUILDDIR)/ref_softx.$(SHLIBEXT) \
+	$(BUILDDIR)/ref_gl.$(SHLIBEXT)
 #	$(BUILDDIR)/ctf/game$(ARCH).$(SHLIBEXT) \
 #	$(BUILDDIR)/ref_soft.$(SHLIBEXT) \
 #	$(BUILDDIR)/xatrix/game$(ARCH).$(SHLIBEXT)
@@ -1002,7 +1002,7 @@ REF_GL_OBJS = \
 	$(BUILDDIR)/ref_gl/gl_warp.o \
 	\
 	$(BUILDDIR)/ref_gl/qgl_linux.o \
-	$(BUILDDIR)/ref_gl/gl_fxmesa.o \
+	$(BUILDDIR)/ref_gl/gl_glx.o \
 	$(BUILDDIR)/ref_gl/rw_in_svgalib.o \
 	$(BUILDDIR)/ref_gl/q_shared.o \
 	$(BUILDDIR)/ref_gl/q_shlinux.o \
@@ -1041,7 +1041,7 @@ $(BUILDDIR)/ref_gl/gl_warp.o :        $(REF_GL_DIR)/gl_warp.c
 $(BUILDDIR)/ref_gl/qgl_linux.o :      $(LINUX_DIR)/qgl_linux.c
 	$(DO_GL_SHLIB_CC)
 
-$(BUILDDIR)/ref_gl/gl_fxmesa.o :      $(LINUX_DIR)/gl_fxmesa.c
+$(BUILDDIR)/ref_gl/gl_glx.o :      $(LINUX_DIR)/gl_glx.c
 	$(DO_GL_SHLIB_CC)
 
 $(BUILDDIR)/ref_gl/rw_in_svgalib.o :  $(LINUX_DIR)/rw_in_svgalib.c
