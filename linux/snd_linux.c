@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fcntl.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <pthread.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/shm.h>
@@ -31,8 +32,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../client/client.h"
 #include "../client/snd_loc.h"
 
-int audio_fd = -1;
-int snd_inited;
+#define FRAGSIZEEXP 9
+#define FRAGSIZE    (1<<FRAGSIZEEXP)
+
+#define AUDIOBUFFERSIZE 4096
+#define AUDIOBUFFERS    64
+
+static int audio_fd = -1;
+static volatile int snd_inited;
+static volatile int frags_sent;
+static int mmapped = 0;
 
 cvar_t *sndbits;
 cvar_t *sndspeed;
@@ -40,6 +49,17 @@ cvar_t *sndchannels;
 cvar_t *snddevice;
 
 static int tryrates[] = { 11025, 22051, 44100, 48000, 8000 };
+
+static pthread_t audio;
+
+void * thesound(void * arg) {
+	while (snd_inited) {
+		write(audio_fd, dma.buffer + frags_sent * FRAGSIZE, FRAGSIZE);
+		frags_sent++;
+		frags_sent &= (dma.samples * (dma.samplebits/8) / FRAGSIZE) - 1;
+	}
+	pthread_exit(0L);
+}
 
 qboolean SNDDMA_Init(void)
 {
@@ -64,7 +84,7 @@ qboolean SNDDMA_Init(void)
 		snddevice = Cvar_Get("snddevice", "/dev/dsp", CVAR_ARCHIVE);
 	}
 
-// open /dev/dsp, confirm capability to mmap, and get size of dma buffer
+// open /dev/dsp, check capability to mmap, and get size of dma buffer
 
 	if (audio_fd == -1)
 	{
@@ -92,23 +112,37 @@ qboolean SNDDMA_Init(void)
 		return 0;
 	}
 
-	if (ioctl(audio_fd, SNDCTL_DSP_GETCAPS, &caps)==-1)
-	{
-		perror(snddevice->string);
-		Com_Printf("SNDDMA_Init: Sound driver too old.\n");
-		close(audio_fd);
-		audio_fd = -1;
-		return 0;
+	if (ioctl(audio_fd, SNDCTL_DSP_GETCAPS, &caps) == -1
+			|| !(caps & DSP_CAP_TRIGGER) || !(caps & DSP_CAP_MMAP)) {
+		Com_Printf("SNDDMA_Init: Sound device does not support mmap");
+	} else {
+		if (ioctl(audio_fd, SNDCTL_DSP_GETOSPACE, &info) == -1) {
+			perror(snddevice->string);
+			Com_Printf("SNDDMA_Init: Sound driver too old.\n");
+			close(audio_fd);
+			audio_fd = -1;
+			return 0;
+		} else
+			mmapped = 1;
 	}
 
-	if (!(caps & DSP_CAP_TRIGGER) || !(caps & DSP_CAP_MMAP))
-	{
+	if (!(caps & DSP_CAP_TRIGGER) || !(caps & DSP_CAP_MMAP)) {
+		if (!mmapped) {
+			int frags = 2 << 16 | FRAGSIZEEXP;
+
+			if (ioctl(audio_fd, SNDCTL_DSP_SETFRAGMENT, &frags) == -1) {
+				perror(snddevice->string);
+				Com_Printf("SNDDMA_Init: Could not set sound fragments");
+/* NOMMAP - jaq
 		Com_Printf("SNDDMA_Init: Sorry, but your soundcard doesn't support trigger or mmap. (%08x)\n", caps);
-		close(audio_fd);
-		audio_fd = -1;
-		return 0;
+*/
+				close(audio_fd);
+				audio_fd = -1;
+				return 0;
+			}
+		}
 	}
-
+/* NOMMAP - jaq
     if (ioctl(audio_fd, SNDCTL_DSP_GETOSPACE, &info)==-1)
     {   
         perror("GETOSPACE");
@@ -117,14 +151,15 @@ qboolean SNDDMA_Init(void)
 		audio_fd = -1;
 		return 0;
     }
-    
+*/
+	
 // set sample bits & speed
 
     dma.samplebits = (int)sndbits->value;
 	if (dma.samplebits != 16 && dma.samplebits != 8)
     {
         ioctl(audio_fd, SNDCTL_DSP_GETFMTS, &fmt);
-        if (fmt & AFMT_S16_LE) dma.samplebits = 16;
+        if (fmt & AFMT_S16_NE) dma.samplebits = 16;
         else if (fmt & AFMT_U8) dma.samplebits = 8;
     }
 
@@ -141,21 +176,22 @@ qboolean SNDDMA_Init(void)
 	if (dma.channels < 1 || dma.channels > 2)
 		dma.channels = 2;
 
-	dma.samples = info.fragstotal * info.fragsize / (dma.samplebits/8);
-	dma.submission_chunk = 1;
+	if (mmapped) {
+		dma.samples = info.fragstotal * info.fragsize / (dma.samplebits/8);
+		dma.submission_chunk = 1;
 
-// memory map the dma buffer
+		// memory map the dma buffer
 
-	if (!dma.buffer)
-		dma.buffer = (unsigned char *) mmap(NULL, info.fragstotal
+		if (!dma.buffer)
+			dma.buffer = (unsigned char *) mmap(NULL, info.fragstotal
 				* info.fragsize, PROT_WRITE, MAP_FILE|MAP_SHARED, audio_fd, 0);
-	if (!dma.buffer || dma.buffer == MAP_FAILED)
-	{
-		perror(snddevice->string);
-		Com_Printf("SNDDMA_Init: Could not mmap %s.\n", snddevice->string);
-		close(audio_fd);
-		audio_fd = -1;
-		return 0;
+		if (!dma.buffer || dma.buffer == MAP_FAILED) {
+			perror(snddevice->string);
+			Com_Printf("SNDDMA_Init: Could not mmap %s.\n", snddevice->string);
+			close(audio_fd);
+			audio_fd = -1;
+			return 0;
+		}
 	}
 
 	tmp = 0;
@@ -178,7 +214,7 @@ qboolean SNDDMA_Init(void)
 
     if (dma.samplebits == 16)
     {
-        rc = AFMT_S16_LE;
+        rc = AFMT_S16_NE;
         rc = ioctl(audio_fd, SNDCTL_DSP_SETFMT, &rc);
         if (rc < 0)
 		{
@@ -223,30 +259,45 @@ qboolean SNDDMA_Init(void)
 
 // toggle the trigger & start her up
 
-    tmp = 0;
-    rc  = ioctl(audio_fd, SNDCTL_DSP_SETTRIGGER, &tmp);
-	if (rc < 0)
-	{
-		perror(snddevice->string);
-		Com_Printf("SNDDMA_Init: Could not toggle. (1)\n");
-		close(audio_fd);
-		audio_fd = -1;
-		return 0;
-	}
-    tmp = PCM_ENABLE_OUTPUT;
-    rc = ioctl(audio_fd, SNDCTL_DSP_SETTRIGGER, &tmp);
-	if (rc < 0)
-	{
-		perror(snddevice->string);
-		Com_Printf("SNDDMA_Init: Could not toggle. (2)\n");
-		close(audio_fd);
-		audio_fd = -1;
-		return 0;
-	}
+	if (!mmapped) {
+		dma.submission_chunk = AUDIOBUFFERSIZE;
+		dma.samples = AUDIOBUFFERS * dma.submission_chunk * dma.channels;
+		dma.samplepos = 0;
+		
+		if ((dma.buffer = malloc(dma.samples * (dma.samplebits/8))) == 0) {
+			perror(snddevice->string);
+			Com_Printf("Could not allocate shm->buffer");
+			close(audio_fd);
+			audio_fd = -1;
+			return 0;
+		}
 
-	dma.samplepos = 0;
+		snd_inited = 1;
 
-	snd_inited = 1;
+		pthread_create(&audio, 0L, thesound, 0L);
+	} else {
+	    tmp = 0;
+    	rc  = ioctl(audio_fd, SNDCTL_DSP_SETTRIGGER, &tmp);
+		if (rc < 0) {
+			perror(snddevice->string);
+			Com_Printf("SNDDMA_Init: Could not toggle. (1)\n");
+			close(audio_fd);
+			audio_fd = -1;
+			return 0;
+		}
+    	tmp = PCM_ENABLE_OUTPUT;
+	    rc = ioctl(audio_fd, SNDCTL_DSP_SETTRIGGER, &tmp);
+		if (rc < 0) {
+			perror(snddevice->string);
+			Com_Printf("SNDDMA_Init: Could not toggle. (2)\n");
+			close(audio_fd);
+			audio_fd = -1;
+			return 0;
+		}
+
+		dma.samplepos = 0;
+		snd_inited = 1;
+	}
 	return 1;
 }
 
@@ -255,6 +306,9 @@ int SNDDMA_GetDMAPos(void)
 	struct count_info count;
 
 	if (!snd_inited) return 0;
+
+	if (!mmapped)
+		return (frags_sent * FRAGSIZE) / (dma.samplebits/8) + FRAGSIZE/16;
 
 	if (ioctl(audio_fd, SNDCTL_DSP_GETOPTR, &count)==-1)
 	{
@@ -272,8 +326,7 @@ int SNDDMA_GetDMAPos(void)
 	return dma.samplepos;
 }
 
-void SNDDMA_Shutdown(void)
-{
+void SNDDMA_Shutdown(void) {
 #if 0
 	if (snd_inited)
 	{
@@ -282,6 +335,22 @@ void SNDDMA_Shutdown(void)
 		snd_inited = 0;
 	}
 #endif
+	if (snd_inited) {
+		if (!mmapped) {
+			snd_inited = 0L;
+			pthread_join(audio, 0L);
+
+			if (dma.buffer) {
+				free(dma.buffer);
+				dma.buffer = 0L;
+			}
+		}
+
+		/* FIXME: use munmap() ? */
+		close(audio_fd);
+		audio_fd = -1;
+		snd_inited = 0;
+	}
 }
 
 /*

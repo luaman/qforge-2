@@ -62,7 +62,7 @@ endif
 
 DEBUG_CFLAGS=$(BASE_CFLAGS) -g
 
-LDFLAGS=-lm -ldl
+LDFLAGS=-lm -ldl -lpthread
 
 SVGALDFLAGS=-lvga
 
