@@ -1,0 +1,7 @@
+Note to developers: bsd/, irix/ and solaris/ are NO LONGER PERTINENT!
+The relevant code was merged into src/ along with the linux/ subtree, so do
+your edits there.
+They exist only as reference in case the merge mucked up anything, they will
+be removed as soon as I can be sure that the code merge worked.
+
+ -- Jaq
