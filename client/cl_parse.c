@@ -68,7 +68,7 @@ to start a download from the server.
 */
 qboolean	CL_CheckOrDownloadFile (char *filename)
 {
-	FILE *fp;
+	QFile *fp;
 	char	name[MAX_OSPATH];
 
 	if (strstr (filename, ".."))
@@ -97,11 +97,11 @@ qboolean	CL_CheckOrDownloadFile (char *filename)
 
 //	FS_CreatePath (name);
 
-	fp = fopen (name, "r+b");
+	fp = Qopen (name, "r+b");
 	if (fp) { // it exists
 		int len;
-		fseek(fp, 0, SEEK_END);
-		len = ftell(fp);
+		Qseek(fp, 0, SEEK_END);
+		len = Qtell(fp);
 
 		cls.download = fp;
 
@@ -212,7 +212,7 @@ void CL_ParseDownload (void)
 		if (cls.download)
 		{
 			// if here, we tried to resume a file but the server said no
-			fclose (cls.download);
+			Qclose (cls.download);
 			cls.download = NULL;
 		}
 		CL_RequestNextDownload ();
@@ -226,7 +226,7 @@ void CL_ParseDownload (void)
 
 		FS_CreatePath (name);
 
-		cls.download = fopen (name, "wb");
+		cls.download = Qopen (name, "wb");
 		if (!cls.download)
 		{
 			net_message.readcount += size;
@@ -236,7 +236,7 @@ void CL_ParseDownload (void)
 		}
 	}
 
-	fwrite (net_message.data + net_message.readcount, 1, size, cls.download);
+	Qwrite (cls.download, net_message.data + net_message.readcount, size);
 	net_message.readcount += size;
 
 	if (percent != 100)
@@ -263,7 +263,7 @@ void CL_ParseDownload (void)
 
 //		Com_Printf ("100%%\n");
 
-		fclose (cls.download);
+		Qclose (cls.download);
 
 		// rename the temp file to it's final name
 		CL_DownloadFileName(oldn, sizeof(oldn), cls.downloadtempname);
@@ -715,7 +715,7 @@ void CL_ParseServerMessage (void)
 			Com_Printf ("Server disconnected, reconnecting\n");
 			if (cls.download) {
 				//ZOID, close download
-				fclose (cls.download);
+				Qclose (cls.download);
 				cls.download = NULL;
 			}
 			cls.state = ca_connecting;

@@ -324,7 +324,7 @@ int main (int argc, char **argv)
 #if 0
 void Sys_CopyProtect(void)
 {
-	FILE *mnt;
+	QFile *mnt;
 	struct mntent *ent;
 	char path[MAX_OSPATH];
 	struct stat st;

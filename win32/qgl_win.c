@@ -3440,7 +3440,7 @@ void GLimp_EnableLogging( qboolean enable )
 			asctime( newtime );
 
 			Com_sprintf( buffer, sizeof(buffer), "%s/gl.log", ri.FS_Gamedir() ); 
-			glw_state.log_fp = fopen( buffer, "wt" );
+			glw_state.log_fp = Qopen( buffer, "wt" );
 
 			fprintf( glw_state.log_fp, "%s\n", asctime( newtime ) );
 		}

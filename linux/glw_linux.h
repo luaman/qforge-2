@@ -28,7 +28,7 @@ typedef struct
 {
 	void *OpenGLLib; // instance of OpenGL library
 
-	FILE *log_fp;
+	QFile *log_fp;
 } glwstate_t;
 
 extern glwstate_t glw_state;

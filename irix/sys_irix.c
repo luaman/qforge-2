@@ -59,7 +59,7 @@ void Sys_ConsoleOutput (char *string)
 	if (nostdout && nostdout->value)
 		return;
 
-	fputs(string, stdout);
+	Qputs(string, stdout);
 }
 
 void Sys_Printf (char *fmt, ...)
@@ -321,7 +321,7 @@ int main (int argc, char **argv)
 
 void Sys_CopyProtect(void)
 {
-	FILE *mnt;
+	QFile *mnt;
 	struct mntent *ent;
 	char path[MAX_OSPATH];
 	struct stat st;

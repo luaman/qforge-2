@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#include "../qcommon/quakeio.h"
 #include "g_local.h"
 
 field_t fields[] = {
@@ -236,7 +237,7 @@ void InitGame (void)
 
 //=========================================================
 
-void WriteField1 (FILE *f, field_t *field, byte *base)
+void WriteField1 (QFile *f, field_t *field, byte *base)
 {
 	void		*p;
 	int			len;
@@ -287,7 +288,7 @@ void WriteField1 (FILE *f, field_t *field, byte *base)
 	}
 }
 
-void WriteField2 (FILE *f, field_t *field, byte *base)
+void WriteField2 (QFile *f, field_t *field, byte *base)
 {
 	int			len;
 	void		*p;
@@ -300,7 +301,7 @@ void WriteField2 (FILE *f, field_t *field, byte *base)
 		if ( *(char **)p )
 		{
 			len = strlen(*(char **)p) + 1;
-			fwrite (*(char **)p, len, 1, f);
+			Qwrite (f, *(char **)p, len);
 		}
 		break;
 	default:
@@ -308,7 +309,7 @@ void WriteField2 (FILE *f, field_t *field, byte *base)
 	}
 }
 
-void ReadField (FILE *f, field_t *field, byte *base)
+void ReadField (QFile *f, field_t *field, byte *base)
 {
 	void		*p;
 	int			len;
@@ -331,7 +332,7 @@ void ReadField (FILE *f, field_t *field, byte *base)
 		else
 		{
 			*(char **)p = gi.TagMalloc (len, TAG_LEVEL);
-			fread (*(char **)p, len, 1, f);
+			Qread (f, *(char **)p, len);
 		}
 		break;
 	case F_GSTRING:
@@ -341,7 +342,7 @@ void ReadField (FILE *f, field_t *field, byte *base)
 		else
 		{
 			*(char **)p = gi.TagMalloc (len, TAG_GAME);
-			fread (*(char **)p, len, 1, f);
+			Qread (f, *(char **)p, len);
 		}
 		break;
 	case F_EDICT:
@@ -380,7 +381,7 @@ WriteClient
 All pointer variables (except function pointers) must be handled specially.
 ==============
 */
-void WriteClient (FILE *f, gclient_t *client)
+void WriteClient (QFile *f, gclient_t *client)
 {
 	field_t		*field;
 	gclient_t	temp;
@@ -395,7 +396,7 @@ void WriteClient (FILE *f, gclient_t *client)
 	}
 
 	// write the block
-	fwrite (&temp, sizeof(temp), 1, f);
+	Qwrite (f, &temp, sizeof(temp));
 
 	// now write any allocated data following the edict
 	for (field=clientfields ; field->name ; field++)
@@ -411,11 +412,11 @@ ReadClient
 All pointer variables (except function pointers) must be handled specially.
 ==============
 */
-void ReadClient (FILE *f, gclient_t *client)
+void ReadClient (QFile *f, gclient_t *client)
 {
 	field_t		*field;
 
-	fread (client, sizeof(*client), 1, f);
+	Qread (f, client, sizeof(*client));
 
 	for (field=clientfields ; field->name ; field++)
 	{
@@ -439,59 +440,59 @@ last save position.
 */
 void WriteGame (char *filename, qboolean autosave)
 {
-	FILE	*f;
+	QFile	*f;
 	int		i;
 	char	str[16];
 
 	if (!autosave)
 		SaveClientData ();
 
-	f = fopen (filename, "wb");
+	f = Qopen (filename, "wb");
 	if (!f)
 		gi.error ("Couldn't open %s", filename);
 
 	memset (str, 0, sizeof(str));
 	strcpy (str, __DATE__);
-	fwrite (str, sizeof(str), 1, f);
+	Qwrite (f, str, sizeof(str));
 
 	game.autosaved = autosave;
-	fwrite (&game, sizeof(game), 1, f);
+	Qwrite (f, &game, sizeof(game));
 	game.autosaved = false;
 
 	for (i=0 ; i<game.maxclients ; i++)
 		WriteClient (f, &game.clients[i]);
 
-	fclose (f);
+	Qclose (f);
 }
 
 void ReadGame (char *filename)
 {
-	FILE	*f;
+	QFile	*f;
 	int		i;
 	char	str[16];
 
 	gi.FreeTags (TAG_GAME);
 
-	f = fopen (filename, "rb");
+	f = Qopen (filename, "rb");
 	if (!f)
 		gi.error ("Couldn't open %s", filename);
 
-	fread (str, sizeof(str), 1, f);
+	Qread (f, str, sizeof(str));
 	if (strcmp (str, __DATE__))
 	{
-		fclose (f);
+		Qclose (f);
 		gi.error ("Savegame from an older version.\n");
 	}
 
 	g_edicts =  gi.TagMalloc (game.maxentities * sizeof(g_edicts[0]), TAG_GAME);
 	globals.edicts = g_edicts;
 
-	fread (&game, sizeof(game), 1, f);
+	Qread (f, &game, sizeof(game));
 	game.clients = gi.TagMalloc (game.maxclients * sizeof(game.clients[0]), TAG_GAME);
 	for (i=0 ; i<game.maxclients ; i++)
 		ReadClient (f, &game.clients[i]);
 
-	fclose (f);
+	Qclose (f);
 }
 
 //==========================================================
@@ -504,7 +505,7 @@ WriteEdict
 All pointer variables (except function pointers) must be handled specially.
 ==============
 */
-void WriteEdict (FILE *f, edict_t *ent)
+void WriteEdict (QFile *f, edict_t *ent)
 {
 	field_t		*field;
 	edict_t		temp;
@@ -519,7 +520,7 @@ void WriteEdict (FILE *f, edict_t *ent)
 	}
 
 	// write the block
-	fwrite (&temp, sizeof(temp), 1, f);
+	Qwrite (f, &temp, sizeof(temp));
 
 	// now write any allocated data following the edict
 	for (field=savefields ; field->name ; field++)
@@ -536,7 +537,7 @@ WriteLevelLocals
 All pointer variables (except function pointers) must be handled specially.
 ==============
 */
-void WriteLevelLocals (FILE *f)
+void WriteLevelLocals (QFile *f)
 {
 	field_t		*field;
 	level_locals_t		temp;
@@ -551,7 +552,7 @@ void WriteLevelLocals (FILE *f)
 	}
 
 	// write the block
-	fwrite (&temp, sizeof(temp), 1, f);
+	Qwrite (f, &temp, sizeof(temp));
 
 	// now write any allocated data following the edict
 	for (field=levelfields ; field->name ; field++)
@@ -568,11 +569,11 @@ ReadEdict
 All pointer variables (except function pointers) must be handled specially.
 ==============
 */
-void ReadEdict (FILE *f, edict_t *ent)
+void ReadEdict (QFile *f, edict_t *ent)
 {
 	field_t		*field;
 
-	fread (ent, sizeof(*ent), 1, f);
+	Qread (f, ent, sizeof(*ent));
 
 	for (field=savefields ; field->name ; field++)
 	{
@@ -587,11 +588,11 @@ ReadLevelLocals
 All pointer variables (except function pointers) must be handled specially.
 ==============
 */
-void ReadLevelLocals (FILE *f)
+void ReadLevelLocals (QFile *f)
 {
 	field_t		*field;
 
-	fread (&level, sizeof(level), 1, f);
+	Qread (f, &level, sizeof(level));
 
 	for (field=levelfields ; field->name ; field++)
 	{
@@ -609,20 +610,20 @@ void WriteLevel (char *filename)
 {
 	int		i;
 	edict_t	*ent;
-	FILE	*f;
+	QFile	*f;
 	void	*base;
 
-	f = fopen (filename, "wb");
+	f = Qopen (filename, "wb");
 	if (!f)
 		gi.error ("Couldn't open %s", filename);
 
 	// write out edict size for checking
 	i = sizeof(edict_t);
-	fwrite (&i, sizeof(i), 1, f);
+	Qwrite (f, &i, sizeof(i));
 
 	// write out a function pointer for checking
 	base = (void *)InitGame;
-	fwrite (&base, sizeof(base), 1, f);
+	Qwrite (f, &base, sizeof(base));
 
 	// write out level_locals_t
 	WriteLevelLocals (f);
@@ -633,13 +634,13 @@ void WriteLevel (char *filename)
 		ent = &g_edicts[i];
 		if (!ent->inuse)
 			continue;
-		fwrite (&i, sizeof(i), 1, f);
+		Qwrite (f, &i, sizeof(i));
 		WriteEdict (f, ent);
 	}
 	i = -1;
-	fwrite (&i, sizeof(i), 1, f);
+	Qwrite (f, &i, sizeof(i));
 
-	fclose (f);
+	Qclose (f);
 }
 
 
@@ -662,12 +663,12 @@ No clients are connected yet.
 void ReadLevel (char *filename)
 {
 	int		entnum;
-	FILE	*f;
+	QFile	*f;
 	int		i;
 	void	*base;
 	edict_t	*ent;
 
-	f = fopen (filename, "rb");
+	f = Qopen (filename, "rb");
 	if (!f)
 		gi.error ("Couldn't open %s", filename);
 
@@ -680,18 +681,18 @@ void ReadLevel (char *filename)
 	globals.num_edicts = maxclients->value+1;
 
 	// check edict size
-	fread (&i, sizeof(i), 1, f);
+	Qread (f, &i, sizeof(i));
 	if (i != sizeof(edict_t))
 	{
-		fclose (f);
+		Qclose (f);
 		gi.error ("ReadLevel: mismatched edict size");
 	}
 
 	// check function pointer base address
-	fread (&base, sizeof(base), 1, f);
+	Qread (f, &base, sizeof(base));
 	if (base != (void *)InitGame)
 	{
-		fclose (f);
+		Qclose (f);
 		gi.error ("ReadLevel: function pointers have moved");
 	}
 
@@ -701,9 +702,9 @@ void ReadLevel (char *filename)
 	// load all the entities
 	while (1)
 	{
-		if (fread (&entnum, sizeof(entnum), 1, f) != 1)
+		if (Qread (f, &entnum, sizeof(entnum)) != sizeof(entnum))
 		{
-			fclose (f);
+			Qclose (f);
 			gi.error ("ReadLevel: failed to read entnum");
 		}
 		if (entnum == -1)
@@ -719,7 +720,7 @@ void ReadLevel (char *filename)
 		gi.linkentity (ent);
 	}
 
-	fclose (f);
+	Qclose (f);
 
 	// mark all clients as unconnected
 	for (i=0 ; i<maxclients->value ; i++)

@@ -589,7 +589,7 @@ struct sfx_s *S_RegisterSexedSound (entity_state_t *ent, char *base)
 	int				n;
 	char			*p;
 	struct sfx_s	*sfx;
-	FILE			*f;
+	QFile			*f;
 	char			model[MAX_QPATH];
 	char			sexedFilename[MAX_QPATH];
 	char			maleFilename[MAX_QPATH];

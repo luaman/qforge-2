@@ -117,7 +117,7 @@ SV_CheckForSavegame
 void SV_CheckForSavegame (void)
 {
 	char		name[MAX_OSPATH];
-	FILE		*f;
+	QFile		*f;
 	int			i;
 
 	if (sv_noreload->value)
@@ -127,11 +127,11 @@ void SV_CheckForSavegame (void)
 		return;
 
 	Com_sprintf (name, sizeof(name), "%s/save/current/%s.sav", FS_Gamedir(), sv.name);
-	f = fopen (name, "rb");
+	f = Qopen (name, "rb");
 	if (!f)
 		return;		// no savegame
 
-	fclose (f);
+	Qclose (f);
 
 	SV_ClearWorld ();
 
@@ -178,7 +178,7 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 
 	Com_DPrintf ("SpawnServer: %s\n",server);
 	if (sv.demofile)
-		fclose (sv.demofile);
+		Qclose (sv.demofile);
 
 	svs.spawncount++;		// any partially connected client will be
 							// restarted

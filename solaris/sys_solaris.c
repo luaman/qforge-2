@@ -56,7 +56,7 @@ void Sys_ConsoleOutput (char *string)
 	if (nostdout && nostdout->value)
 		return;
 
-	fputs(string, stdout);
+	Qputs(string, stdout);
 }
 
 void Sys_Printf (char *fmt, ...)

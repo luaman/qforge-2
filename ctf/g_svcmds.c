@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#include "../qcommon/quakeio.h"
 #include "g_local.h"
 
 
@@ -237,7 +238,7 @@ SV_WriteIP_f
 */
 void SVCmd_WriteIP_f (void)
 {
-	FILE	*f;
+	QFile	*f;
 	char	name[MAX_OSPATH];
 	byte	b[4];
 	int		i;
@@ -252,22 +253,22 @@ void SVCmd_WriteIP_f (void)
 
 	gi.cprintf (NULL, PRINT_HIGH, "Writing %s.\n", name);
 
-	f = fopen (name, "wb");
+	f = Qopen (name, "wb");
 	if (!f)
 	{
 		gi.cprintf (NULL, PRINT_HIGH, "Couldn't open %s\n", name);
 		return;
 	}
 	
-	fprintf(f, "set filterban %d\n", (int)filterban->value);
+	Qprintf(f, "set filterban %d\n", (int)filterban->value);
 
 	for (i=0 ; i<numipfilters ; i++)
 	{
 		*(unsigned *)b = ipfilters[i].compare;
-		fprintf (f, "sv addip %i.%i.%i.%i\n", b[0], b[1], b[2], b[3]);
+		Qprintf (f, "sv addip %i.%i.%i.%i\n", b[0], b[1], b[2], b[3]);
 	}
 	
-	fclose (f);
+	Qclose (f);
 }
 
 /*

@@ -140,7 +140,7 @@ char *Sys_ScanForCD (void)
 	static qboolean	done;
 #ifndef DEMO
 	char		drive[4];
-	FILE		*f;
+	QFile		*f;
 	char		test[MAX_QPATH];
 
 	if (done)		// don't re-check
@@ -162,10 +162,10 @@ char *Sys_ScanForCD (void)
 		// where activision put the stuff...
 		sprintf (cddir, "%sinstall\\data", drive);
 		sprintf (test, "%sinstall\\data\\quake2.exe", drive);
-		f = fopen(test, "r");
+		f = Qopen(test, "r");
 		if (f)
 		{
-			fclose (f);
+			Qclose (f);
 			if (GetDriveType (drive) == DRIVE_CDROM)
 				return cddir;
 		}

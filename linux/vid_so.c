@@ -206,7 +206,7 @@ qboolean VID_LoadRefresh( char *name )
 	struct stat st;
 	extern uid_t saved_euid;
 #if 0
-	FILE *fp;
+	QFile *fp;
 #endif
 	
 	if ( reflib_active )
@@ -227,12 +227,12 @@ qboolean VID_LoadRefresh( char *name )
 	seteuid(saved_euid);
 
 #if 0
-	if ((fp = fopen(so_file, "r")) == NULL) {
+	if ((fp = Qopen(so_file, "r")) == NULL) {
 		Com_Printf( "LoadLibrary(\"%s\") failed: can't open %s (required for location of ref libraries)\n", name, so_file);
 		return false;
 	}
-	fgets(fn, sizeof(fn), fp);
-	fclose(fp);
+	Qgets(fn, sizeof(fn), fp);
+	Qclose(fp);
 	while (*fn && isspace(fn[strlen(fn) - 1]))
 		fn[strlen(fn) - 1] = 0;
 

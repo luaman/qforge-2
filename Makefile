@@ -82,7 +82,7 @@ BASE_CFLAGS=-Dstricmp=strcasecmp -Wall -Werror
 
 DEBUG_CFLAGS=$(BASE_CFLAGS) -g
 
-LDFLAGS=-lm -ldl
+LDFLAGS=-lz -lm -ldl
 
 SVGALDFLAGS=-lvga
 
@@ -272,6 +272,7 @@ QUAKE2_OBJS = \
 	$(BUILDDIR)/client/files.o \
 	$(BUILDDIR)/client/mdfour.o \
 	$(BUILDDIR)/client/net_chan.o \
+	$(BUILDDIR)/client/quakeio.o \
 	\
 	$(BUILDDIR)/client/sv_ccmds.o \
 	$(BUILDDIR)/client/sv_ents.o \
@@ -398,6 +399,9 @@ $(BUILDDIR)/client/mdfour.o :     $(COMMON_DIR)/mdfour.c
 	$(DO_CC)
 
 $(BUILDDIR)/client/net_chan.o :   $(COMMON_DIR)/net_chan.c
+	$(DO_CC)
+
+$(BUILDDIR)/client/quakeio.o :      $(COMMON_DIR)/quakeio.c
 	$(DO_CC)
 
 $(BUILDDIR)/client/q_shared.o :   $(GAME_DIR)/q_shared.c

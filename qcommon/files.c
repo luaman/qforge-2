@@ -53,7 +53,7 @@ typedef struct
 typedef struct pack_s
 {
 	char	filename[MAX_OSPATH];
-	FILE	*handle;
+	QFile	*handle;
 	int		numfiles;
 	packfile_t	*files;
 } pack_t;
@@ -101,15 +101,15 @@ The "game directory" is the first tree on the search path and directory that all
 FS_filelength
 ================
 */
-int FS_filelength (FILE *f)
+int FS_filelength (QFile *f)
 {
 	int		pos;
 	int		end;
 
-	pos = ftell (f);
-	fseek (f, 0, SEEK_END);
-	end = ftell (f);
-	fseek (f, pos, SEEK_SET);
+	pos = Qtell (f);
+	Qseek (f, 0, SEEK_END);
+	end = Qtell (f);
+	Qseek (f, pos, SEEK_SET);
 
 	return end;
 }
@@ -142,13 +142,13 @@ void	FS_CreatePath (char *path)
 ==============
 FS_FCloseFile
 
-For some reason, other dll's can't just cal fclose()
+For some reason, other dll's can't just cal Qclose()
 on files returned by FS_FOpenFile...
 ==============
 */
-void FS_FCloseFile (FILE *f)
+void FS_FCloseFile (QFile *f)
 {
-	fclose (f);
+	Qclose (f);
 }
 
 
@@ -196,14 +196,14 @@ int	Developer_searchpath (int who)
 FS_FOpenFile
 
 Finds the file in the search path.
-returns filesize and an open FILE *
+returns filesize and an open QFile *
 Used for streaming data out of either a pak file or
 a seperate file.
 ===========
 */
 int file_from_pak = 0;
 #ifndef NO_ADDONS
-int FS_FOpenFile (char *filename, FILE **file)
+int FS_FOpenFile (char *filename, QFile **file)
 {
 	searchpath_t	*search;
 	char			netpath[MAX_OSPATH];
@@ -219,7 +219,7 @@ int FS_FOpenFile (char *filename, FILE **file)
 		if (!strncmp (filename, link->from, link->fromlength))
 		{
 			Com_sprintf (netpath, sizeof(netpath), "%s%s",link->to, filename+link->fromlength);
-			*file = fopen (netpath, "rb");
+			*file = Qopen (netpath, "rb");
 			if (*file)
 			{		
 				Com_DPrintf ("link file: %s\n",netpath);
@@ -245,10 +245,10 @@ int FS_FOpenFile (char *filename, FILE **file)
 					file_from_pak = 1;
 					Com_DPrintf ("PackFile: %s : %s\n",pak->filename, filename);
 				// open a new file on the pakfile
-					*file = fopen (pak->filename, "rb");
+					*file = Qopen (pak->filename, "rb");
 					if (!*file)
 						Com_Error (ERR_FATAL, "Couldn't reopen %s", pak->filename);	
-					fseek (*file, pak->files[i].filepos, SEEK_SET);
+					Qseek (*file, pak->files[i].filepos, SEEK_SET);
 					return pak->files[i].filelen;
 				}
 		}
@@ -258,7 +258,7 @@ int FS_FOpenFile (char *filename, FILE **file)
 			
 			Com_sprintf (netpath, sizeof(netpath), "%s/%s",search->filename, filename);
 			
-			*file = fopen (netpath, "rb");
+			*file = Qopen (netpath, "rb");
 			if (!*file)
 				continue;
 			
@@ -279,7 +279,7 @@ int FS_FOpenFile (char *filename, FILE **file)
 
 // this is just for demos to prevent add on hacking
 
-int FS_FOpenFile (char *filename, FILE **file)
+int FS_FOpenFile (char *filename, QFile **file)
 {
 	searchpath_t	*search;
 	char			netpath[MAX_OSPATH];
@@ -293,7 +293,7 @@ int FS_FOpenFile (char *filename, FILE **file)
 	{
 		Com_sprintf (netpath, sizeof(netpath), "%s/%s",FS_Gamedir(), filename);
 		
-		*file = fopen (netpath, "rb");
+		*file = Qopen (netpath, "rb");
 		if (!*file)
 			return -1;
 		
@@ -318,10 +318,10 @@ int FS_FOpenFile (char *filename, FILE **file)
 			file_from_pak = 1;
 			Com_DPrintf ("PackFile: %s : %s\n",pak->filename, filename);
 		// open a new file on the pakfile
-			*file = fopen (pak->filename, "rb");
+			*file = Qopen (pak->filename, "rb");
 			if (!*file)
 				Com_Error (ERR_FATAL, "Couldn't reopen %s", pak->filename);	
-			fseek (*file, pak->files[i].filepos, SEEK_SET);
+			Qseek (*file, pak->files[i].filepos, SEEK_SET);
 			return pak->files[i].filelen;
 		}
 	
@@ -343,7 +343,7 @@ Properly handles partial reads
 */
 void CDAudio_Stop(void);
 #define	MAX_READ	0x10000		// read in blocks of 64k
-void FS_Read (void *buffer, int len, FILE *f)
+void FS_Read (void *buffer, int len, QFile *f)
 {
 	int		block, remaining;
 	int		read;
@@ -360,7 +360,7 @@ void FS_Read (void *buffer, int len, FILE *f)
 		block = remaining;
 		if (block > MAX_READ)
 			block = MAX_READ;
-		read = fread (buf, 1, block, f);
+		read = Qread (f, buf, block);
 		if (read == 0)
 		{
 			// we might have been trying to read from a CD
@@ -393,7 +393,7 @@ a null buffer will just return the file length without loading
 */
 int FS_LoadFile (char *path, void **buffer)
 {
-	FILE	*h;
+	QFile	*h;
 	byte	*buf;
 	int		len;
 
@@ -410,7 +410,7 @@ int FS_LoadFile (char *path, void **buffer)
 	
 	if (!buffer)
 	{
-		fclose (h);
+		Qclose (h);
 		return len;
 	}
 
@@ -419,7 +419,7 @@ int FS_LoadFile (char *path, void **buffer)
 
 	FS_Read (buf, len, h);
 
-	fclose (h);
+	Qclose (h);
 
 	return len;
 }
@@ -452,15 +452,15 @@ pack_t *FS_LoadPackFile (char *packfile)
 	packfile_t		*newfiles;
 	int				numpackfiles;
 	pack_t			*pack;
-	FILE			*packhandle;
+	QFile			*packhandle;
 	dpackfile_t		info[MAX_FILES_IN_PACK];
 	unsigned		checksum;
 
-	packhandle = fopen(packfile, "rb");
+	packhandle = Qopen(packfile, "rb");
 	if (!packhandle)
 		return NULL;
 
-	fread (&header, 1, sizeof(header), packhandle);
+	Qread (packhandle, &header, sizeof(header));
 	if (LittleLong(header.ident) != IDPAKHEADER)
 		Com_Error (ERR_FATAL, "%s is not a packfile", packfile);
 	header.dirofs = LittleLong (header.dirofs);
@@ -473,8 +473,8 @@ pack_t *FS_LoadPackFile (char *packfile)
 
 	newfiles = Z_Malloc (numpackfiles * sizeof(packfile_t));
 
-	fseek (packhandle, header.dirofs, SEEK_SET);
-	fread (info, 1, header.dirlen, packhandle);
+	Qseek (packhandle, header.dirofs, SEEK_SET);
+	Qread (packhandle, info, header.dirlen);
 
 // crc the directory to check for modifications
 	checksum = Com_BlockChecksum ((void *)info, header.dirlen);
@@ -630,7 +630,7 @@ void FS_SetGamedir (char *dir)
 	{
 		if (fs_searchpaths->pack)
 		{
-			fclose (fs_searchpaths->pack->handle);
+			Qclose (fs_searchpaths->pack->handle);
 			Z_Free (fs_searchpaths->pack->files);
 			Z_Free (fs_searchpaths->pack);
 		}

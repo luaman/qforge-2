@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define QGL
 #include "../ref_gl/gl_local.h"
 
-static FILE *log_fp = NULL;
+static QFile *log_fp = NULL;
 
 void ( APIENTRY * qglAccum )(GLenum op, GLfloat value);
 void ( APIENTRY * qglAlphaFunc )(GLenum func, GLclampf ref);
@@ -3324,7 +3324,7 @@ void GLimp_EnableLogging( qboolean enable )
 			asctime( newtime );
 
 			sprintf( buffer, "%s/gl.log", ri.FS_Gamedir() ); 
-			log_fp = fopen( buffer, "wt");
+			log_fp = Qopen( buffer, "wt");
 
 			fprintf( log_fp, "%s\n", asctime( newtime ) );
 		}
