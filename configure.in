@@ -79,40 +79,79 @@ AC_SUBST(OSS_LIBS)
 dnl Check for POSIX threads
 ACX_PTHREAD(,AC_MSG_ERROR(["POSIX threads required!"]))
 
+dnl -----------------
 dnl Check for SVGAlib
+dnl -----------------
+
+HAVE_SVGALIB=no
+
 AC_ARG_WITH(svgalib,
-	[  --with-svgalib=DIR      use SVGAlib found in DIR ],
-	HAVE_SVGALIB=$withval, HAVE_SVGALIB=auto)
-if test "x$HAVE_SVGALIB" != xno; then
-	if test "x$HAVE_SVGALIB" != xauto; then
+	AC_HELP_STRING([--with-svgalib(=DIR)],
+		[use SVGAlib (optionally, found in DIR)]),
+	dnl argument was given, check for --without
+	if test "x${with_svgalib}" != xno ; then
+		ac_with_svgalib=yes
+	else
+		ac_with_svgalib=no
+	fi,
+	ac_with_svgalib=auto
+)
+
+if test "x${ac_with_svgalib}" != xno ; then
+
+	# --with-svgalib was explicitly given, then, so
+	# look in that directory
+	if test "x${ac_with_svgalib}" != xauto; then
 		SVGALIB_CFLAGS="$SVGALIB_CFLAGS -I$withval/include"
 		SVGALIB_LIBS="$SVGALIB_LIBS -L$withval/lib"
-		dnl The default system location is /usr/include or
-		dnl /usr/local/include and we don't need to set CFLAGS
-		dnl for that
 	fi
+
+	# set CPPFLAGS for the coming tests
 	save_CPPFLAGS="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS $SVGALIB_CFLAGS"
-	AC_CHECK_HEADER(vga.h, HAVE_SVGALIB=yes, HAVE_SVGALIB=no)
-	CPPFLAGS="$save_CPPFLAGS"
-	dnl make sure -lvga works
-	if test "x$HAVE_SVGALIB" = xyes; then
-		AC_CHECK_LIB(vga, vga_getmousetype, 
-			SVGALIB_LIBS="$SVGALIB_LIBS -lvga"
-			HAVE_SVGALIB=yes,
-			HAVE_SVGALIB=no,
-			[$SVGALIB_LIBS]
+
+	# test for the library first, for people who may have the libs
+	# installed but no headers
+	AC_CHECK_LIB(vga, vga_getmousetype,
+		HAVE_SVGALIB="maybe",
+		HAVE_SVGALIB="no",
+		[ $SVGALIB_LIBS ]
+	)
+
+	# check the header now
+	if test "x$HAVE_SVGALIB" = xmaybe ; then
+		AC_CHECK_HEADER(vga.h,
+			HAVE_SVGALIB="yes",
+			HAVE_SVGALIB="no"
 		)
 	fi
-	if test "x$HAVE_SVGALIB" != xyes; then
-		SVGALIB_CFLAGS="" SVGALIB_LIBS=""
-	fi
-fi
-AC_SUBST(HAVE_SVGALIB)
-AC_SUBST(SVGALIB_CFLAGS)
-AC_SUBST(SVGALIB_LIBS)
 
+	# if it's all there, define the relevant bits
+	if test "x$HAVE_SVGALIB" = xyes ; then
+		AC_DEFINE(HAVE_SVGALIB, 1, [Define this if you have SVGAlib])
+		SVGALIB_LIBS="-lvga"
+		AC_SUBST(SVGALIB_CFLAGS)
+		AC_SUBST(SVGALIB_LIBS)
+	else
+		# we were explicitly told to use svgalib and it's not there
+		if test "x${ac_with_svgalib}" = xyes; then
+			AC_MSG_WARN([
+*** You have explicitly asked for SVGAlib support, but the required libraries
+*** and development files could not be found.
+*** SVGAlib based refreshers will NOT be built])
+		fi
+	fi
+
+	# unset CPPFLAGS
+	CPPFLAGS="$save_CPPFLAGS"
+else
+	HAVE_SVGALIB=disabled
+fi
+
+dnl -------------
 dnl Check for X11
+dnl -------------
+
 AC_PATH_XTRA
 if test "x$no_x" = x; then
 	HAVE_X=yes
@@ -164,50 +203,88 @@ AC_SUBST(HAVE_XF86_VIDMODE)
 AC_SUBST(HAVE_XF86_DGA)
 AC_SUBST(XTRA_LIBS)
 
+dnl ----------------
 dnl Check for OpenGL
+dnl ----------------
+
+HAVE_OPENGL=no
+
 AC_ARG_WITH(opengl,
-	[  --with-opengl=DIR       use OpenGL in DIR ],  
-	HAVE_OPENGL=$withval,
-	HAVE_OPENGL=auto)
-if test "x$HAVE_OPENGL" != xno; then
-	if test "x$HAVE_OPENGL" != xauto; then
+	AC_HELP_STRING([--with-opengl(=DIR)],
+		[use OpenGL (optionall, found in DIR)]),
+	dnl argument was given check for --without
+	if test "x${with_opengl}" != xno ; then
+		ac_with_opengl=yes
+	else
+		ac_with_opengl=no
+	fi,
+	ac_with_opengl=auto
+)
+
+if test "x${ac_with_opengl}" != xno ; then
+	# --with-opengl was explicitly given, so look in that directory
+	if test "x${ac_with_opengl}" != xauto ; then
 		OPENGL_CFLAGS="$OPENGL_CFLAGS -I$withval/include"
-		OPENGL_LIBS="$OPENGL_LIBS -L$withval/lib"
+		OPENGL_LIBS="$OPENGL_CFLAGS -L$withval/lib"
 	fi
+	# set CPPFLAGS for coming tests
 	save_CPPFLAGS="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS $OPENGL_CFLAGS"
-	AC_CHECK_HEADER(GL/gl.h, HAVE_OPENGL=yes, HAVE_OPENGL=no)
-	CPPFLAGS="$save_CPPFLAGS"
-	if test "x$HAVE_OPENGL" = xyes; then
+
+	# test for installed library first, for people who may have
+	# the libs installed but no headers
+	AC_CHECK_LIB(GL, glBegin,
+		OPENGL_LIBS="$OPENGL_LIBS -lGL"
+		HAVE_OPENGL="maybe",
+		dnl add -lX11 and -lXext if the first test failed
+		dnl (for, e.g. FreeBSD)
+		unset ac_cv_lib_GL_glBegin
 		AC_CHECK_LIB(GL, glBegin,
-			OPENGL_LIBS="$OPENGL_LIBS -lGL"
-			HAVE_OPENGL=yes,
-			dnl add -lX11 and -lXext if the first test failed
-			dnl (for, e.g. FreeBSD)
-			unset ac_cv_lib_GL_glBegin
-			AC_CHECK_LIB(GL, glBegin,
-				OPENGL_LIBS="$OPENGL_LIBS -lX11 -lXext"
-				HAVE_OPENGL=yes,
-				HAVE_OPENGL=no,
-				[$OPENGL_LIBS -lX11 -lXext]
-			),
-			[$OPENGL_LIBS]
+			OPENGL_LIBS="$OPENGL_LIBS -lX11 -lXext"
+			HAVE_OPENGL="maybe",
+			HAVE_OPENGL="no",
+			[$OPENGL_LIBS -lX11 -lXext]
+		),
+		[ $OPENGL_LIBS ]
+	)
+
+	# check the header now
+	if test "x$HAVE_OPENGL" = xmaybe ; then
+		AC_CHECK_HEADER(GL/gl.h,
+			HAVE_OPENGL="yes",
+			HAVE_OPENGL="no"
 		)
 	fi
+
+	# check for glext.h
 	if test "x$HAVE_OPENGL" = xyes; then
-		AC_CHECK_HEADER(GL/glext.h, HAVE_OPENGL_GLEXT=yes
+		AC_CHECK_HEADER(GL/glext.h,
+			HAVE_OPENGL_GLEXT=yes
 			AC_DEFINE(HAVE_OPENGL_GLEXT, 1, [Define this if you have GL/glext.h]),
 		HAVE_OPENGL_GLEXT=no,
 		[#include <GL/gl.h>])
 	fi
-	if test "x$HAVE_OPENGL" != xyes; then
-		OPENGL_CFLAGS=""
-		OPENGL_LIBS=""
+
+	if test "x$HAVE_OPENGL" = xyes; then
+		AC_DEFINE(HAVE_OPENGL, 1, [Define this if you have OpenGL])
+		OPENGL_LIBS="-lGL"
+		AC_SUBST(OPENGL_CFLAGS)
+		AC_SUBST(OPENGL_LIBS)
+	else
+		# we were explicitly told to use opengl and it's not there
+		if test "x${ac_with_opengl}" = xyes ; then
+			AC_MSG_WARN([
+*** You have explicitly asked for OpenGL support, but the required libraries
+*** and development files could not be found.
+*** OpenGL based refreshers will NOT be built])
+		fi
 	fi
+
+	# unset CPPFLAGS
+	CPPFLAGS="$save_CPPFLAGS"
+else
+	HAVE_OPENGL=disabled
 fi
-AC_SUBST(HAVE_OPENGL)
-AC_SUBST(OPENGL_LIBS)
-AC_SUBST(OPENGL_CFLAGS)
 
 dnl Check for SDL
 AC_ARG_ENABLE(sdl,
@@ -388,6 +465,25 @@ AC_ARG_ENABLE(warn,
 )
 AC_SUBST(WARN_CFLAGS)
 
+dnl ------------------------------
+dnl Check for archs that use lib64
+dnl ------------------------------
+
+AC_MSG_CHECKING(whether 64 bit library install path applies)
+if test "x${libdir}" = "x\${exec_prefix}/lib"; then
+	case "${host}" in
+		powerpc64|x86_64|mips64|s390x-*)
+			libdir=${libdir}64
+			AC_MSG_RESULT(yes)
+			;;
+		*)
+			AC_MSG_RESULT(no)
+			;;
+	esac
+else
+	AC_MSG_RESULT(no)
+fi
+
 dnl -------------------
 dnl Checks for asm junk
 dnl -------------------
@@ -566,9 +662,41 @@ Quake2Forge $VERSION: Automatic configuration OK.
 
   Configuration summary:
 
-    Video refreshers: ${VID_REFS- none}
-    Platform: ${host}
+    Platform: .......... ${host}
+    Video refreshers: .. ${VID_REFS- none}])
 
+AC_MSG_RESULT([      SVGAlib: ......... $HAVE_SVGALIB])
+if test "x${ac_with_svgalib}" = xyes; then
+	if test "x${HAVE_SVGALIB}" != xyes; then
+		AC_MSG_RESULT([
+*** SVGAlib was specifically requested but the development files
+*** and libraries could not be found.
+])
+		if test "x${with_svgalib}" != xyes; then
+			AC_MSG_RESULT([*** The path given was `$with_svgalib'.])
+		fi
+	fi
+fi
+
+AC_MSG_RESULT([      X11: ............. $HAVE_X])
+AC_MSG_RESULT([      OpenGL: .......... $HAVE_OPENGL])
+if test "x${ac_with_opengl}" = xyes ; then
+	if test "x${HAVE_OPENGL}" != xyes ; then
+		AC_MSG_RESULT([
+*** OpenGL was specifically requested but the development files
+*** and libraries could not be found.
+])
+		if test "x${with_svgalib}" != xyes ; then
+			AC_MSG_RESULT([*** The path given was `$with_svgalib'.])
+		fi
+	fi
+fi
+
+AC_MSG_RESULT([      SDL: ............. $HAVE_SDL])
+dnl AC_MSG_RESULT([   Framebuffer: ..... $HAVE_FB])
+dnl AC_MSG_RESULT([   AAlib: ........... $HAVE_AA])
+
+AC_MSG_RESULT([
   Installation directories:
 
     Program: ........... ${prefix}/bin
@@ -579,7 +707,8 @@ Type 'make' to compile Quake2Forge.
 
 Type 'make install' to install Quake2Forge.  Game data needs to be
 installed in the game data directory shown above, before the game
-can be played.
+can be played.  See the file README in the top directory of the source
+for more details.
 
 Happy fragging!
 ])

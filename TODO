@@ -26,6 +26,7 @@ http://gozer.quakeforge.net/list-archives/quakeforge-cvs/2002-April/000151.html
 - mouse motion bugs in glx
 - verbose configure
 - install libs on x86_64, ppc64, mips64 and s390x into ..../lib64
+- "teamspeak" headset... weel, mike support -- ogg speex encoding.
 
 from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
 (replace - with X when done)
