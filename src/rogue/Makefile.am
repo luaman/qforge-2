@@ -1,7 +1,8 @@
 # $Id$
 
-if DO_ROGUE
 pkglibdir=$(libdir)/@PACKAGE@/rogue
+
+if DO_ROGUE
 pkglib_LTLIBRARIES = game.la
 game_la_SOURCES = dm_ball.c dm_tag.c \
 		g_ai.c g_chase.c g_cmds.c g_combat.c g_func.c \

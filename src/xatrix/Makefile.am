@@ -1,7 +1,8 @@
 # $Id$
 
-if DO_XATRIX
 pkglibdir=$(libdir)/@PACKAGE@/xatrix
+
+if DO_XATRIX
 pkglib_LTLIBRARIES = game.la
 game_la_SOURCES = g_ai.c g_chase.c g_cmds.c g_combat.c g_func.c \
 		g_items.c g_main.c g_misc.c g_monster.c g_phys.c \
