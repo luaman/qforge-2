@@ -17,6 +17,16 @@ instead of
 as configure will automatically look for the libraries and headers in
 the paths relative to the given path.
 
+Installing the game data
+------------------------
+
+The game data is searched for in ./baseq2/ and in 
+${prefix}/share/quake2/baseq2/ (which by default is 
+/usr/local/share/quake2/baseq2/.  If you get an error that quake2 can't
+find pics/colormap.pcx, it means that it can't find your pak0.pak.  Check
+what prefix you gave to configure, and make sure you have pak0.pak in the
+right directory.
+
 Save Games
 ----------
 
