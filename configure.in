@@ -160,6 +160,7 @@ if test "x$HAVE_OPENGL" != xno; then
 			HAVE_OPENGL=yes,
 			dnl add -lX11 and -lXext on FreeBSD if the first
 			dnl  test failed
+			unset ac_cv_lib_GL_glBegin
 			AC_CHECK_LIB(GL, glBegin,
 				OPENGL_LIBS="$OPENGL_LIBS -lX11 -lXext"
 				HAVE_OPENGL=yes,
