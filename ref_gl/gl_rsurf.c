@@ -759,7 +759,7 @@ dynamic:
 
 			R_BuildLightMap( surf, (void *)temp, smax*4 );
 
-			GL_MBind( GL_TEXTURE1, gl_state.lightmap_textures + 0 );
+			GL_MBind( GL_Texture1, gl_state.lightmap_textures + 0 );
 
 			lmtex = 0;
 
