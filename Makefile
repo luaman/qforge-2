@@ -1,10 +1,9 @@
 #
-# Quake2 Makefile for Linux 2.0
+# Quake2 Makefile
 #
 # Nov '97 by Zoid <zoid@idsoftware.com>
-#
-# ELF only
-#
+# Dec '01 by Steven Fuller <relnev@icculus.org>
+# Jan '02 by Jamie Wilkinson <jaq@spacepants.org>
 
 # start of configurable options
 
@@ -22,43 +21,15 @@ BUILD_SDLGL=YES		# SDL OpenGL driver. Works fine for some people.
 BUILD_CTFDLL=YES		# gamei386.so for ctf
 # i can add support for building xatrix and rogue libs if needed
 
-# unportable
-# Check OS type.
-#OSTYPE := $(shell uname -s)
-#
-#ifneq ($(OSTYPE),Linux)
-#$(error OS $(OSTYPE) is currently not supported)
-#endif
-
 # this nice line comes from the linux kernel makefile
 ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc/ -e s/sparc64/sparc/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
-#ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
-
-# This is preventing builds on sparc and ia64, etc
-#ifneq ($(ARCH),i386)
-#ifneq ($(ARCH),axp)
-#ifneq ($(ARCH),ppc)
-#$(error arch $(ARCH) is currently not supported)
-#endif
-#endif
-#endif
 
 CC=gcc
 
-# make this more port friendly
-#ifeq ($(ARCH),axp)
 RELEASE_CFLAGS=$(BASE_CFLAGS) -ffast-math -funroll-loops \
 	-fomit-frame-pointer -fexpensive-optimizations
-#endif
-#
-#ifeq ($(ARCH),ppc)
-#RELEASE_CFLAGS=$(BASE_CFLAGS) -ffast-math -funroll-loops \
-#	-fomit-frame-pointer -fexpensive-optimizations
-#endif
 
 ifeq ($(ARCH),i386)
-#RELEASE_CFLAGS=$(BASE_CFLAGS) -O2 -ffast-math -funroll-loops -malign-loops=2 \
-#	-malign-jumps=2 -malign-functions=2 -g
 RELEASE_CFLAGS+=-O2 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -g
 # compiler bugs with gcc 2.96 and 3.0.1 can cause bad builds with heavy opts.
 #RELEASE_CFLAGS=$(BASE_CFLAGS) -O6 -m486 -ffast-math -funroll-loops \
@@ -1230,5 +1201,4 @@ clean2:
 
 distclean:
 	-rm -rf $(BUILD_DEBUG_DIR) $(BUILD_RELEASE_DIR)
-	-rm -f `find . \( -not -type d \) -and \
-		\( -name '*~' \) -type f -print`
+	-rm -f `find . \( -not -type d \) -and \( -name '*~' \) -type f -print`
