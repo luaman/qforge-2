@@ -8,3 +8,14 @@ quake2
 release*
 tags
 *.libs
+Makefile
+Makefile.in
+config.h
+config.log
+configure
+config.status
+install-sh
+missing
+mkinstalldirs
+stamp-h
+stamp-h.in

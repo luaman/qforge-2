@@ -58,8 +58,8 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([bzero floor getcwd gethostbyname getmntent getpagesize gettimeofday memmove memset mkdir munmap pow putenv select socket sqrt strcasecmp strchr strdup strerror strrchr strstr])
 
 AC_CONFIG_FILES([Makefile
-				 src/Makefile])
-				 #game/Makefile])
+				 src/Makefile
+				 game/Makefile])
 #				 ref_gl/Makefile
 #				 ref_soft/Makefile])
 AC_OUTPUT

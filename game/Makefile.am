@@ -2,7 +2,7 @@
 
 # Process this file with automake to create Makefile.in
 
-lib_LIBRARIES = game.so
+bin_PROGRAMS = game.so
 game_so_SOURCES = g_ai.c \
 			p_client.c \
 			g_chase.c \

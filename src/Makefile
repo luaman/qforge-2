@@ -65,13 +65,15 @@ CC = gcc
 MAINT = #
 MAKEINFO = makeinfo
 PACKAGE = quake2
+RANLIB = ranlib
 VERSION = 0.1
 
 bin_PROGRAMS = quake2
 quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c 								cl_cin.c cl_ents.c cl_fx.c cl_input.c cl_inv.c 				cl_main.c cl_parse.c cl_pred.c cl_tent.c cl_scrn.c cl_view.c 				cl_newfx.c console.c keys.c menu.c qmenu.c 								snd_dma.c snd_mix.c snd_mem.c 								checksum.c cmd.c cmodel.c common.c crc.c cvar.c files.c 				mdfour.c net_chan.c 								sv_ccmds.c sv_ents.c sv_game.c sv_init.c sv_main.c 				sv_send.c sv_user.c sv_world.c 								cd.c snd.c 								q_shared.c pmove.c 								m_flash.c 								#snd_mixa.S
 
 
-CPPFLAGS = -Dstricmp=strcasecmp -Wall -Werror -pipe -DLINUX_VERSION=\"$(VERSION)\"
+AM_CFLAGS = -Wall -Werror -pipe
+AM_CPPFLAGS = -DLINUX_VERSION="\"$(VERSION)\"" -Dstricmp=strcasecmp
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -79,6 +81,7 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 
 DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I..
+CPPFLAGS = 
 LDFLAGS = 
 LIBS = -lpthread -lm -ldl -lGL 
 quake2_OBJECTS =  main.o q_sh.o vid_menu.o vid_so.o glob.o net_udp.o \
@@ -120,7 +123,7 @@ all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .o .s
 $(srcdir)/Makefile.in: # Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign src/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
@@ -210,7 +213,7 @@ distdir: $(DISTFILES)
 	top_distdir=`cd $(top_distdir) && pwd`; \
 	distdir=`cd $(distdir) && pwd`; \
 	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu src/Makefile
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --foreign src/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
