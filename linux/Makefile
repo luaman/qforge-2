@@ -117,13 +117,14 @@ QUAKE2_OBJS = \
 	$(BUILDDIR)/client/qmenu.o \
 	$(BUILDDIR)/client/m_flash.o \
 	\
+	$(BUILDDIR)/client/checksum.o \
 	$(BUILDDIR)/client/cmd.o \
 	$(BUILDDIR)/client/cmodel.o \
 	$(BUILDDIR)/client/common.o \
 	$(BUILDDIR)/client/crc.o \
 	$(BUILDDIR)/client/cvar.o \
 	$(BUILDDIR)/client/files.o \
-	$(BUILDDIR)/client/md4.o \
+	$(BUILDDIR)/client/mdfour.o \
 	$(BUILDDIR)/client/net_chan.o \
 	\
 	$(BUILDDIR)/client/sv_ccmds.o \
@@ -217,6 +218,9 @@ $(BUILDDIR)/client/qmenu.o :      $(CLIENT_DIR)/qmenu.c
 $(BUILDDIR)/client/m_flash.o :    $(GAME_DIR)/m_flash.c
 	$(DO_CC)
 
+$(BUILDDIR)/client/checksum.o :   $(COMMON_DIR)/checksum.c
+	$(DO_CC)
+
 $(BUILDDIR)/client/cmd.o :        $(COMMON_DIR)/cmd.c
 	$(DO_CC)
 
@@ -235,7 +239,7 @@ $(BUILDDIR)/client/cvar.o :       $(COMMON_DIR)/cvar.c
 $(BUILDDIR)/client/files.o :      $(COMMON_DIR)/files.c
 	$(DO_CC)
 
-$(BUILDDIR)/client/md4.o :        $(COMMON_DIR)/md4.c
+$(BUILDDIR)/client/mdfour.o :     $(COMMON_DIR)/mdfour.c
 	$(DO_CC)
 
 $(BUILDDIR)/client/net_chan.o :   $(COMMON_DIR)/net_chan.c
