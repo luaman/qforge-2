@@ -1,6 +1,12 @@
 NEWS for quake2
 ===============
 
+0.2.2 (25/02/04)
+-----
+
+* ALSA and libao sound drivers added -- configurable at compile time.
+* Updates to fix compile errors with gcc 3.3.
+
 0.2.1 (06/02/03)
 -----
 

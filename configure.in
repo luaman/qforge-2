@@ -4,7 +4,7 @@ dnl stick the revision info into the resulting configure script
 AC_REVISION($Revision$) dnl
 AC_PREREQ(2.50)
 
-AC_INIT(quake2, 0.2.1, quake2-devel@lists.quakeforge.net)
+AC_INIT(quake2, 0.2.2, quake2-devel@lists.quakeforge.net)
 AC_CONFIG_AUX_DIR(.)
 AC_CONFIG_SRCDIR(src/main.c)
 AM_CONFIG_HEADER(config.h)
@@ -12,7 +12,7 @@ AM_CONFIG_HEADER(config.h)
 dnl get the build and target hosts
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE([1.6 foreign])
+AM_INIT_AUTOMAKE([foreign])
 
 dnl configure --enable-maintainer-mode gets some extra targets
 AM_MAINTAINER_MODE
@@ -548,9 +548,11 @@ AC_ARG_ENABLE(joystick,
 	HAVE_JOYSTICK=yes
 )
 if test "x$HAVE_JOYSTICK" = "xyes";then
-	AC_CHECK_HEADER(linux/joystick.h, HAVE_JOYSTICK=yes
-		AC_DEFINE(HAVE_JOYSTICK, 1, [Define this if you want joystick support to be built])
-	, HAVE_JOYSTICK=no)
+	AC_CHECK_HEADER(linux/joystick.h,
+		HAVE_JOYSTICK=yes
+		AC_DEFINE(HAVE_JOYSTICK, 1, [Define this if you want joystick support to be built]),
+		HAVE_JOYSTICK=no
+	)
 fi
 
 dnl -------------------------
