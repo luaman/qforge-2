@@ -26,7 +26,7 @@ if [ "$1" = "clean" ]; then
 
 else
 
-    VERSION=`automake --version |head| sed 's/automake (GNU automake) //'`
+    VERSION=`automake --version |head -1| sed 's/automake (GNU automake) //'`
     MAJOR=`echo $VERSION | cut -f1 -d.`
     MINOR=`echo $VERSION | cut -f2 -d.`
     if test "$MAJOR" -ge "1" -a "$MINOR" -ge "6"; then
