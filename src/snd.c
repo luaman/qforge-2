@@ -21,6 +21,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 /* merged in from snd_irix.c -- jaq */
 #ifndef __sgi
 #include <unistd.h>
@@ -33,13 +37,10 @@
 #include <sys/shm.h>
 #include <sys/wait.h>
 #include <stdio.h>
-/* merged in from snd_bsd.c -- jaq */
 
-#ifdef __linux__
-	#include <linux/soundcard.h>
-#else /* bsd */
-	#include <soundcard.h>  /* freebsd might be <sys/soundcard.h> */
-#endif /* __linux__ */
+#ifdef HAVE_SYS_SOUNDCARD_H
+# include <sys/soundcard.h> /* others might be just soundcard.h */
+#endif
 
 #else /* __sgi */
 #include <dmedia/dmedia.h>

@@ -49,7 +49,7 @@ AC_PATH_X
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 dnl AC_HEADER_SYS_WAIT
-dnl AC_CHECK_HEADERS([ your header here ])
+AC_CHECK_HEADERS([ sys/soundcard.h ])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
