@@ -143,9 +143,11 @@ struct cplane_s;
 
 extern vec3_t vec3_origin;
 
+/* unused
 #define	nanmask (255<<23)
 
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
+*/
 
 /* FIXME: (jaq) use them C99 functions instead */
 // microsoft's fabs seems to be ungodly slow...
