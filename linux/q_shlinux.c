@@ -65,7 +65,7 @@ void *Hunk_Alloc (int size)
 	return buf;
 }
 
-#ifdef mremap
+#ifdef __linux__
 int Hunk_End (void)
 {
 	byte *n;
