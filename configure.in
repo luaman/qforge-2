@@ -6,6 +6,7 @@ AC_REVISION($Revision$) dnl
 AC_PREREQ(2.50)
 
 AC_INIT(quake2, 0.1, quake2-devel@lists.quakeforge.net)
+AC_CONFIG_AUX_DIR(.)
 AC_CONFIG_SRCDIR(src/main.c)
 AM_CONFIG_HEADER(config.h)
 
