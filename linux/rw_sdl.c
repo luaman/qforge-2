@@ -16,6 +16,7 @@
 #include <ctype.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/mman.h>
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -43,7 +44,9 @@
 static qboolean                 X11_active = false;
 
 static SDL_Surface *surface;
+#ifndef OPENGL
 static int sdl_palettemode;
+#endif
 
 struct
 {
@@ -76,15 +79,12 @@ static int   mouse_x, mouse_y;
 static int	old_mouse_x, old_mouse_y;
 static int		mx, my;
 static float old_windowed_mouse;
-static int p_mouse_x, p_mouse_y;
 
 static cvar_t	*_windowed_mouse;
 static cvar_t	*m_filter;
 static cvar_t	*in_mouse;
 
-static int blah1[65536*8];
 static qboolean	mlooking;
-static int blah2[65536*8];
 
 // state struct passed in Init
 static in_state_t	*in_state;
@@ -115,9 +115,6 @@ static void RW_IN_MLookUp (void)
 
 void RW_IN_Init(in_state_t *in_state_p)
 {
-	int mtype;
-	int i;
-
 	in_state = in_state_p;
 
 	// mouse variables
@@ -371,7 +368,6 @@ static unsigned char KeyStates[SDLK_LAST];
 
 void GetEvent(SDL_Event *event)
 {
-	unsigned int bstate;
 	unsigned int key;
 	
 	switch(event->type) {
