@@ -328,6 +328,7 @@ if test "x$USE_OPT" = "xyes"; then
 				OPT_CFLAGS="$OPT_CFLAGS -malign-loops=2 -malign-jumps=2 -malign-functions=2"
 				AC_MSG_RESULT(no),
 			)
+			CFLAGS="$save_CFLAGS"
 			;;
 		*)
 			;;
