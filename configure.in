@@ -141,7 +141,7 @@ AC_SUBST(HAVE_X)
 AC_SUBST(XTRA_LIBS)
 
 dnl Check for OpenGL
-AC_ARG_WITH(gl,
+AC_ARG_WITH(opengl,
 	[  --with-opengl=DIR       use OpenGL in DIR ],  
 	HAVE_OPENGL=$withval,
 	HAVE_OPENGL=auto)
