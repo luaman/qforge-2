@@ -1,26 +1,40 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
+/* $Id$
+ *
+ * snd_mem.c: sound caching
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2003 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-// snd_mem.c: sound caching
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include "client.h"
 #include "snd_loc.h"
+
+#ifdef HAVE_MPG123
+// Added mpg123 libraries for MP3 playback support */
+//#include "mpglib/mpg123.h"
+//#include "mpglib/mpglib.h"
+#include "mpglib/libmpg123.h"
+sfxcache_t *S_LoadMP3Sound(sfx_t *s);
+#endif
 
 int			cache_full_cycle;
 
@@ -126,6 +140,13 @@ sfxcache_t *S_LoadSound (sfx_t *s)
 	else
 		Com_sprintf (namebuffer, sizeof(namebuffer), "sound/%s", name);
 
+#ifdef HAVE_MPG123
+	/* MP3 Support */
+	len = strlen(name);
+	if (!strcmp(name+len-4, ".mp3"))
+	    return S_LoadMP3Sound(s);
+#endif
+
 //	Com_Printf ("loading %s\n",namebuffer);
 
 	size = FS_LoadFile (namebuffer, (void **)&data);
@@ -169,7 +190,224 @@ sfxcache_t *S_LoadSound (sfx_t *s)
 	return sc;
 }
 
+#ifdef HAVE_MPG123
+/* mp3 support code block */
+===========================================================================
+MP3 Audio Support
+By Robert 'Heffo' Heffernan
+===========================================================================
+*/
 
+#define TEMP_BUFFER_SIZE 0x100000 //1mb temp buffer for MP3
+
+/* MP3 New - Allocate & initialise a new mp3_t structure */
+mp3_t * MP3_New(char *filename) {
+    mp3_t *mp3;
+
+    /* Allocate a piece of ram the size of the mp3_t structure */
+    mp3 = malloc(sizeof(mp3_t));
+    if (!mp3)
+    return NULL; /* Couldn't allocate ram */
+    /* Wipe the freshly allocated Ram */
+    memset(mp3, 0, sizeof(mp3_t));
+
+    /* Load the MP3 file via the filesystem for compatibility
+     * set mp3->mp3data pointer memory location of loaded file
+     * set mp3->mp3size value to size of file */
+    mp3->mp3size = FS_LoadFile(filename, (void **)&mp3->mp3data);
+    if (!mp3->mp3data) {
+	/* the file couldn't be loaded so free the memory */
+	free(mp3);
+
+	/* then return nothing */
+	return NULL;
+    }
+
+    /* mp3_t loaded and memory allocated return the mp3 */
+    return mp3;
+}
+
+/* MP3_Free - Release an mp3_t structure, and free all memory used by it */
+void MP3_Free(mp3_t *mp3) {
+    if (!mp3)
+	return;
+    if (mp3->mp3data) /* mp3 still loaded */
+	FS_FreeFile(mp3->mp3data); /* free mp3 */
+    if (mp3->rawdata) /* raw audio left */
+	free(mp3->rawdata);
+    free(mp3);
+}
+
+/* ExtendRawBuffer - Allocates & extends a buffer for the raw decompressed audio data */
+qboolean ExtendRawBuffer(mp3_t *mp3, int size) {
+    byte *newbuf;
+	
+    if(!mp3)
+	return false; 
+		
+    if(!mp3->rawdata) {
+	mp3->rawdata = malloc(size);
+	if(!mp3->rawdata)
+	    return false; 
+	mp3->rawsize = size;
+	return true;
+    }
+    newbuf = malloc(mp3->rawsize + size);
+    if(!newbuf)
+	return false; 
+    memcpy(newbuf, mp3->rawdata, mp3->rawsize);
+
+    mp3->rawsize += size;
+    free(mp3->rawdata);
+
+    mp3->rawdata = newbuf;
+
+    return true;
+}
+
+qboolean MP3_Process(mp3_t *mp3) {
+    struct mpstr	mpeg;
+    byte	sbuff[8192];
+    byte	*tbuff, *tb;
+    int	size, ret, tbuffused;
+
+    if (!mp3)
+	return false;
+    if (!mp3->mp3data)
+	return false;
+
+    /* allocate for large temp decode buffer */
+    tbuff = malloc(TEMP_BUFFER_SIZE);
+    if (!tbuff)
+	return false;
+
+    /* Initialize MP3 Decoder */
+    initMPGAUDIO(&mpeg);
+
+    /* Decode the 1st frame of MP3 data, store in buffer */
+    ret = decodeMPGAUDIO(&mpeg, mp3->mp3data, mp3->mp3size, tbuff, TEMP_BUFFER_SIZE, &size);
+    /* Copy the MP3s format details (samplerate # chans) */
+    mp3->samplerate = freqs[mpeg.fr.sampling_frequency];
+    mp3->channels = mpeg.fr.stereo;
+
+    /* Set a pointer to the start of the temporary buffer
+     * and then offset it by the number of bytes decoded.
+     * Also set the amount of the temp buffer that has been used. */
+    tb = tbuff + size;
+    tbuffused = size;
+
+    /* Start a loop that ends when the MP3 decoder fails */
+    while (ret == MP3_OK) {
+	/* Decode the next frame into smaller temp */
+	ret = decodeMPGAUDIO(&mpeg, NULL, 0, sbuff, 8192, &size);
+
+	if(tbuffused + size >= TEMP_BUFFER_SIZE) {
+	    if (!ExtendRawBuffer(mp3, tbuffused)) {
+		free(tbuff);
+
+		/* error shutdown MP3 decoder */
+		/*ExitMP3(&mpeg);*/
+		/*return failure */
+		return false;
+	    }
+
+	    memcpy(mp3->rawdata + mp3->rawpos, tbuff, tbuffused);
+	    tbuffused = 0;
+	    tb = tbuff;
+	    mp3->rawpos = mp3->rawsize;
+	}
+
+	memcpy(tb, sbuff, size);
+	tb+=size;
+	tbuffused+=size;
+    }
+
+    /* done decoding, flush buffer into sample buffer */
+    if (!ExtendRawBuffer(mp3, tbuffused)) {
+	/* Failed to extend sample buffer */
+	free (tbuff);
+	/* ExitMP3(&mpeg); */
+	return false;
+    }
+
+    /* CPY lrg temp buff into extended sample buff */
+    memcpy (mp3->rawdata + mp3->rawpos, tbuff, tbuffused);
+    /* calculate samples based on size of decompressed MP3 / 2 (16b) */
+    mp3->samples = (mp3->rawsize / 2) / mp3->channels;
+    free(tbuff);
+    /* ExitMP3(&mpeg); */
+
+    return true;
+}
+
+/* S_LoadMP3Sound - A modified version of S_LoadSound but with MP3 support */
+sfxcache_t *S_LoadMP3Sound(sfx_t *s) {
+    char namebuffer[MAX_QPATH];
+    mp3_t *mp3;
+    float stepscale;
+    sfxcache_t *sc;
+    char *name;
+
+    if (s->truename)
+	name = s->truename;
+    else
+	name = s->name;
+    if (name[0] == '#')
+	strcpy(namebuffer, &name[1]);
+    else
+	Com_sprintf (namebuffer, sizeof(namebuffer), "sound/%s", name);
+
+    mp3 = MP3_New(namebuffer);
+    if (!mp3) {
+	/* Couldn't allocate it, so show an error and return nothing */
+	Com_DPrintf ("Couldn't load %s\n", namebuffer);
+	return NULL;
+    }
+
+    /* Process mp3_t for error */
+    if (!MP3_Process(mp3)) {
+	/* Something did, so free the mp3_t */
+	MP3_Free(mp3);
+	Com_DPrintf ("Couldn't load %s\n", namebuffer);
+	return NULL;
+    }
+
+    if (mp3->channels == 2) /* must be mono */ {
+	/* stero */
+	MP3_Free(mp3);
+	Com_Printf ("%s is a stero sample\n", s->name);
+	return NULL;
+    }
+
+    /* Align samplerate of MP3 and Quake */
+    stepscale = (float)mp3->samplerate / dma.speed;
+
+    /* Allocate a piece of zone memory to store the decompressed
+     * & scaled MP3 aswell as it's attatched sfxcache_t structure */
+    sc = s->cache = Z_Malloc ((mp3->rawsize /stepscale) + sizeof(sfxcache_t));
+    if (!sc) {
+	/* Couldn't allocate the zone */
+	MP3_Free(mp3);
+	Com_DPrintf ("Couldn't load %s\n", namebuffer);
+	return NULL;
+    }
+
+    /* Copy a few details of MP3 into the sfxcache_t structure */
+    sc->length = mp3->samples;
+    sc->loopstart = -1;
+    sc->speed = mp3->samplerate;
+    sc->width = 2;
+    sc->stereo = mp3->channels;
+
+    /* Resample the decompressed MP3 to match Dominion's samplerate */
+    ResampleSfx (s, sc->speed, sc->width, mp3->rawdata);
+
+    //* Free the mp3_t structure as it's no longer needed */
+    MP3_Free(mp3);
+    /* Return sfxcache_t structure for the decoded & processed MP3 */
+    return sc;
+}
+#endif /* HAVE_MPG123 */
 
 /*
 ===============================================================================

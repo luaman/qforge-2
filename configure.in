@@ -303,7 +303,7 @@ dnl ------------------------
 dnl Check for MPG123 library
 dnl ------------------------
 
-
+HAVE_MPG123=disabled
 
 dnl -----------------------
 dnl Checks for header files
