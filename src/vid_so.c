@@ -1,5 +1,9 @@
 /* $Id$
  *
+ * Main windowed and fullscreen graphics interface module. This module
+ * is used for both the software and OpenGL rendering versions of the
+ * Quake refresh engine.
+ *
  * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) 2002 The Quakeforge Project.
  *
@@ -18,10 +22,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-// Main windowed and fullscreen graphics interface module. This module
-// is used for both the software and OpenGL rendering versions of the
-// Quake refresh engine.
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -179,7 +179,9 @@ vidmode_t vid_modes[] =
 	{ "Mode 7: 1152x864",  1152, 864,  7 },
 	{ "Mode 8: 1280x1024",  1280, 1024, 8 },
 	{ "Mode 9: 1600x1200", 1600, 1200, 9 },
-	{ "Mode 10: 2048x1536", 2048, 1536, 10 }
+	{ "Mode 10: 2048x1536", 2048, 1536, 10 },
+	{ "Mode 11: 1024x480", 1024, 480, 11 }, /* Sony VAIO Pocketbook */
+	{ "Mode 12: 1152x768", 1152, 768, 12 }  /* Apple TiBook */
 };
 
 qboolean VID_GetModeInfo( unsigned int *width, unsigned int *height, int mode )

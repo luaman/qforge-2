@@ -235,6 +235,8 @@ void VID_MenuInit( void )
 		"[1280 1024]",
 		"[1600 1200]",
 		"[2048 1536]", /* irix/vid_menu.c -- jaq */
+		"[1024 480 ]", /* sony vaio pocketbook */
+		"[1152 768 ]", /* applie tibook */
 		0
 	};
 	static const char *refs[] =

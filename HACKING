@@ -13,3 +13,16 @@ at TODO in the top level source tree, or open a browser at
 http://bugs.quakeforge.net/bugs/cgi-bin/pkgreport.cgi?pkg=quake2&archive=no
 
 for the currently open bug reports.
+
+
+Adding a new screen resolution
+------------------------------
+
+Open up src/vid_so.c and find the array "vid_modes".  Append your resolution
+to this array:
+	{ "Mode n: RESxRES", RES, RES, n }
+
+Open up src/vid_menu.c and find the array "resolutions" in VID_MenuInit().
+Append your resolution so it is the same index as your addition to vid_modes.
+
+Save both, rebuild.
