@@ -211,12 +211,7 @@ qboolean SNDDMA_Init(void) {
 		sndbits = Cvar_Get("sndbits", "16", CVAR_ARCHIVE);
 		sndspeed = Cvar_Get("sndspeed", "0", CVAR_ARCHIVE);
 		sndchannels = Cvar_Get("sndchannels", "2", CVAR_ARCHIVE);
-/* merged in from snd_bsd.c -- jaq */
-#ifdef __linux__
 		snddevice = Cvar_Get("snddevice", "/dev/dsp", CVAR_ARCHIVE);
-#else /* bsd */
-		snddevice = Cvar_Get("snddevice", "/dev/audio", CVAR_ARCHIVE);
-#endif
 	}
 
 // open /dev/dsp, check capability to mmap, and get size of dma buffer
@@ -321,24 +316,6 @@ qboolean SNDDMA_Init(void) {
 	if (dma.channels < 1 || dma.channels > 2)
 		dma.channels = 2;
 
-	if (mmapped) {
-		dma.samples = info.fragstotal * info.fragsize / (dma.samplebits/8);
-		dma.submission_chunk = 1;
-
-		// memory map the dma buffer
-
-		if (!dma.buffer)
-			dma.buffer = (unsigned char *) mmap(NULL, info.fragstotal
-				* info.fragsize, PROT_WRITE, MAP_FILE|MAP_SHARED, audio_fd, 0);
-		if (!dma.buffer || dma.buffer == MAP_FAILED) {
-			perror(snddevice->string);
-			Com_Printf("SNDDMA_Init: Could not mmap %s.\n", snddevice->string);
-			close(audio_fd);
-			audio_fd = -1;
-			return 0;
-		}
-	}
-
 	tmp = 0;
 	if (dma.channels == 2)
 		tmp = 1;
@@ -432,6 +409,28 @@ qboolean SNDDMA_Init(void) {
 	} else {
 	    tmp = 0;
     	rc  = ioctl(audio_fd, SNDCTL_DSP_SETTRIGGER, &tmp);
+		dma.samples = info.fragstotal * info.fragsize / (dma.samplebits/8);
+		dma.submission_chunk = 1;
+
+		// memory map the dma buffer
+
+		if (!dma.buffer) {
+			dma.buffer = (unsigned char *) mmap(NULL, info.fragstotal * info.fragsize,
+#ifdef __FreeBSD__
+				PROT_READ|PROT_WRITE,
+#else
+				PROT_WRITE,
+#endif
+				MAP_FILE|MAP_SHARED, audio_fd, 0);
+		}
+		if (!dma.buffer || dma.buffer == MAP_FAILED) {
+			perror(snddevice->string);
+			Com_Printf("SNDDMA_Init: Could not mmap %s.\n", snddevice->string);
+			close(audio_fd);
+			audio_fd = -1;
+			return 0;
+		}
+
 		if (rc < 0) {
 			perror(snddevice->string);
 			Com_Printf("SNDDMA_Init: Could not toggle. (1)\n");
