@@ -221,9 +221,6 @@ fi
 #AC_CHECK_LIB([Xxf86dga], [main])
 # FIXME: Replace `main' with a function in `-lXxf86vm':
 #AC_CHECK_LIB([Xxf86vm], [main])
-#AC_CHECK_LIB([ossaudio], [main])
-# FIXME: Replace `main' with a function in `-lpthread':
-#AC_CHECK_LIB([pthread], [main])
 
 dnl -----------------------
 dnl Checks for header files
@@ -354,15 +351,13 @@ dnl Fill in path variables
 dnl ----------------------
 
 dnl $libdir usually gets set to ${exec_prefix}/lib,
-dnl $exec_prefix is likely to be "NONE"
+dnl $prefix and $exec_prefix is likely to be "NONE"
 dnl Autoconf usually sets pkglibdir correctly in the Makefile, but not in
 dnl the configure script :(
-eval tmp_libdir="$libdir"
-if test "x$tmp_libdir" != "xNONE/lib"; then
-	eval PKGLIBDIR="$libdir/$PACKAGE"
-else
-	eval PKGLIBDIR="$prefix/lib/$PACKAGE"
-fi
+test "$prefix" = NONE && prefix=/usr/local
+test "$exec_prefix" = NONE && exec_prefix=/usr/local
+
+eval PKGLIBDIR="$libdir/$PACKAGE"
 AC_DEFINE_UNQUOTED(PKGLIBDIR, "$PKGLIBDIR", [Define this to the path containing the dynamic modules (\${exec-prefix}/lib/quake2/)])
 
 eval PKGDATADIR="$datadir/$PACKAGE"
