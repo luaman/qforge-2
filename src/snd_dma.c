@@ -774,8 +774,18 @@ void S_ClearBuffer (void)
 		clear = 0;
 
 	SNDDMA_BeginPainting ();
-	if (dma.buffer)
-		memset(dma.buffer, clear, dma.samples * dma.samplebits/8);
+	if (dma.buffer) {
+	    /* buffer may be read-only, clear manually */
+	    /* memset(dma.buffer, clear, dma.samples * dma.samplebits/8); */
+	    int i;
+	    unsigned char * ptr = (unsigned char *) dma.buffer;
+
+	    i = dma.samples * dma.samplebits/8;
+	    while (i--) {
+		*ptr = clear;
+		ptr++;
+	    }
+	}
 	SNDDMA_Submit ();
 }
 
