@@ -77,7 +77,9 @@ AC_CHECK_LIB([ossaudio], [_oss_ioctl], [OSS_LIBS="-lossaudio"])
 AC_SUBST(OSS_LIBS)
 
 dnl Check for POSIX threads
-ACX_PTHREAD(,AC_MSG_ERROR(["POSIX threads required!"]))
+ACX_PTHREAD(,AC_MSG_ERROR([
+*** POSIX threads required, but no threading library was found!
+]))
 
 dnl -----------------
 dnl Check for SVGAlib
@@ -286,7 +288,9 @@ else
 	HAVE_OPENGL=disabled
 fi
 
+dnl -------------
 dnl Check for SDL
+dnl -------------
 AC_ARG_ENABLE(sdl,
 [  --disable-sdl           disable checking for SDL ],
 )
