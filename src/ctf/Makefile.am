@@ -13,6 +13,6 @@ game_la_SOURCES = g_ai.c g_chase.c g_cmds.c g_combat.c g_ctf.c \
 
 noinst_HEADERS = g_ctf.h g_local.h m_player.h p_menu.h
 
-AM_CFLAGS = -fPIC -Wall -Werror -pipe @OPT_CFLAGS@
+AM_CFLAGS = -fPIC -pipe @WARN_CFLAGS@ @OPT_CFLAGS@
 AM_CPPFLAGS = -I$(top_srcdir)/src
 LDFLAGS = -module -avoid-version -rpath $(pkglibdir)

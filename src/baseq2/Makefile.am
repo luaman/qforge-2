@@ -23,6 +23,6 @@ noinst_HEADERS = g_local.h m_actor.h m_berserk.h m_boss2.h m_boss31.h \
 	m_rider.h m_soldier.h m_supertank.h m_tank.h
 
 
-AM_CFLAGS = -fPIC -Wall -Werror -pipe @OPT_CFLAGS@
+AM_CFLAGS = -fPIC -pipe @WARN_CFLAGS@ @OPT_CFLAGS@
 AM_CPPFLAGS = -I$(top_srcdir)/src
 LDFLAGS = -module -avoid-version -rpath $(pkglibdir)
