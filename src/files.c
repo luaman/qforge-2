@@ -550,27 +550,25 @@ FS_AddHomeAsGameDirectory
 Use ~/.quake2/dir as fs_gamedir
 ============
 */
-void FS_AddHomeAsGameDirectory (char *dir)
-{
+void FS_AddHomeAsGameDirectory (char * dir) {
 #ifndef _WIN32
-	char		gdir[MAX_OSPATH];
-	char	   *homedir = getenv( "HOME" );
+    char gdir[MAX_OSPATH];
+    char * homedir = getenv("HOME");
 
-	if(homedir)
-	{
-		int len = snprintf(gdir, sizeof(gdir), "%s/.quake2/%s/", homedir, dir);
+    if (homedir) {
+	int len = snprintf(gdir, sizeof(gdir), "%s/.quake2/%s/", homedir, dir);
 
-		Com_Printf("using %s for writing\n",gdir);
-		FS_CreatePath (gdir);
+	Com_Printf("using %s for writing\n",gdir);
+	FS_CreatePath (gdir);
 
-		if ((len > 0) && (len < sizeof(gdir)) && (gdir[len-1] == '/'))
-			gdir[len-1] = 0;
+	if ((len > 0) && (len < sizeof(gdir)) && (gdir[len-1] == '/'))
+	    gdir[len-1] = 0;
 
-		strncpy(fs_gamedir,gdir,sizeof(fs_gamedir)-1);
-		fs_gamedir[sizeof(fs_gamedir)-1] = 0;
+	strncpy(fs_gamedir,gdir,sizeof(fs_gamedir)-1);
+	fs_gamedir[sizeof(fs_gamedir)-1] = 0;
 
-		FS_AddGameDirectory (gdir);
-	}
+	FS_AddGameDirectory (gdir);
+    }
 #endif
 }
 
@@ -661,7 +659,6 @@ void FS_SetGamedir (char *dir)
 	//
 	if (dedicated && !dedicated->value)
 		Cbuf_AddText ("vid_restart\nsnd_restart\n");
-
 
 	// now add new entries for 
 	if (!strcmp(dir,BASEDIRNAME) || (*dir == 0))
