@@ -370,7 +370,7 @@ qboolean VID_LoadRefresh( char *name )
 		
 		RW_IN_Init_fp = RW_IN_Init;
 		RW_IN_Shutdown_fp = RW_IN_Shutdown;
-		RW_IN_Activate_fp = RW_IN_Activate;
+		RW_IN_Activate_fp = (void(*)(qboolean))RW_IN_Activate;
 		RW_IN_Commands_fp = RW_IN_Commands;
 		RW_IN_Move_fp = RW_IN_Move;
 		RW_IN_Frame_fp = RW_IN_Frame;
@@ -403,7 +403,7 @@ qboolean VID_LoadRefresh( char *name )
 		void KBD_Update(void);
 		void KBD_Close(void);
 
-		KBD_Init_fp = KBD_Init;
+		KBD_Init_fp = (void(*)(Key_Event_fp_t))KBD_Init;
 		KBD_Update_fp = KBD_Update;
 		KBD_Close_fp = KBD_Close;
 	}

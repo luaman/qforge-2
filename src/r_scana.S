@@ -10,7 +10,7 @@
 #include "qasm.h"
 #include "d_ifacea.h"
 
-#ifdef USE_ASM
+// #ifdef USE_ASM
 
 	.data
 
@@ -68,5 +68,5 @@ Llp:
 	popl	%ebp				// restore caller's stack frame pointer
 	ret
 
-#endif	/* USE_ASM */
+// #endif	/* USE_ASM */
 

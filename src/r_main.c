@@ -1,5 +1,7 @@
 /* $Id$
  *
+ * main for vid refreshers
+ *
  * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) 2002 The Quakeforge Project.
  * 
@@ -19,7 +21,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-// r_main.c
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
 #include "r_local.h"
 

@@ -11,7 +11,7 @@
 #include "qasm.h"
 
 
-#if	USE_ASM
+// #if	USE_ASM
 
 	.data
 
@@ -405,4 +405,4 @@ Lerror:
 
 #endif
 
-#endif	/* USE_ASM */
+// #endif	/* USE_ASM */

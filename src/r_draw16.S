@@ -11,7 +11,7 @@
 #include "qasm.h"
 #include "d_ifacea.h"
 
-#ifdef USE_ASM
+// #ifdef USE_ASM
 
 //----------------------------------------------------------------------
 // 8-bpp horizontal span drawing code for polygons, with no transparency and
@@ -1227,5 +1227,5 @@ LFDone:
 	popl	%ebp				// restore the caller's stack frame
 	ret
 
-#endif	/* USE_ASM */
+// #endif	/* USE_ASM */
 

@@ -9,7 +9,7 @@
 
 #include "qasm.h"
 
-#if	USE_ASM
+// #if	USE_ASM
 
 	.text
 
@@ -193,5 +193,5 @@ LClampDone2:
 	ret
 
 
-#endif	/* USE_ASM */
+//#endif	/* USE_ASM */
 

@@ -10,7 +10,7 @@
 #include "qasm.h"
 #include "d_ifacea.h"
 
-#ifdef USE_ASM
+/* #ifdef USE_ASM */
 
 // !!! if these are changed, they must be changed in r_draw.c too !!!
 #define FULLY_CLIPPED_CACHED	0x80000000
@@ -817,5 +817,5 @@ LClampP2:
 LClampP3:
 	ret
 
-#endif	/* USE_ASM */
+/* #endif */	/* USE_ASM */
 

@@ -10,7 +10,7 @@
 #include "qasm.h"
 #include "d_ifacea.h"
 
-#ifdef USE_ASM
+// #ifdef USE_ASM
 
 	.data
 Ltemp0:	.long	0
@@ -195,5 +195,5 @@ C(R_Alias_clip_left):
 	jmp		LRightLeftEntry
 
 
-#endif	/* USE_ASM */
+// #endif	/* USE_ASM */
 

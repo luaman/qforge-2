@@ -27,7 +27,7 @@
 #include "qasm.h"
 #include "d_ifacea.h"
 
-#if	USE_ASM
+/* #if	USE_ASM */
 
 // !!! if this is changed, it must be changed in d_polyse.c too !!!
 #define DPS_MAXSPANS			MAXHEIGHT+1	
@@ -1267,5 +1267,5 @@ LSkip2:
 	popl	%ebp
 	ret
 
-#endif	/* USE_ASM */
+/* #endif */	/* USE_ASM */
 

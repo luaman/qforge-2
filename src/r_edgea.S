@@ -10,7 +10,7 @@
 
 #include "qasm.h"
 
-#ifdef USE_ASM
+// #ifdef USE_ASM
 
 	.data
 Ltemp:					.long	0
@@ -730,5 +730,5 @@ C(R_SurfacePatch):
 
 	ret
 
-#endif	/* USE_ASM */
+// #endif	/* USE_ASM */
 

@@ -9,7 +9,7 @@
 
 #include "qasm.h"
 
-#ifdef USE_ASM
+// #ifdef USE_ASM
 
 	.data
 
@@ -763,4 +763,4 @@ LPatchLoop8:
 
 	ret
 
-#endif /* USE_ASM */
+// #endif /* USE_ASM */

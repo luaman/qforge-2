@@ -9,7 +9,7 @@
 
 #include "qasm.h"
 
-#ifdef USE_ASM
+// #ifdef // USE_ASM
 
 //----------------------------------------------------------------------
 // 8-bpp horizontal span drawing code for polygons, with transparency.
@@ -880,4 +880,4 @@ LNextSpan:
 	popl	%ebp				// restore the caller's stack frame
 	ret
 
-#endif /* USE_ASM */
+// #endif /* USE_ASM */
