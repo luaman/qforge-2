@@ -2,7 +2,10 @@
 
 # Process this file with automake to create Makefile.in
 
-bin_PROGRAMS = quake2
+SUBDIRS = .
+
+bin_PROGRAMS = quake2 ref_glx.so
+
 quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 				\
 				cl_cin.c cl_ents.c cl_fx.c cl_input.c cl_inv.c \
@@ -24,6 +27,25 @@ quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 				m_flash.c \
 				\
 				#snd_mixa.S
-				
+
+REF_GL = q_sh.c q_shared.c glob.c \
+		qgl.c \
+		\
+		gl_draw.c \
+		gl_image.c \
+		gl_light.c \
+		gl_mesh.c \
+		gl_model.c \
+		gl_rmain.c \
+		gl_rmisc.c \
+		gl_rsurf.c \
+		gl_warp.c
+
+ref_glx_so_SOURCES = $(REF_GL) gl_glx.c
+
+#ref_fxgl_so_SOURCES = $(REF_GL) rw_in_svgalib.c gl_fxmesa.c
+
+#ref_sdlgl_so_SOURCES = $(REF_GL) rw_sdl.c
+
 AM_CFLAGS = -Wall -Werror -pipe
 AM_CPPFLAGS = -DLINUX_VERSION="\"$(VERSION)\"" -Dstricmp=strcasecmp -I../game

@@ -1,11 +1,24 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT
 AC_PREREQ(2.50)
-AM_INIT_AUTOMAKE(quake2, 0.1, quake2-devel@quakeforge.net)
-#AC_CONFIG_SRCDIR(src/main.c)
+AC_INIT(src/main.c)
+AC_REVISION($Revision$) dnl
 AM_CONFIG_HEADER(config.h)
 
+dnl AC_CANONICAL_SYSTEM # what does this do?
+
+dnl AC_VALIDATE_CACHED_SYSTEM_TUPLE(
+dnl 	rm $cache_file
+dnl 	echo restart configure
+dnl 	exit 1
+dnl )
+
+AM_INIT_AUTOMAKE(quake2, 0.1, quake2-devel@quakeforge.net)
+
 AM_MAINTAINER_MODE
+
+AC_SUBST(PROGRAM)
+AC_SUBST(VERSION)
+
 
 # Checks for programs.
 AC_PROG_CC
