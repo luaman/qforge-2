@@ -928,7 +928,10 @@ int XLateKey(XKeyEvent *ev)
 /* Check to see if this is a repeated key.
  * (shamelessly lifted from icculus quake2 who 
  *  shamelessly lifted from SDL who
- *  shamelessly lifted from GII -- thanks guys! :) */
+ *  shamelessly lifted from GII -- thanks guys! :)
+ *
+ * This has bugs if two keys are being pressed simultaneously and the events
+ * start getting interleaved */
 int X11_KeyRepeat(Display * dpy, XEvent * evt) {
     XEvent peekevt;
     int repeated = 0;
@@ -961,12 +964,12 @@ void HandleEvents(void)
 		case KeyPress:
 			myxtime = event.xkey.time;
 			if (in_state && in_state->Key_Event_fp)
-			    in_state->Key_Event_fp(XLateKey(&event.xkey), event.type == KeyPress);
+			    in_state->Key_Event_fp(XLateKey(&event.xkey), true);
 			break;
 		case KeyRelease:
 		  if (!X11_KeyRepeat(dpy, &event)) {
 			if (in_state && in_state->Key_Event_fp)
-				in_state->Key_Event_fp (XLateKey(&event.xkey), event.type == KeyPress);
+			    in_state->Key_Event_fp(XLateKey(&event.xkey), false);
 		  }
 			break;
 
