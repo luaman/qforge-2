@@ -1,0 +1,53 @@
+#!/bin/sh
+# quake 2 tarball release script
+# $Id$
+
+# you need to have already tagged the tree with version_x_y
+
+# this is tuned to my working directory...
+
+if [ -z "$1" ]; then
+	echo usage: q2rel tag
+	echo tag is something like version_0_1 for version 0.1
+	echo you should have already tagged the repository, as
+	echo this script is going to cvs export from that tag
+fi
+
+cd ~/src/quake2
+
+chmod -R u+w export
+rm -rf export
+
+mkdir export
+
+cd export
+
+cvs -d :ext:gozer:/project/cvs export -r $1 quake2
+
+cd ../cvs
+
+cvs2cl -S --no-wrap
+
+cd ../export/quake2
+
+cp ../../cvs/ChangeLog .
+
+./bootstrap
+
+./configure
+
+make distcheck
+
+VERSION=`echo $1 | sed -e 's/version_//' -e 's/_/./'`
+
+cp quake2-$VERSION.tar.gz ../../release
+
+cd ../../release
+
+tar zxf quake2-$VERSION.tar.gz
+
+tar jcf quake2-$VERSION.tar.bz2 quake2-$VERSION/
+
+md5sum quake2-$VERSION.* | tee quake2-$VERSION.release
+
+rm -r quake2-$VERSION
