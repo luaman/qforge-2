@@ -18,6 +18,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 #include "qcommon.h"
 
 // define this to dissalow any data but the demo pak file
@@ -191,6 +196,45 @@ int	Developer_searchpath (int who)
 }
 
 
+QFile *
+FS_OpenRead (const char *path, int offs, int len, int zip, int *size)
+{
+	int         fd = open (path, O_RDONLY);
+	unsigned char id[2];
+	unsigned char len_bytes[4];
+
+	if (fd == -1)
+		return 0;
+	if (offs < 0 || len < 0) {
+		// normal file
+		offs = 0;
+		len = lseek (fd, 0, SEEK_END);
+		lseek (fd, 0, SEEK_SET);
+	}
+	lseek (fd, offs, SEEK_SET);
+	if (zip) {
+		read (fd, id, 2);
+		if (id[0] == 0x1f && id[1] == 0x8b) {
+			lseek (fd, offs + len - 4, SEEK_SET);
+			read (fd, len_bytes, 4);
+			len = ((len_bytes[3] << 24)
+				   | (len_bytes[2] << 16)
+				   | (len_bytes[1] << 8)
+				   | (len_bytes[0]));
+		}
+	}
+	lseek (fd, offs, SEEK_SET);
+	*size = len;
+#ifdef WIN32
+	setmode (fd, O_BINARY);
+#endif
+	if (zip)
+		return Qdopen (fd, "rbz");
+	else
+		return Qdopen (fd, "rb");
+}
+
+
 /*
 ===========
 FS_FOpenFile
@@ -202,14 +246,24 @@ a seperate file.
 ===========
 */
 int file_from_pak = 0;
-#ifndef NO_ADDONS
-int FS_FOpenFile (char *filename, QFile **file)
+
+int _FS_FOpenFile (char *filename, QFile **file, char *foundname, int zip)
 {
 	searchpath_t	*search;
 	char			netpath[MAX_OSPATH];
 	pack_t			*pak;
 	int				i;
 	filelink_t		*link;
+	int				size;
+
+#ifdef HAVE_ZLIB
+	char        gzfilename[MAX_OSPATH];
+	int         filenamelen;
+
+	filenamelen = strlen (filename);
+	strncpy (gzfilename, filename, sizeof (gzfilename));
+	strncat (gzfilename, ".gz", sizeof (gzfilename) - strlen (gzfilename));
+#endif
 
 	file_from_pak = 0;
 
@@ -219,11 +273,17 @@ int FS_FOpenFile (char *filename, QFile **file)
 		if (!strncmp (filename, link->from, link->fromlength))
 		{
 			Com_sprintf (netpath, sizeof(netpath), "%s%s",link->to, filename+link->fromlength);
-			*file = Qopen (netpath, "rbz");
+			*file = FS_OpenRead (netpath, -1, -1, zip, &size);
+#ifdef HAVE_ZLIB
+			if (!*file) {
+				Com_sprintf (netpath, sizeof(netpath), "%s%s.gz",link->to, filename+link->fromlength);
+				*file = FS_OpenRead (netpath, -1, -1, zip, &size);
+			}
+#endif
 			if (*file)
 			{		
 				Com_DPrintf ("link file: %s\n",netpath);
-				return FS_filelength (*file);
+				return size;
 			}
 			return -1;
 		}
@@ -240,16 +300,22 @@ int FS_FOpenFile (char *filename, QFile **file)
 		// look through all the pak file elements
 			pak = search->pack;
 			for (i=0 ; i<pak->numfiles ; i++)
-				if (!Q_strcasecmp (pak->files[i].name, filename))
+				if (!Q_strcasecmp (pak->files[i].name, filename)
+#ifdef HAVE_ZLIB
+					|| !Q_strcasecmp (pak->files[i].name, gzfilename)
+#endif
+				   )
 				{	// found it!
 					file_from_pak = 1;
 					Com_DPrintf ("PackFile: %s : %s\n",pak->filename, filename);
 				// open a new file on the pakfile
-					*file = Qopen (pak->filename, "rb");
+					strncpy (foundname, pak->files[i].name, MAX_OSPATH);
+					*file = FS_OpenRead (pak->files[i].name,
+										 pak->files[i].filepos,
+										 pak->files[i].filelen, zip, &size);
 					if (!*file)
 						Com_Error (ERR_FATAL, "Couldn't reopen %s", pak->filename);	
-					Qseek (*file, pak->files[i].filepos, SEEK_SET);
-					return pak->files[i].filelen;
+					return size;
 				}
 		}
 		else
@@ -258,13 +324,19 @@ int FS_FOpenFile (char *filename, QFile **file)
 			
 			Com_sprintf (netpath, sizeof(netpath), "%s/%s",search->filename, filename);
 			
-			*file = Qopen (netpath, "rbz");
+			*file = FS_OpenRead (netpath, -1, -1, zip, &size);
+#ifdef HAVE_ZLIB
+			if (!*file) {
+				Com_sprintf (netpath, sizeof(netpath), "%s/%s.gz",search->filename, filename);
+				*file = FS_OpenRead (netpath, -1, -1, zip, &size);
+			}
+#endif
 			if (!*file)
 				continue;
 			
 			Com_DPrintf ("FindFile: %s\n",netpath);
 
-			return FS_filelength (*file);
+			return size;
 		}
 		
 	}
@@ -275,63 +347,13 @@ int FS_FOpenFile (char *filename, QFile **file)
 	return -1;
 }
 
-#else
-
-// this is just for demos to prevent add on hacking
-
-int FS_FOpenFile (char *filename, QFile **file)
+int
+FS_FOpenFile (char *filename, QFile **gzfile)
 {
-	searchpath_t	*search;
-	char			netpath[MAX_OSPATH];
-	pack_t			*pak;
-	int				i;
+	char        foundname[MAX_OSPATH];
 
-	file_from_pak = 0;
-
-	// get config from directory, everything else from pak
-	if (!strcmp(filename, "config.cfg") || !strncmp(filename, "players/", 8))
-	{
-		Com_sprintf (netpath, sizeof(netpath), "%s/%s",FS_Gamedir(), filename);
-		
-		*file = Qopen (netpath, "rbz");
-		if (!*file)
-			return -1;
-		
-		Com_DPrintf ("FindFile: %s\n",netpath);
-
-		return FS_filelength (*file);
-	}
-
-	for (search = fs_searchpaths ; search ; search = search->next)
-		if (search->pack)
-			break;
-	if (!search)
-	{
-		*file = NULL;
-		return -1;
-	}
-
-	pak = search->pack;
-	for (i=0 ; i<pak->numfiles ; i++)
-		if (!Q_strcasecmp (pak->files[i].name, filename))
-		{	// found it!
-			file_from_pak = 1;
-			Com_DPrintf ("PackFile: %s : %s\n",pak->filename, filename);
-		// open a new file on the pakfile
-			*file = Qopen (pak->filename, "rb");
-			if (!*file)
-				Com_Error (ERR_FATAL, "Couldn't reopen %s", pak->filename);	
-			Qseek (*file, pak->files[i].filepos, SEEK_SET);
-			return pak->files[i].filelen;
-		}
-	
-	Com_DPrintf ("FindFile: can't find %s\n", filename);
-	
-	*file = NULL;
-	return -1;
+	return _FS_FOpenFile (filename, gzfile, foundname, 1);
 }
-
-#endif
 
 
 /*
