@@ -31,7 +31,7 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 
-#include "glob.h"
+#include "q_glob.h"
 
 #include "qcommon.h"
 

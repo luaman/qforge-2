@@ -11,7 +11,7 @@ EXTRA_LTLIBRARIES = ref_soft.la ref_softx.la ref_softsdl.la \
 		ref_glx.la ref_sdlgl.la ref_tdfx.la
 
 # Common source files
-REF_GL_COMMON = q_sh.c q_shared.c glob.c qgl.c \
+REF_GL_COMMON = q_sh.c q_shared.c q_glob.c qgl.c \
 		gl_draw.c gl_image.c gl_light.c gl_mesh.c \
 		gl_model.c gl_rmain.c gl_rmisc.c gl_rsurf.c \
 		gl_warp.c
@@ -20,11 +20,11 @@ REF_SOFT_COMMON = r_aclip.c r_alias.c r_bsp.c r_draw.c r_edge.c \
 		r_image.c r_light.c r_main.c r_misc.c r_model.c \
 		r_part.c r_poly.c r_polyse.c r_rast.c r_scan.c \
 		r_sprite.c r_surf.c \
-		q_shared.c q_sh.c glob.c
+		q_shared.c q_sh.c q_glob.c
 
 noinst_HEADERS = adivtab.h anorms.h anormtab.h asm_draw.h asm_i386.h block8.h \
 	block16.h cdaudio.h client.h console.h crc.h d_ifacea.h game.h \
-	gcc_attr.h gl_local.h gl_model.h glob.h glw.h input.h keys.h \
+	gcc_attr.h gl_local.h gl_model.h q_glob.h glw.h input.h keys.h \
 	mdfour.h q_shared.h qasm.h qcommon.h qfiles.h qgl.h qmenu.h \
 	quakeio.h r_local.h r_model.h rand1k.h ref.h rw.h screen.h \
 	server.h snd_loc.h sound.h uint32.h vid.h warpsin.h \
@@ -44,7 +44,7 @@ else
 QUAKE2_ASM=
 endif
 
-quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
+quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c q_glob.c net_udp.c \
 		\
 		cl_cin.c cl_ents.c cl_fx.c cl_input.c cl_inv.c \
 		cl_main.c cl_parse.c cl_pred.c cl_tent.c cl_scrn.c \

@@ -68,6 +68,8 @@
 #include <X11/extensions/xf86vmode.h>
 
 #ifdef HAVE_JOYSTICK
+#include <sys/types.h>
+#include <fcntl.h>
 #include <linux/joystick.h>
 #include <glob.h>
 #endif
@@ -125,7 +127,7 @@ void init_joystick() {
 	ri.Con_Printf(PRINT_ALL, "Trying joystick dev %s\n", pglob.gl_pathv[i]);
 	joy_fd = open(pglob.gl_pathv[i], O_RDONLY | O_NONBLOCK);
 	if (joy_fd == -1)
-	    ri.Con_Printf(PRINT_ALL, "Error opening joystick dev %s\n", pglob.gp_pathv[i]);
+	    ri.Con_Printf(PRINT_ALL, "Error opening joystick dev %s\n", pglob.gl_pathv[i]);
 	else {
 	    while (read(joy_fd, &e, sizeof(struct js_event)) != -1 && (e.type &JS_EVENT_INIT))
 		ri.Con_Printf(PRINT_ALL, "Read init event\n");
