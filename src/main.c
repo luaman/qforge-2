@@ -229,7 +229,7 @@ void *Sys_GetGameAPI (void *parms) {
     setegid(getgid());
     
     if (game_library)
-	Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
+	Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadGame");
 
     Com_Printf("------- Loading game.so -------\n");
 
