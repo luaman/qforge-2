@@ -758,10 +758,10 @@ void GLimp_Shutdown( void )
 	dgamouse = false;
 
 	if (dpy) {
-		if (ctx)
-			qglXDestroyContext(dpy, ctx);
 		if (win)
 			XDestroyWindow(dpy, win);
+		if (ctx)
+			qglXDestroyContext(dpy, ctx);
 		if (vidmode_active)
 			XF86VidModeSwitchToMode(dpy, scrnum, vidmodes[0]);
 		XCloseDisplay(dpy);
