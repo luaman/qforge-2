@@ -243,6 +243,7 @@ void VID_MenuInit( void )
 		"[software SDL  ]",
 		"[OpenGL GLX    ]",
 		"[SDL OpenGL    ]",
+		"[3DFX OpenGL   ]",
 		0
 	};
 	static const char *yesno_names[] =
