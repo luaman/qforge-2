@@ -97,7 +97,7 @@ if test "x${ac_with_svgalib}" != xno ; then
 
 	# --with-svgalib was explicitly given, then, so
 	# look in that directory
-	if test "x${ac_with_svgalib}" != xauto; then
+	if test "x${ac_with_svgalib}" = xyes; then
 		SVGALIB_CFLAGS="$SVGALIB_CFLAGS -I$withval/include"
 		SVGALIB_LIBS="$SVGALIB_LIBS -L$withval/lib"
 	fi
@@ -219,7 +219,7 @@ AC_ARG_WITH(opengl,
 
 if test "x${ac_with_opengl}" != xno ; then
 	# --with-opengl was explicitly given, so look in that directory
-	if test "x${ac_with_opengl}" != xauto ; then
+	if test "x${ac_with_opengl}" = xyes ; then
 		OPENGL_CFLAGS="$OPENGL_CFLAGS -I$withval/include"
 		OPENGL_LIBS="$OPENGL_CFLAGS -L$withval/lib"
 	fi
@@ -378,7 +378,7 @@ AC_ARG_WITH(ao,
 )
 if test "x${ac_with_ao}" != xno ; then
 	dnl --with-ao was explicitly given, so look in the given dir
-	if test "x${ac_with_ao}" != xauto ; then
+	if test "x${ac_with_ao}" = xyes ; then
 		AO_CFLAGS="$AO_CFLAGS -I$withval/include"
 		AO_LIBS="$AO_LIBS -L$withval/lib"
 	fi
@@ -439,7 +439,7 @@ AC_ARG_WITH(alsa,
 )
 if test "x${ac_with_alsa}" != xno ; then
 	dnl --with-alsa was explicitly given, so look in the given dir
-	if test "x${ac_with_alsa}" != xauto ; then
+	if test "x${ac_with_alsa}" = xyes ; then
 		ALSA_CFLAGS="$ALSA_CFLAGS -I$withval/include"
 		ALSA_LIBS="$ALSA_LIBS -L$withval/lib"
 	fi
