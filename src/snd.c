@@ -34,6 +34,7 @@
 #include <sys/wait.h>
 #include <stdio.h>
 /* merged in from snd_bsd.c -- jaq */
+
 #ifdef __linux__
 	#include <linux/soundcard.h>
 #else /* bsd */

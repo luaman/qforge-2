@@ -21,6 +21,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -49,7 +53,9 @@
 	#include <sys/file.h>
 #endif
 
-#include <dlfcn.h>
+#ifdef HAVE_DLOPEN
+# include <dlfcn.h>
+#endif
 
 /* merged from sys_bsd.c -- jaq */
 #ifndef RTLD_NOW

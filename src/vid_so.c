@@ -23,13 +23,21 @@
 // is used for both the software and OpenGL rendering versions of the
 // Quake refresh engine.
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 /* merged in from irix/vid_so.c -- jaq */
 #ifdef __sgi
 #define SO_FILE "/etc/quake2.conf"
 #endif
 
 #include <assert.h>
-#include <dlfcn.h> // ELF dl loader
+
+#ifdef HAVE_DLOPEN
+# include <dlfcn.h> // ELF dl loader
+#endif
+
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>

@@ -25,7 +25,7 @@ AC_PROG_CC
 AC_PROG_RANLIB
 #AC_PROG_LIBTOOL
 
-# Checks for libraries.
+dnl Checks for libraries.
 #AC_CHECK_LIB(GL, glBegin)
 # FIXME: Replace `main' with a function in `-lX11':
 #AC_CHECK_LIB(X11, [main])
@@ -59,16 +59,29 @@ AC_HEADER_TIME
 AC_STRUCT_TM
 AC_TYPE_UID_T
 
-# Checks for library functions.
-AC_FUNC_ERROR_AT_LINE
-AC_PROG_GCC_TRADITIONAL
+dnl -----------------------------
+dnl Checks for library functions.
+dnl -----------------------------
+
+#AC_FUNC_ERROR_AT_LINE
+#AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_FUNC_MMAP
 AC_TYPE_SIGNAL
 AC_FUNC_STAT
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([bzero floor getcwd gethostbyname getmntent getpagesize gettimeofday memmove memset mkdir munmap pow putenv select socket sqrt strcasecmp strchr strdup strerror strrchr strstr])
+#AC_CHECK_FUNCS([bzero floor getcwd gethostbyname getmntent getpagesize gettimeofday memmove memset mkdir munmap pow putenv select socket sqrt strcasecmp strchr strdup strerror strrchr strstr])
+AC_CHECK_FUNCS(dlopen)
+
+DL_LIBS=""
+if test "x$ac_cv_func_dlopen" != "xyes"; then
+	AC_CHECK_LIB(dl, 
+				dlopen,
+				AC_DEFINE(HAVE_DLOPEN, 1, [Define if you have the dlopen function.]) DL_LIBS="-ldl"
+	)
+fi
+AC_SUBST(DL_LIBS)
 
 AS="$CC"
 ASFLAGS="\$(DEFS) \$(CFLAGS) \$(CPPFLAGS) \$(DEFAULT_INCLUDES) \$(INCLUDES)"

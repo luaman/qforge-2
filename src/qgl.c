@@ -32,6 +32,10 @@
 ** QGL_Shutdown() - unloads libraries, NULLs function pointers
 */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <ctype.h>
 #include <float.h>
 
@@ -46,7 +50,9 @@
 //#include <GL/glx.h>
 //#include <GL/fxmesa.h>
 
-#include <dlfcn.h>
+#ifdef HAVE_DLOPEN
+# include <dlfcn.h>
+#endif
 
 /* merged in from qgl_irix.c -- jaq
  * irix used log_fp instead of glw_state.log_fp for the fprintf calls
