@@ -589,7 +589,7 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		entities = ED_ParseEdict (entities, ent);
 		
 		// yet another map hack
-		if (!stricmp(level.mapname, "command") && !stricmp(ent->classname, "trigger_once") && !stricmp(ent->model, "*27"))
+		if (!strcasecmp(level.mapname, "command") && !strcasecmp(ent->classname, "trigger_once") && !strcasecmp(ent->model, "*27"))
 			ent->spawnflags &= ~SPAWNFLAG_NOT_HARD;
 
 		// remove things (except the world) from different skill levels or deathmatch

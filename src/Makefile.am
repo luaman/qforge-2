@@ -94,20 +94,8 @@ ref_softx_so_SOURCES = $(REF_SOFT_COMMON) rw_x11.c
 # SDL
 #ref_softsdl_so_SOURCES = $(REF_SOFT_COMMON) rw_sdl.c
 
-$(BUILDDIR)/ref_soft.$(SHLIBEXT) : $(REF_SOFT_OBJS) $(REF_SOFT_SVGA_OBJS)
-	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(REF_SOFT_OBJS) \
-		$(REF_SOFT_SVGA_OBJS) $(SVGALDFLAGS)
-
-$(BUILDDIR)/ref_softx.$(SHLIBEXT) : $(REF_SOFT_OBJS) $(REF_SOFT_X11_OBJS)
-	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(REF_SOFT_OBJS) \
-		$(REF_SOFT_X11_OBJS) $(XLDFLAGS)
-
-$(BUILDDIR)/ref_softsdl.$(SHLIBEXT) : $(REF_SOFT_OBJS) $(REF_SOFT_SDL_OBJS)
-	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(REF_SOFT_OBJS) \
-		$(REF_SOFT_SDL_OBJS) $(SDLLDFLAGS)
-
 AM_CFLAGS = -Wall -Werror -pipe
-AM_CPPFLAGS = -Dstricmp=strcasecmp -I../game
+AM_CPPFLAGS = -I../game
 
 ref_glx_so_CFLAGS = -fPIC -I/usr/X11R6/include
 ref_glx_so_LDFLAGS = -shared -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
