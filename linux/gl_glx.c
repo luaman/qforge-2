@@ -233,7 +233,13 @@ void RW_IN_Init(in_state_t *in_state_p)
 
 void RW_IN_Shutdown(void)
 {
-	mouse_avail = false;
+	if (mouse_avail) {
+		mouse_avail = false;
+		
+		ri.Cmd_RemoveCommand ("+mlook");
+		ri.Cmd_RemoveCommand ("-mlook");
+		ri.Cmd_RemoveCommand ("force_centerview");
+	}
 }
 
 /*
@@ -450,6 +456,8 @@ static int XLateKey(XKeyEvent *ev)
 			key = *(unsigned char*)buf;
 			if (key >= 'A' && key <= 'Z')
 				key = key - 'A' + 'a';
+			if (key >= 1 && key <= 26) /* ctrl+alpha */
+				key = key + 'a' - 1;
 			break;
 	} 
 
@@ -601,6 +609,7 @@ int GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
 	Window root;
 	XVisualInfo *visinfo;
 	XSetWindowAttributes attr;
+	XSizeHints *sizehints;
 	unsigned long mask;
 	int MajorVersion, MinorVersion;
 	int actualWidth, actualHeight;
@@ -626,11 +635,13 @@ int GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
 	// destroy the existing window
 	GLimp_Shutdown ();
 
+#if 0 // this breaks getenv()? - sbf
 	// Mesa VooDoo hacks
 	if (fullscreen)
 		putenv("MESA_GLX_FX=fullscreen");
 	else
 		putenv("MESA_GLX_FX=window");
+#endif
 
 	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "Error couldn't open the X display\n");
@@ -712,6 +723,24 @@ int GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
 	win = XCreateWindow(dpy, root, 0, 0, width, height,
 						0, visinfo->depth, InputOutput,
 						visinfo->visual, mask, &attr);
+	
+	sizehints = XAllocSizeHints();
+	if (sizehints) {
+		sizehints->min_width = width;
+		sizehints->min_height = height;
+		sizehints->max_width = width;
+		sizehints->max_height = height;
+		sizehints->base_width = width;
+		sizehints->base_height = vid.height;
+		
+		sizehints->flags = PMinSize | PMaxSize | PBaseSize;
+	}
+	
+	XSetWMProperties(dpy, win, NULL, NULL, NULL, 0,
+			sizehints, None, None);
+	if (sizehints)
+		XFree(sizehints);
+
 	XMapWindow(dpy, win);
 
 	if (vidmode_active) {
@@ -762,6 +791,7 @@ void GLimp_Shutdown( void )
 			qglXDestroyContext(dpy, ctx);
 		if (vidmode_active)
 			XF86VidModeSwitchToMode(dpy, scrnum, vidmodes[0]);
+		XUngrabKeyboard(dpy, CurrentTime);
 		XCloseDisplay(dpy);
 	}
 	ctx = NULL;

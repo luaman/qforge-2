@@ -1,0 +1,101 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+export DH_COMPAT=3
+
+qdir = quake2-3.21
+lib_dir = usr/lib/games/quake2
+bin_dir = usr/games
+xpm_dir = usr/share/pixmaps
+ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
+
+configure: configure-stamp
+configure-stamp:
+	rm $(qdir)/makefile 
+	dh_testdir
+	# Add here commands to configure the package.
+	touch configure-stamp
+
+build: configure-stamp build-stamp
+build-stamp:
+	dh_testdir
+
+	# Add here commands to compile the package.
+	cd $(qdir) && $(MAKE) build_release
+	#/usr/bin/docbook-to-man debian/quake2.sgml > quake2.1
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	-cd $(qdir) && $(MAKE) clean
+	-cd $(qdir) && $(MAKE) distclean
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the package into debian/quake2.
+	#$(MAKE) install DESTDIR=$(CURDIR)/debian/quake2
+
+	install -p -m 755 $(qdir)/release$(ARCH)/quake2 debian/quake2/$(lib_dir)/quake2
+	
+	for i in $(qdir)/release$(ARCH)/ref*.so; do \
+		install -p -m 755 $$i debian/quake2/$(lib_dir)/`basename $$i` ; \
+	done;
+
+	install -p -m 755 $(qdir)/release$(ARCH)/gamei386.so debian/quake2/$(lib_dir)/baseq2/gamei386.so
+
+	install -p -m 755 debian/quake2.sh debian/quake2/$(bin_dir)/quake2
+
+	install -p -m 644 debian/quake2.xpm debian/quake2/$(xpm_dir)/quake2.xpm
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+#	dh_installdebconf	
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_installinit
+	dh_installcron
+	dh_installman
+	dh_installinfo
+#	dh_undocumented
+	cp quake2-3.21/changes.txt quake2-3.21/3.1*anges.txt \
+		quake2-3.21/3.20_Changes.txt debian/quake2/usr/share/doc/quake2
+	dh_installchangelogs -k quake2-3.21/3.21_Changes.txt upstream
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_makeshlibs
+	dh_installdeb
+#	dh_perl
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

@@ -1,0 +1,21 @@
+Source: quake2
+Section: contrib/games
+Priority: optional
+Maintainer: Jamie Wilkinson <jaq@spacepants.org>
+Build-Depends: debhelper (>> 3.0.0), libsdl1.2-dev, libgl-dev, svgalibg1-dev
+Standards-Version: 3.5.2
+
+Package: quake2
+Architecture: any
+Depends: ${shlibs:Depends}
+Recommends: quake2-data
+Description: popular 3D first person shooter game (engine only)
+ Quake 2 is a 3D action game engine in first-person perspective, commonly
+ known as a First Person Shooter.
+ .
+ This package contains no data files.  You will need to either install the
+ commercial data from the Quake 2 CD-ROM with the quake2-data package, or
+ install some free data files.
+ .
+ This game currently supports software rendering with X11, SDL, or SVGAlib,
+ or hardware accelerated rendering with OpenGL (directly or via SDL).

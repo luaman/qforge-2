@@ -1,0 +1,23 @@
+quake2 for Debian
+-----------------
+
+quake2 is just a game engine, and as such is fairly useless without data files
+(unless you are using this package for educational purposes, in which case you
+might be better off just grabbing the source), so you will need something that
+provides quake2-data.  The easiest solution (but by no means endorsed by the
+Debian project ;) is to get the commercial Quake 2 CD-ROM and install the
+quake2-data package.  There is talk of creating DFSG-free data for this engine,
+but currently this maintainer knows of no tools to build such data for Linux,
+let alone Debian.
+
+This package contains the SDL patches made by Steven Fuller (downloaded from
+http://icculus.org/~relnev/download.php), for more details please read
+README.sdl.  This patch was rearranged slightly to fit the original source from
+iD.  The top-level Makefile is also thanks to Steven.
+
+The following may only be of interest to other maintainers:
+The .orig.tar.gz has had ^Ms removed from the source files, and the file
+quake2-3.21/linux/map.out has been removed.  Apart from that, no other changes
+have been made.
+
+ -- Jamie Wilkinson <jaq@spacepants.org>, Sat, 29 Dec 2001 17:42:41 +1100

@@ -1,0 +1,3 @@
+?package(quake2):needs=X11 section=Games/Arcade\
+  title="Quake II" command="/usr/games/quake2" \
+  icon="/usr/share/pixmaps/quake2.xpm"

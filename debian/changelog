@@ -1,0 +1,11 @@
+quake2 (3.21-1) unstable; urgency=low
+
+  * Initial Release.  (Closes: #126716)
+  * Applied SDL patch from http://icculus.org/~relnev/download.php, thanks
+    to Steven Fuller.  See README.sdl for more.
+
+ -- Jamie Wilkinson <jaq@spacepants.org>  Sat, 29 Dec 2001 17:42:41 +1100
+
+Local variables:
+mode: debian-changelog
+End:
