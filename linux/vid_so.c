@@ -219,7 +219,7 @@ qboolean VID_LoadRefresh( char *name )
 	strcat(fn, name);
 
 	// permission checking
-	if (strstr(fn, "softx") == NULL) { // softx doesn't require root
+	if (0 && strstr(fn, "softx") == NULL) { // softx doesn't require root
 		if (stat(fn, &st) == -1) {
 			Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name, strerror(errno));
 			return false;

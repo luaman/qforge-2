@@ -1003,7 +1003,6 @@ REF_GL_OBJS = \
 	\
 	$(BUILDDIR)/ref_gl/qgl_linux.o \
 	$(BUILDDIR)/ref_gl/gl_glx.o \
-	$(BUILDDIR)/ref_gl/rw_in_svgalib.o \
 	$(BUILDDIR)/ref_gl/q_shared.o \
 	$(BUILDDIR)/ref_gl/q_shlinux.o \
 	$(BUILDDIR)/ref_gl/glob.o
