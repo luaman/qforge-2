@@ -1,23 +1,25 @@
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-// gl_mesh.c: triangle model functions
+/* $Id$
+ *
+ * triangle model functions
+ *
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) 2002 The Quakeforge Project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
 #include "gl_local.h"
 
@@ -302,6 +304,8 @@ GL_DrawAliasShadow
 =============
 */
 extern	vec3_t			lightspot;
+/* stencilbuffer shadows */
+extern qboolean have_stencil;
 
 void GL_DrawAliasShadow (dmdl_t *paliashdr, int posenum)
 {
@@ -323,6 +327,13 @@ void GL_DrawAliasShadow (dmdl_t *paliashdr, int posenum)
 	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
 	height = -lheight + 1.0;
+
+	/* stencilbuffer shadows */
+	if (have_stencil && gl_stencilshadow->value) {
+		qglEnable(GL_STENCIL_TEST);
+		qglStencilFunc(GL_EQUAL, 1, 2);
+		qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+	}
 
 	while (1)
 	{
@@ -362,7 +373,11 @@ void GL_DrawAliasShadow (dmdl_t *paliashdr, int posenum)
 		} while (--count);
 
 		qglEnd ();
-	}	
+	}
+
+	/* stencilbuffer shadows */
+	if (have_stencil && gl_stencilshadow->value)
+		qglDisable(GL_STENCIL_TEST);
 }
 
 #endif

@@ -20,6 +20,7 @@ http://gozer.quakeforge.net/list-archives/quakeforge-cvs/2002-April/000151.html
 - investigate the possibility of savegames not being tied to a particular build
 - fix software assembler when building without --disable-asm on i386
 - split out assembler per arch/os (we currently have gas i386 and win i386)
+- make sure that we give back the mouse and keyboard if the game crashes
 
 from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
 (replace - with X when done)
@@ -32,7 +33,7 @@ from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
 - Transparent console
 - How to add .m32 texture support to the Quake2 engine and compile tools.
 - TGA textures
-- Stencil buffered shadows
+X Stencil buffered shadows
 - Adding true color TGA loading for MD2 Models
 - Better dynamic light falloff
 - Controlable water waves
@@ -41,5 +42,3 @@ from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
 - Adding a skybox size variable
 - Adding new video resolutions
 - Drawing alias model bounding boxes
-
-
