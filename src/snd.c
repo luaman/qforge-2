@@ -416,7 +416,7 @@ qboolean SNDDMA_Init(void) {
 
 		if (!dma.buffer) {
 			dma.buffer = (unsigned char *) mmap(NULL, info.fragstotal * info.fragsize,
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) && (__FreeBSD_version < 500000)
 				PROT_READ|PROT_WRITE,
 #else
 				PROT_WRITE,
