@@ -1,7 +1,2 @@
-*.d
-.vimrc
-.libs
-.deps
 Makefile
 Makefile.in
-game.so
