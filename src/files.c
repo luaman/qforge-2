@@ -904,6 +904,7 @@ void FS_InitFilesystem (void)
 	// add baseq2 to search path
 	//
 	/*FS_AddGameDirectory (va("%s/"BASEDIRNAME, fs_basedir->string) );*/
+	FS_AddGameDirectory(PKGLIBDIR"/"BASEDIRNAME);
 	FS_AddGameDirectory(PKGDATADIR"/"BASEDIRNAME);
 
 	//
