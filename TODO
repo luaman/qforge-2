@@ -20,3 +20,26 @@ http://gozer.quakeforge.net/list-archives/quakeforge-cvs/2002-April/000151.html
 - investigate the possibility of savegames not being tied to a particular build
 - fix software assembler when building without --disable-asm on i386
 - split out assembler per arch/os (we currently have gas i386 and win i386)
+
+from http://www.quakesrc.org/?Page=tutorials&Dir=Quake2 :
+(replace - with X when done)
+
+- Removing shadows on certain objects
+- Fixing dlight shine trough
+- Fix for left over icons on windows taskbar
+- Adding a clock to the console
+- Adding Q3A's cvar list
+- Transparent console
+- How to add .m32 texture support to the Quake2 engine and compile tools.
+- TGA textures
+- Stencil buffered shadows
+- Adding true color TGA loading for MD2 Models
+- Better dynamic light falloff
+- Controlable water waves
+- Adding a FPS counter
+- Quake2 MP3 Playback
+- Adding a skybox size variable
+- Adding new video resolutions
+- Drawing alias model bounding boxes
+
+
