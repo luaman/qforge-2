@@ -1,4 +1,5 @@
 - merge net_udp6.c into net_udp.c
+  http://www.viagenie.qc.ca/en/ipv6/quake2/ipv6-quake2.shtml
 - kill off ctf/q_shared.c, it's identical to src/q_shared.c (Actually, work
   out redundant code and merge them... maybe some sort of libshared.a)
 - clean up the #ifdefs that are throughout the code to be has-a
