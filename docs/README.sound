@@ -12,12 +12,19 @@ The currently supported list of drivers are:
   oss  -- OSS from Linux 2.4 and earlier, and some BSDs
   alsa -- ALSA 0.9 from Linux 2.6 onwards
   ao   -- libao audio output library
+  sdl  -- SDL audio
+  solaris -- solaris native audio
 
 Each driver uses the snddevice cvar in different ways:
 
   oss uses the device node for the sound card, e.g. /dev/dsp
   alsa uses the pcm name, e.g. default or plughw:0,0
   ao uses the name of the backend, e.g. oss or alsa09
+
+The sdl driver does not require a snddevice.
+
+The ao driver will try the default backend (i.e. the one set in
+/etc/libao.conf or ~/.libao) if the named snddevice does not exist.
 
 e.g.:
 

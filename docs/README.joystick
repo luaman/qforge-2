@@ -1,16 +1,26 @@
-The joystick should function on all compatible SDL platforms using the SDL
-input routines as well as on Linux using the kernel joystick API.  If you want
-to build with joystick support (enabled by default) then add --enable-joystick
-to the configure command line arguments.  Use --disable-joystick to build
-without joystick support.
+Quake2Forge joystick
+====================
 
-The joystick obeys the same freelook/strafe ruls as the mouse.  You can set
+The joystick should function with all Linux kernels using the kernel
+joystick API, in the soft, softx, and glx video refreshers.
+
+The SDL video refreshers softsdl and sdlgl use the SDL joystick API.
+
+Use --disable-joystick as an argument to configure to build without joystick
+support.
+
+The joystick obeys the same freelook/strafe rules as the mouse.  You can set
 these in the options menu.
 
 There are four cvars which can be set on the command line for the joystick:
-joystick_invert_y [1] if set to zero pulling back on the joystick points
-  the targeting recticle downwards
-joystick_axis_horz [0] sets the axis which controls left-right movement
-joystick_axis_vert [1] sets the axis which controls up-down movement
-joystick_throttle [3] sets the axis which controls the fore-backward motion
-  (if freelook is true)
+
+  joystick_invert_y [default 1] if set to zero pulling back on the joystick
+                    points the targeting recticle downwards
+
+  joystick_axis_horz [default 0] sets the axis which controls left-right
+                      movement
+
+  joystick_axis_vert [default 1] sets the axis which controls up-down movement
+
+  joystick_throttle [default 3] sets the axis which controls the
+                    fore-backward motion (if freelook is true)

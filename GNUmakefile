@@ -8,7 +8,7 @@ all: Makefile
 .FORCED: all
 
 Makefile: configure
-	./configure --enable-maintainer-mode --prefix=$(HOME)/quake2 --disable-joystick
+	./configure --enable-maintainer-mode --prefix=$(HOME)/quake2
 
 configure: Makefile.in configure.in config.h.in
 	autoconf

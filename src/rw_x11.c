@@ -289,7 +289,7 @@ static cvar_t	*vid_ypos;			// Y coordinate of window position
 #ifdef HAVE_JOYSTICK
 static cvar_t   *in_joystick;
 static qboolean joystick_avail = false;
-static int joy_fd, jx, jy, jt;
+static int joy_fd = -1, jx, jy, jt;
 static cvar_t   *j_invert_y;
 #endif
 
@@ -349,6 +349,7 @@ void init_joystick() {
 
     for (i = 0; i < pglob.gl_pathc; i++) {
 	ri.Con_Printf(PRINT_ALL, "Trying joystick dev %s\n", pglob.gl_pathv[i]);
+	joy_fd = open(pglob.gl_pathv[i], O_RDONLY | O_NONBLOCK);
 	if (joy_fd == -1) {
 	    ri.Con_Printf(PRINT_ALL, "Error opening joystick dev %s\n", pglob.gl_pathv[i]);
 	} else {

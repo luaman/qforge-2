@@ -5,7 +5,7 @@ Compiling
 ---------
 
 If you are checking this out from CVS, run ``./bootstrap'' first to set
-up configure.  You will need autoconf 2.50, automake 1.8, libtool 1.4,
+up configure.  You will need autoconf 2.50, automake 1.6, libtool 1.4,
 or greater.  Then follow the instructions in INSTALL.
 
 When specifying locations to arguments like --with-svgalib (i.e. all the
@@ -20,12 +20,11 @@ the paths relative to the given path.
 Installing the game data
 ------------------------
 
-The game data is searched for in ./baseq2/ and in 
-${prefix}/share/quake2/baseq2/ (which by default is 
-/usr/local/share/quake2/baseq2/).  If you get an error that quake2 can't
-find pics/colormap.pcx, it means that it can't find your pak0.pak.  Check
-what prefix you gave to configure, and make sure you have pak0.pak in the
-right directory.
+The game data is searched for in ${prefix}/share/quake2/baseq2/ (which by
+default is /usr/local/share/quake2/baseq2/).  If, when you start the game,
+you get an error that pics/colormap.pcx cannot be found, it means that
+pak0.pak is not in the game data path.  Check what prefix you gave to
+configure, and make sure you have pak0.pak in the right directory.
 
 Save Games
 ----------
