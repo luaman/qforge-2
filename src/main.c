@@ -112,6 +112,14 @@ void Sys_ConsoleOutput (char *string)
 	if (nostdout && nostdout->value)
 		return;
 
+	if (!string)
+	    return;
+
+	if (string[0] == 1 || string[0] == 2) {
+	    /* coloured text on the graphical console, ignore it */
+	    string++;
+	}
+
 	fputs(string, stdout);
 }
 

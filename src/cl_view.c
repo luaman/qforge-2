@@ -287,7 +287,7 @@ void CL_PrepRefresh (void)
 		strcpy (name, cl.configstrings[CS_MODELS+i]);
 		name[37] = 0;	// never go beyond one line
 		if (name[0] != '*')
-			Com_Printf ("%s\r", name); 
+			Com_DPrintf ("%s\r", name); 
 		SCR_UpdateScreen ();
 		Sys_SendKeyEvents ();	// pump message loop
 		if (name[0] == '#')
@@ -309,7 +309,7 @@ void CL_PrepRefresh (void)
 				cl.model_clip[i] = NULL;
 		}
 		if (name[0] != '*')
-			Com_Printf ("                                     \r");
+			Com_DPrintf ("                                     \r");
 	}
 
 	Com_Printf ("images\r"); 
