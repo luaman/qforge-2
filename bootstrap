@@ -1,6 +1,8 @@
 #!/bin/sh
 # bootstrap the build when checking out from CVS
 
+export WANT_AUTOMAKE_1_6=1
+
 if [ "$1" = "clean" ]; then
     # quick hack to remove extra generated files that make distclean
     # doesn't remove
