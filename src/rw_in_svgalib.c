@@ -2,7 +2,6 @@
  *
  * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) 2002 The Quakeforge Project.
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -214,9 +213,6 @@ static int	mwheel;
 static cvar_t	*m_filter;
 static cvar_t	*in_mouse;
 
-static cvar_t	*mdev;
-static cvar_t	*mrate;
-
 static qboolean	mlooking;
 
 // state struct passed in Init
@@ -266,8 +262,6 @@ static void mousehandler(int buttonstate, int dx, int dy, int dz, int drx, int d
 
 void RW_IN_Init(in_state_t *in_state_p)
 {
-	int mtype;
-
 	in_state = in_state_p;
 
 	// mouse variables
@@ -288,26 +282,17 @@ void RW_IN_Init(in_state_t *in_state_p)
 
 	mouse_buttons = 3;
 
-	mtype = vga_getmousetype();
-
-	mdev = ri.Cvar_Get ("mdev", "/dev/mouse", 0);
-	mrate = ri.Cvar_Get ("mrate", "1200", 0);
-
-//		printf("Mouse: dev=%s,type=%s,speed=%d\n",
-//			mousedev, mice[mtype].name, mouserate);
-
-	if (mouse_init(mdev->string, mtype, (int)mrate->value))
-	{
-		ri.Con_Printf(PRINT_ALL, "No mouse found\n");
-		UseMouse = false;
+	if (vga_getmousetype() == MOUSE_NONE) {
+	    ri.Con_Printf(PRINT_ALL, "No mouse found\n");
+	    UseMouse = false;
+	} else {
+	    vga_setmousesupport(1);
+	    mouse_seteventhandler((__mouse_handler) mousehandler);
 	}
-	else
-		mouse_seteventhandler((__mouse_handler) mousehandler);
 }
 
 void RW_IN_Shutdown(void)
 {
-	mouse_close();
 }
 
 /*
