@@ -7,7 +7,7 @@ SUBDIRS = . baseq2 ctf xatrix rogue
 bin_PROGRAMS = quake2 \
 		ref_soft.so ref_softx.so ref_softsdl.so \
 		ref_glx.so ref_sdlgl.so
-#		ref_gl.so
+#		ref_fxgl.so
 
 quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c glob.c net_udp.c \
 				\
@@ -48,7 +48,7 @@ REF_GL_COMMON = q_sh.c q_shared.c glob.c \
 ref_glx_so_SOURCES = $(REF_GL_COMMON) gl_glx.c
 
 # 3dFX
-#ref_gl_so_SOURCES = $(REF_GL_COMMON) rw_in_svgalib.c gl_fxmesa.c
+#ref_fxgl_so_SOURCES = $(REF_GL_COMMON) rw_in_svgalib.c gl_fxmesa.c
 
 # SDL
 ref_sdlgl_so_SOURCES = $(REF_GL_COMMON) rw_sdl.c
@@ -112,8 +112,8 @@ quake2_LDFLAGS = -lm -pthread @DL_LIBS@
 ref_glx_so_LDFLAGS = -shared
 ref_glx_so_LDADD = -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm -lGL
 
-#ref_gl_so_LDFLAGS = -shared -L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXext -lGL -lvga
-#ref_gl_so_LDFADD = -L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXext -lGL -lvga
+#ref_fxgl_so_LDFLAGS = -shared -L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXext -lGL -lvga
+#ref_fxgl_so_LDFADD = -L/usr/local/glide/lib -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXext -lGL -lvga
 
 sdl_flags = @SDL_FLAGS@
 
