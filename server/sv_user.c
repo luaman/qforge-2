@@ -478,7 +478,10 @@ void SV_ExecuteUserCommand (char *s)
 {
 	ucmd_t	*u;
 	
-	Cmd_TokenizeString (s, true);
+	/* http://www.quakesrc.org/forum/topicDisplay.php?topicID=160
+	 * the client can read the rcon_password variable, among others
+	 * so don't do any macro expansion on the server side */
+	Cmd_TokenizeString(s, false);
 	sv_player = sv_client->edict;
 
 //	SV_BeginRedirect (RD_CLIENT);
