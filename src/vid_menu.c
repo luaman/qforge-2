@@ -183,7 +183,7 @@ static void ApplyChanges( void *unused )
 			vid_ref->modified = true;
 		break;
 	default:
-		/* FIXME: probably put some error message here */
+	        Com_Printf("No video refresher\n");
 		break;
 	}
 
