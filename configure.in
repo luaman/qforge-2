@@ -317,7 +317,17 @@ AC_ARG_ENABLE(opt,
 if test "x$USE_OPT" = "xyes"; then
 	case "${host}" in
 		i?86-*-*)
-			OPT_CFLAGS="$OPT_CFLAGS -malign-loops=2 -malign-jumps=2 -malign-functions=2"
+			AC_MSG_CHECKING(whether -falign-functions works)
+			save_CFLAGS="$CFLAGS"
+			CFLAGS="-falign-functions"
+			AC_TRY_COMPILE(
+				[],
+				[],
+				OPT_CFLAGS="$OPT_CFLAGS -falign-loops=2 -falign-jumps=2 -falign-functions=2"
+				AC_MSG_RESULT(yes),
+				OPT_CFLAGS="$OPT_CFLAGS -malign-loops=2 -malign-jumps=2 -malign-functions=2"
+				AC_MSG_RESULT(no),
+			)
 			;;
 		*)
 			;;
