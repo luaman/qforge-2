@@ -107,7 +107,7 @@ ref_softsdl_so_SOURCES = $(REF_SOFT_COMMON) $(REF_SOFT_ASM) rw_sdl.c
 
 AM_CFLAGS = -Wall -Werror -pipe -I/usr/X11R6/include $(shell sdl-config --cflags) -DOPENGL  -fPIC
 
-quake2_LDFLAGS = -lm -lpthread @DL_LIBS@
+quake2_LDFLAGS = -lm -pthread @DL_LIBS@
 
 ref_glx_so_LDFLAGS = -shared
 ref_glx_so_LDADD = -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm -lGL

@@ -81,6 +81,23 @@ AC_TRY_LINK(
 	AC_MSG_RESULT(no)
 )
 
+if test "x$ac_cv_header_sys_soundcard_h" = "xyes"; then
+	AC_MSG_CHECKING(for AFMT_S16_NE in sys/soundcard.h)
+	AC_EGREP_CPP([QF_maGiC_VALUE], 
+		[
+		#include <sys/soundcard.h>
+		#ifdef AFMT_S16_NE
+		QF_maGiC_VALUE
+		#endif
+		],
+		HAVE_AFMT_S16_NE=yes
+		AC_MSG_RESULT(yes)
+		,
+		AC_MSG_RESULT(no)
+	)
+fi
+AC_SUBST(HAVE_AFMT_S16_NE)
+
 dnl -----------------------------
 dnl Checks for library functions.
 dnl -----------------------------

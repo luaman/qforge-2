@@ -292,7 +292,12 @@ qboolean SNDDMA_Init(void) {
     dma.samplebits = (int)sndbits->value;
 	if (dma.samplebits != 16 && dma.samplebits != 8) {
         ioctl(audio_fd, SNDCTL_DSP_GETFMTS, &fmt);
-        if (fmt & AFMT_S16_NE) dma.samplebits = 16;
+#ifdef HAVE_AFMT_S16_NE
+		if (fmt & AFMT_S16_NE)
+#else
+        if (fmt & AFMT_S16_LE)
+#endif
+			dma.samplebits = 16;
         else if (fmt & AFMT_U8) dma.samplebits = 8;
     }
 /* in relnev 0.9, from here until the next RELNEV 0.9 comment has been moved
@@ -348,7 +353,11 @@ qboolean SNDDMA_Init(void) {
 
     if (dma.samplebits == 16)
     {
+#ifdef HAVE_AFMT_S16_NE
         rc = AFMT_S16_NE;
+#else
+		rc = AFMT_S16_LE;
+#endif
         rc = ioctl(audio_fd, SNDCTL_DSP_SETFMT, &rc);
         if (rc < 0)
 		{
