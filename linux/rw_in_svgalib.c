@@ -290,7 +290,7 @@ void RW_IN_Init(in_state_t *in_state_p)
 		UseMouse = false;
 	}
 	else
-		mouse_seteventhandler(mousehandler);
+		mouse_seteventhandler((__mouse_handler) mousehandler);
 }
 
 void RW_IN_Shutdown(void)

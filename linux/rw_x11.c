@@ -560,7 +560,7 @@ char *RW_Sys_GetClipboardData()
 								   &type, &format, &len,
 								   &tmp, &data);
 			if (result == Success) {
-				ret = strdup(data);
+				ret = strdup((char*) data);
 			}
 			XFree(data);
 		}
@@ -1245,8 +1245,7 @@ void SWimp_EndFrame (void)
 /*
 ** SWimp_SetMode
 */
-rserr_t SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
-{
+rserr_t SWimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboolean fullscreen ) {
 	rserr_t retval = rserr_ok;
 
 	ri.Con_Printf (PRINT_ALL, "setting mode %d:", mode );

@@ -633,7 +633,7 @@ char *RW_Sys_GetClipboardData()
 								   &type, &format, &len,
 								   &tmp, &data);
 			if (result == Success) {
-				ret = strdup(data);
+				ret = strdup((char*) data);
 			}
 			XFree(data);
 		}
@@ -669,9 +669,9 @@ static void InitSig(void)
 /*
 ** GLimp_SetMode
 */
-int GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
+int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboolean fullscreen )
 {
-	int width, height;
+	unsigned int width, height;
 	int attrib[] = {
 		GLX_RGBA,
 		GLX_RED_SIZE, 1,
@@ -925,12 +925,12 @@ int GLimp_Init( void *hinstance, void *wndproc )
 	if ( glw_state.OpenGLLib) {
 		#define GPA( a ) dlsym( glw_state.OpenGLLib, a )
 
-		qglXChooseVisual	=	GPA("glXChooseVisual");
-		qglXCreateContext	=	GPA("glXCreateContext");
-		qglXDestroyContext	=	GPA("glXDestroyContext");
-		qglXMakeCurrent		=	GPA("glXMakeCurrent");
-		qglXCopyContext		=	GPA("glXCopyContext");
-		qglXSwapBuffers		=	GPA("glXSwapBuffers");
+		qglXChooseVisual = (XVisualInfo*(*)(Display*, int, int*)) GPA("glXChooseVisual");
+		qglXCreateContext = (GLXContext(*)(Display*, XVisualInfo*, GLXContext, Bool)) GPA("glXCreateContext");
+		qglXDestroyContext = (void(*)(Display*, GLXContext)) GPA("glXDestroyContext");
+		qglXMakeCurrent	= (Bool(*)(Display*, GLXDrawable, GLXContext)) GPA("glXMakeCurrent");
+		qglXCopyContext	= (void(*)(Display*, GLXContext, GLXContext, GLuint)) GPA("glXCopyContext");
+		qglXSwapBuffers	= (void(*)(Display*, GLXDrawable)) GPA("glXSwapBuffers");
 
 		return true;
 	}

@@ -54,7 +54,7 @@ GAME_DIR=$(MOUNT_DIR)/game
 CTF_DIR=$(MOUNT_DIR)/ctf
 XATRIX_DIR=$(MOUNT_DIR)/xatrix
 
-BASE_CFLAGS=-Dstricmp=strcasecmp -Wall -Werror -pipe
+BASE_CFLAGS=-Dstricmp=strcasecmp -Wall -Werror -pipe #-pedantic
 
 ifneq ($(ARCH),i386)
   BASE_CFLAGS+=-DC_ONLY

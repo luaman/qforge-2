@@ -1168,13 +1168,13 @@ qboolean R_Init( void *hinstance, void *hWnd )
 	/*
 	** get our various GL strings
 	*/
-	gl_config.vendor_string = qglGetString (GL_VENDOR);
+	gl_config.vendor_string = (char *) qglGetString (GL_VENDOR);
 	ri.Con_Printf (PRINT_ALL, "GL_VENDOR: %s\n", gl_config.vendor_string );
-	gl_config.renderer_string = qglGetString (GL_RENDERER);
+	gl_config.renderer_string = (char *) qglGetString (GL_RENDERER);
 	ri.Con_Printf (PRINT_ALL, "GL_RENDERER: %s\n", gl_config.renderer_string );
-	gl_config.version_string = qglGetString (GL_VERSION);
+	gl_config.version_string = (char *) qglGetString (GL_VERSION);
 	ri.Con_Printf (PRINT_ALL, "GL_VERSION: %s\n", gl_config.version_string );
-	gl_config.extensions_string = qglGetString (GL_EXTENSIONS);
+	gl_config.extensions_string = (char *) qglGetString (GL_EXTENSIONS);
 	ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: %s\n", gl_config.extensions_string );
 
 	strcpy( renderer_buffer, gl_config.renderer_string );
@@ -1270,8 +1270,8 @@ qboolean R_Init( void *hinstance, void *hWnd )
 		 strstr( gl_config.extensions_string, "GL_SGI_compiled_vertex_array" ) )
 	{
 		ri.Con_Printf( PRINT_ALL, "...enabling GL_EXT_compiled_vertex_array\n" );
-		qglLockArraysEXT = ( void * ) qwglGetProcAddress( "glLockArraysEXT" );
-		qglUnlockArraysEXT = ( void * ) qwglGetProcAddress( "glUnlockArraysEXT" );
+		qglLockArraysEXT = (void(APIENTRY*)(int,int)) qwglGetProcAddress( "glLockArraysEXT" );
+		qglUnlockArraysEXT = (void(APIENTRY*)(void)) qwglGetProcAddress( "glUnlockArraysEXT" );
 	}
 	else
 	{
@@ -1335,7 +1335,7 @@ qboolean R_Init( void *hinstance, void *hWnd )
 		if ( gl_ext_palettedtexture->value )
 		{
 			ri.Con_Printf( PRINT_ALL, "...using GL_EXT_shared_texture_palette\n" );
-			qglColorTableEXT = qwglGetProcAddress( "glColorTableEXT" );
+			qglColorTableEXT = (void(APIENTRY*)(GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid*)) qwglGetProcAddress( "glColorTableEXT" );
 		}
 		else
 		{
@@ -1352,9 +1352,9 @@ qboolean R_Init( void *hinstance, void *hWnd )
 		if ( gl_ext_multitexture->value )
 		{
 			ri.Con_Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
-			qglMTexCoord2fSGIS = ( void * ) qwglGetProcAddress( "glMultiTexCoord2fARB" );
-			qglActiveTextureARB = ( void * ) qwglGetProcAddress( "glActiveTextureARB" );
-			qglClientActiveTextureARB = ( void * ) qwglGetProcAddress( "glClientActiveTextureARB" );
+			qglMTexCoord2fSGIS = (void(APIENTRY*)(GLenum, GLfloat, GLfloat)) qwglGetProcAddress( "glMultiTexCoord2fARB" );
+			qglActiveTextureARB = (void(APIENTRY*)(GLenum)) qwglGetProcAddress( "glActiveTextureARB" );
+			qglClientActiveTextureARB = (void(APIENTRY*)(GLenum)) qwglGetProcAddress( "glClientActiveTextureARB" );
 			GL_Texture0 = GL_TEXTURE0_ARB;
 			GL_Texture1 = GL_TEXTURE1_ARB;
 		}
@@ -1377,8 +1377,8 @@ qboolean R_Init( void *hinstance, void *hWnd )
 		else if ( gl_ext_multitexture->value )
 		{
 			ri.Con_Printf( PRINT_ALL, "...using GL_SGIS_multitexture\n" );
-			qglMTexCoord2fSGIS = ( void * ) qwglGetProcAddress( "glMTexCoord2fSGIS" );
-			qglSelectTextureSGIS = ( void * ) qwglGetProcAddress( "glSelectTextureSGIS" );
+			qglMTexCoord2fSGIS = (void(APIENTRY*)(GLenum, GLfloat, GLfloat)) qwglGetProcAddress( "glMTexCoord2fSGIS" );
+			qglSelectTextureSGIS = (void(APIENTRY*)(GLenum)) qwglGetProcAddress( "glSelectTextureSGIS" );
 			GL_Texture0 = GL_TEXTURE0_SGIS;
 			GL_Texture1 = GL_TEXTURE1_SGIS;
 		}

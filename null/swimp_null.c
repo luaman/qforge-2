@@ -39,7 +39,7 @@ void		SWimp_Shutdown( void )
 {
 }
 
-rserr_t		SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
+rserr_t		SWimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboolean fullscreen )
 {
 }
 

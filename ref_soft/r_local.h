@@ -88,8 +88,7 @@ typedef struct
 	pixel_t                 *alphamap;              // 256 * 256 translucency map
 	int                             rowbytes;               // may be > width if displayed in a window
 									// can be negative for stupid dibs
-	int						width;          
-	int						height;
+	unsigned int width, height;
 } viddef_t;
 
 typedef enum
@@ -844,6 +843,6 @@ void		SWimp_EndFrame (void);
 int			SWimp_Init( void *hInstance, void *wndProc );
 void		SWimp_SetPalette( const unsigned char *palette);
 void		SWimp_Shutdown( void );
-rserr_t		SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen );
+rserr_t		SWimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboolean fullscreen );
 void		SWimp_AppActivate( qboolean active );
 

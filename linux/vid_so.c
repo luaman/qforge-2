@@ -150,7 +150,7 @@ vidmode_t vid_modes[] =
 	{ "Mode 10: 2048x1536", 2048, 1536, 10 }
 };
 
-qboolean VID_GetModeInfo( int *width, int *height, int mode )
+qboolean VID_GetModeInfo( unsigned int *width, unsigned int *height, int mode )
 {
 	if ( mode < 0 || mode >= VID_NUM_MODES )
 		return false;
@@ -282,7 +282,7 @@ qboolean VID_LoadRefresh( char *name )
 	ri.Vid_MenuInit = VID_MenuInit;
 	ri.Vid_NewWindow = VID_NewWindow;
 
-	if ( ( GetRefAPI = (void *) dlsym( reflib_library, "GetRefAPI" ) ) == 0 )
+	if ( ( GetRefAPI = (GetRefAPI_t) dlsym( reflib_library, "GetRefAPI" ) ) == 0 )
 		Com_Error( ERR_FATAL, "dlsym failed on %s", name );
 
 	re = GetRefAPI( ri );
@@ -299,16 +299,16 @@ qboolean VID_LoadRefresh( char *name )
 	in_state.viewangles = cl.viewangles;
 	in_state.in_strafe_state = &in_strafe.state;
 
-	if ((RW_IN_Init_fp = dlsym(reflib_library, "RW_IN_Init")) == NULL ||
-		(RW_IN_Shutdown_fp = dlsym(reflib_library, "RW_IN_Shutdown")) == NULL ||
-		(RW_IN_Activate_fp = dlsym(reflib_library, "RW_IN_Activate")) == NULL ||
-		(RW_IN_Commands_fp = dlsym(reflib_library, "RW_IN_Commands")) == NULL ||
-		(RW_IN_Move_fp = dlsym(reflib_library, "RW_IN_Move")) == NULL ||
-		(RW_IN_Frame_fp = dlsym(reflib_library, "RW_IN_Frame")) == NULL)
+	if ((RW_IN_Init_fp = (void (*)(in_state_t *)) dlsym(reflib_library, "RW_IN_Init")) == NULL ||
+		(RW_IN_Shutdown_fp = (void(*)(void)) dlsym(reflib_library, "RW_IN_Shutdown")) == NULL ||
+		(RW_IN_Activate_fp = (void(*)(qboolean)) dlsym(reflib_library, "RW_IN_Activate")) == NULL ||
+		(RW_IN_Commands_fp = (void(*)(void)) dlsym(reflib_library, "RW_IN_Commands")) == NULL ||
+		(RW_IN_Move_fp = (void(*)(usercmd_t *)) dlsym(reflib_library, "RW_IN_Move")) == NULL ||
+		(RW_IN_Frame_fp = (void(*)(void)) dlsym(reflib_library, "RW_IN_Frame")) == NULL)
 		Sys_Error("No RW_IN functions in REF.\n");
 
 	/* this one is optional */
-	RW_Sys_GetClipboardData_fp = dlsym(reflib_library, "RW_Sys_GetClipboardData");
+	RW_Sys_GetClipboardData_fp = (char*(*)(void)) dlsym(reflib_library, "RW_Sys_GetClipboardData");
 
 	Real_IN_Init();
 
@@ -321,9 +321,9 @@ qboolean VID_LoadRefresh( char *name )
 
 	/* Init KBD */
 #if 1
-	if ((KBD_Init_fp = dlsym(reflib_library, "KBD_Init")) == NULL ||
-		(KBD_Update_fp = dlsym(reflib_library, "KBD_Update")) == NULL ||
-		(KBD_Close_fp = dlsym(reflib_library, "KBD_Close")) == NULL)
+	if ((KBD_Init_fp = (void(*)(Key_Event_fp_t)) dlsym(reflib_library, "KBD_Init")) == NULL ||
+		(KBD_Update_fp = (void(*)(void)) dlsym(reflib_library, "KBD_Update")) == NULL ||
+		(KBD_Close_fp = (void(*)(void)) dlsym(reflib_library, "KBD_Close")) == NULL)
 		Sys_Error("No KBD functions in REF.\n");
 #else
 	{

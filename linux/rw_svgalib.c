@@ -171,7 +171,7 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 
 	vga_setmode(current_mode);
 
-	VGA_pagebase = framebuffer_ptr = (char *) vga_getgraphmem();
+	VGA_pagebase = framebuffer_ptr = (byte *) vga_getgraphmem();
 //		if (vga_setlinearaddressing()>0)
 //			framebuffer_ptr = (char *) vga_getgraphmem();
 	if (!framebuffer_ptr)
@@ -220,7 +220,7 @@ void SWimp_EndFrame (void)
 /*
 ** SWimp_SetMode
 */
-rserr_t SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
+rserr_t SWimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboolean fullscreen )
 {
 	rserr_t retval = rserr_ok;
 
