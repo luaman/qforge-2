@@ -35,7 +35,7 @@
 #include <errno.h>
 
 /* merged in from solaris/net_udp.c -- jaq */
-#ifdef sun
+#ifdef __sun__
 #include <sys/filio.h>
 #endif
 

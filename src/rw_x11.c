@@ -55,7 +55,9 @@
 #include <X11/Xatom.h>
 #include <X11/keysym.h>
 #include <X11/extensions/XShm.h>
+#ifdef HAVE_XF86_DGA
 #include <X11/extensions/xf86dga.h>
+#endif
 
 #ifdef HAVE_JOYSTICK
 # include <sys/stat.h>
@@ -542,6 +544,7 @@ static void install_grabs(void)
 	if (in_dgamouse->value) {
 		int MajorVersion, MinorVersion;
 
+#ifdef HAVE_XF86_DGA
 		if (!XF86DGAQueryVersion(dpy, &MajorVersion, &MinorVersion)) { 
 			// unable to query, probalby not supported
 			ri.Con_Printf( PRINT_ALL, "Failed to detect XF86DGA Mouse\n" );
@@ -551,8 +554,10 @@ static void install_grabs(void)
 			XF86DGADirectVideo(dpy, DefaultScreen(dpy), XF86DGADirectMouse);
 			XWarpPointer(dpy, None, win, 0, 0, 0, 0, 0, 0);
 		}
-	} else
+#endif // HAVE_XF86_DGA
+	} else {
 		XWarpPointer(dpy, None, win, 0, 0, 0, 0, vid.width / 2, vid.height / 2);
+	}
 
 	XGrabKeyboard(dpy, win,
 				  False,
@@ -573,7 +578,9 @@ static void uninstall_grabs(void)
 
 	if (dgamouse) {
 		dgamouse = false;
+#ifdef HAVE_XF86_DGA
 		XF86DGADirectVideo(dpy, DefaultScreen(dpy), 0);
+#endif // HAVE_XF86_DGA
 	}
 
 	XUngrabPointer(dpy, CurrentTime);

@@ -44,15 +44,14 @@
 #include <sys/mman.h>
 #include <errno.h>
 
-/* merged from sys_*.c -- jaq
+/* merged from sys_*.c -- jaq */
 #if defined(__linux__) || defined(__sgi)
 	#include <mntent.h>
 #elif defined(__FreeBSD__) || defined(__bsd__) || defined (__NetBSD__)
 	#include <fstab.h>
-#elif defined(sun)
+#elif defined(__sun__)
 	#include <sys/file.h>
 #endif
-*/
 
 /* libtool dynamic loader */
 #include <ltdl.h>

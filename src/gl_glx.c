@@ -64,8 +64,12 @@
 #include <X11/keysym.h>
 #include <X11/cursorfont.h>
 
+#ifdef HAVE_XF86_DGA
 #include <X11/extensions/xf86dga.h>
+#endif // HAVE_XF86_DGA
+#ifdef HAVE_XF86_VIDMODE
 #include <X11/extensions/xf86vmode.h>
+#endif // HAVE_XF86_VIDMODE
 
 #ifdef HAVE_JOYSTICK
 #include <sys/types.h>
@@ -81,6 +85,8 @@ static int scrnum;
 static Window win;
 static GLXContext ctx = NULL;
 static Atom wmDeleteWindow;
+static int window_width;
+static int window_height;
 
 #define KEY_MASK (KeyPressMask | KeyReleaseMask)
 #define MOUSE_MASK (ButtonPressMask | ButtonReleaseMask | \
@@ -94,6 +100,7 @@ static void (*qglXDestroyContext)( Display *dpy, GLXContext ctx );
 static Bool (*qglXMakeCurrent)( Display *dpy, GLXDrawable drawable, GLXContext ctx);
 static void (*qglXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, GLuint mask );
 static void (*qglXSwapBuffers)( Display *dpy, GLXDrawable drawable );
+static int (*qglXGetConfig)( Display *dpy, XVisualInfo *vis, int attrib, int *value);
 
 /* JOYSTICK */
 #ifdef HAVE_JOYSTICK
@@ -147,25 +154,32 @@ void init_joystick() {
 // this is inside the renderer shared lib, so these are called from vid_so
 
 static qboolean        mouse_avail;
-static int mouse_buttonstate, mouse_oldbuttonstate;
+static int mouse_buttonstate;
+static int mouse_oldbuttonstate;
 static int   mx, my;
 static int	old_mouse_x, old_mouse_y;
+static int old_windowed_mouse;
 
 static int win_x, win_y;
 
+static cvar_t	*_windowed_mouse;
 static cvar_t	*m_filter;
 static cvar_t	*in_mouse;
 static cvar_t	*in_dgamouse;
 
 static cvar_t	*r_fakeFullscreen;
 
+#ifdef HAVE_XF86_VIDMODE
 static XF86VidModeModeInfo **vidmodes;
+#endif // HAVE_XF86_VIDMODE
 //static int default_dotclock_vidmode;
 static int num_vidmodes;
 static qboolean vidmode_active = false;
 
 /* hardware gamma */
+#ifdef HAVE_XF86_VIDMODE
 static XF86VidModeGamma oldgamma;
+#endif // HAVE_XF86_VIDMODE
 
 static qboolean	mlooking;
 
@@ -225,6 +239,7 @@ static void install_grabs(void)
 				 None,
 				 CurrentTime);
 
+#ifdef HAVE_XF86_DGA
 	if (in_dgamouse->value) {
 		int MajorVersion, MinorVersion;
 
@@ -237,7 +252,9 @@ static void install_grabs(void)
 			XF86DGADirectVideo(dpy, DefaultScreen(dpy), XF86DGADirectMouse);
 			XWarpPointer(dpy, None, win, 0, 0, 0, 0, 0, 0);
 		}
-	} else {
+	} else
+#endif // HAVE_XF86_DGA
+	{
 		XWarpPointer(dpy, None, win,
 					 0, 0, 0, 0,
 					 vid.width / 2, vid.height / 2);
@@ -258,10 +275,12 @@ static void uninstall_grabs(void)
 	if (!dpy || !win)
 		return;
 
+#ifdef HAVE_XF86_DGA
 	if (dgamouse) {
 		dgamouse = false;
 		XF86DGADirectVideo(dpy, DefaultScreen(dpy), 0);
 	}
+#endif // HAVE_XF86_DGA
 
 	XUngrabPointer(dpy, CurrentTime);
 	XUngrabKeyboard(dpy, CurrentTime);
@@ -298,6 +317,7 @@ void RW_IN_Init(in_state_t *in_state_p)
 #endif
 
 	// mouse variables
+	_windowed_mouse = ri.Cvar_Get( "_windowed_mouse", "0", CVAR_ARCHIVE );
 	m_filter = ri.Cvar_Get ("m_filter", "0", 0);
     in_mouse = ri.Cvar_Get ("in_mouse", "1", CVAR_ARCHIVE);
     in_dgamouse = ri.Cvar_Get ("in_dgamouse", "1", CVAR_ARCHIVE);
@@ -555,7 +575,14 @@ static int XLateKey(XKeyEvent *ev)
 
 		case XK_F10:		key = K_F10;			 break;
 
-		case XK_F11:		key = K_F11;			 break;
+		case XK_F11:
+			if( ev->type == KeyPress ) {
+				if( _windowed_mouse->value ) {
+					Cvar_SetValue( "_windowed_mouse", 0 );
+				} else {
+					Cvar_SetValue( "_windowed_mouse", 1 );
+				}
+			} break;
 
 		case XK_F12:		key = K_F12;			 break;
 
@@ -653,6 +680,22 @@ static void HandleEvents(void)
 					mx += (event.xmotion.x + win_x) * 2;
 					my += (event.xmotion.y + win_y) * 2;
 				} 
+				else if( _windowed_mouse->value ) {
+					int xoffset = ((int)event.xmotion.x - (int)(window_width / 2));
+					int yoffset = ((int)event.xmotion.y - (int)(window_height / 2));
+
+					if( xoffset != 0 || yoffset != 0 ) {
+
+						mx += xoffset;
+						my += yoffset;
+
+						/* move the mouse to the window center again */
+						XSelectInput( dpy, win, X_MASK & ~PointerMotionMask );
+						XWarpPointer( dpy, None, win, 0, 0, 0, 0, 
+						(window_width / 2), (window_height / 2) );
+						XSelectInput( dpy, win, X_MASK );
+					}
+				}
 				else 
 				{
 					mx += ((int)event.xmotion.x - mwx) * 2;
@@ -715,6 +758,32 @@ static void HandleEvents(void)
 			if (event.xclient.data.l[0] == wmDeleteWindow)
 				ri.Cmd_ExecuteText(EXEC_NOW, "quit");
 			break;
+
+		case MapNotify:
+			if( _windowed_mouse->value ) {
+				XGrabPointer( dpy, win, True, 0, GrabModeAsync,
+				GrabModeAsync, win, None, CurrentTime);
+			}
+ 			break;
+
+		case UnmapNotify:
+			if( _windowed_mouse->value ) {
+				XUngrabPointer( dpy, CurrentTime );
+			}
+			break;
+		}
+	}
+	   
+	if( old_windowed_mouse != _windowed_mouse->value ) {
+		old_windowed_mouse = _windowed_mouse->value;
+
+		if( !_windowed_mouse->value ) {
+			/* ungrab the pointer */
+			XUngrabPointer( dpy, CurrentTime );
+		} else {
+			/* grab the pointer */
+			XGrabPointer( dpy, win, True, 0, GrabModeAsync,
+				GrabModeAsync, win, None, CurrentTime );
 		}
 	}
 	   
@@ -862,6 +931,9 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 
 	ri.Con_Printf( PRINT_ALL, " %d %d\n", width, height );
 
+	window_width = width;
+	window_height = height;
+
 	// destroy the existing window
 	GLimp_Shutdown ();
 
@@ -883,6 +955,7 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 
 	// Get video mode list
 	MajorVersion = MinorVersion = 0;
+#ifdef HAVE_XF86_VIDMODE
 	if (!XF86VidModeQueryVersion(dpy, &MajorVersion, &MinorVersion)) { 
 		vidmode_ext = false;
 	} else {
@@ -890,6 +963,7 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 			MajorVersion, MinorVersion);
 		vidmode_ext = true;
 	}
+#endif // HAVE_XF86_VIDMODE
 
 	visinfo = qglXChooseVisual(dpy, scrnum, attrib);
 	if (!visinfo) {
@@ -903,16 +977,16 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 
 	gl_state.hwgamma = false;
 
-#if 0
 	/* do some pantsness */
+	if ( qglXGetConfig )
 	{
 		int red_bits, blue_bits, green_bits, depth_bits, alpha_bits;
 
-		glXGetConfig(dpy, visinfo, GLX_RED_SIZE, &red_bits);
-		glXGetConfig(dpy, visinfo, GLX_BLUE_SIZE, &blue_bits);
-		glXGetConfig(dpy, visinfo, GLX_GREEN_SIZE, &green_bits);
-		glXGetConfig(dpy, visinfo, GLX_DEPTH_SIZE, &depth_bits);
-		glXGetConfig(dpy, visinfo, GLX_ALPHA_SIZE, &alpha_bits);
+		qglXGetConfig(dpy, visinfo, GLX_RED_SIZE, &red_bits);
+		qglXGetConfig(dpy, visinfo, GLX_BLUE_SIZE, &blue_bits);
+		qglXGetConfig(dpy, visinfo, GLX_GREEN_SIZE, &green_bits);
+		qglXGetConfig(dpy, visinfo, GLX_DEPTH_SIZE, &depth_bits);
+		qglXGetConfig(dpy, visinfo, GLX_ALPHA_SIZE, &alpha_bits);
 
 		ri.Con_Printf(PRINT_ALL, "I: got %d bits of red\n", red_bits);
 		ri.Con_Printf(PRINT_ALL, "I: got %d bits of blue\n", blue_bits);
@@ -920,13 +994,13 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 		ri.Con_Printf(PRINT_ALL, "I: got %d bits of depth\n", depth_bits);
 		ri.Con_Printf(PRINT_ALL, "I: got %d bits of alpha\n", alpha_bits);
 	}
-#endif
 
 	/* stencilbuffer shadows */
+	if ( qglXGetConfig )
 	{
 		int stencil_bits;
 
-		if (!glXGetConfig(dpy, visinfo, GLX_STENCIL_SIZE, &stencil_bits)) {
+		if (!qglXGetConfig(dpy, visinfo, GLX_STENCIL_SIZE, &stencil_bits)) {
 			ri.Con_Printf(PRINT_ALL, "I: got %d bits of stencil\n", stencil_bits);
 			if (stencil_bits >= 1) {
 				have_stencil = true;
@@ -934,6 +1008,7 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 		}
 	}
 
+#ifdef HAVE_XF86_VIDMODE
 	if (vidmode_ext) {
 		int best_fit, best_dist, dist, x, y;
 		
@@ -981,6 +1056,7 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 				fullscreen = 0;
 		}
 	}
+#endif // HAVE_XF86_VIDMODE
 
 	/* window attributes */
 	attr.background_pixel = 0;
@@ -1046,6 +1122,7 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 
 	XMapWindow(dpy, win);
 
+#ifdef HAVE_XF86_VIDMODE
 	if (vidmode_active) {
 		XMoveWindow(dpy, win, 0, 0);
 		XRaiseWindow(dpy, win);
@@ -1054,6 +1131,7 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 		// Move the viewport to top left
 		XF86VidModeSetViewPort(dpy, scrnum, 0, 0);
 	}
+#endif // HAVE_XF86_VIDMODE
 
 	XFlush(dpy);
 
@@ -1068,6 +1146,9 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboole
 	ri.Vid_NewWindow (width, height);
 
 	qglXMakeCurrent(dpy, win, ctx);
+
+	// inviso cursor
+	XDefineCursor( dpy, win, CreateNullCursor( dpy, win ) );
 
 	return rserr_ok;
 }
@@ -1092,6 +1173,7 @@ void GLimp_Shutdown( void )
 			XDestroyWindow(dpy, win);
 		if (ctx)
 			qglXDestroyContext(dpy, ctx);
+#ifdef HAVE_XF86_VIDMODE
 		if (gl_state.hwgamma) {
 			XF86VidModeSetGamma(dpy, scrnum, &oldgamma);
 			/* The gamma has changed, but SetMode will change it
@@ -1101,6 +1183,7 @@ void GLimp_Shutdown( void )
 		}
 		if (vidmode_active)
 			XF86VidModeSwitchToMode(dpy, scrnum, vidmodes[0]);
+#endif // HAVE_XF86_VIDMODE
 		XUngrabKeyboard(dpy, CurrentTime);
 		XCloseDisplay(dpy);
 	}
@@ -1138,6 +1221,7 @@ int GLimp_Init( void *hinstance, void *wndproc )
 		qglXMakeCurrent	= (Bool(*)(Display*, GLXDrawable, GLXContext)) GPA("glXMakeCurrent");
 		qglXCopyContext	= (void(*)(Display*, GLXContext, GLXContext, GLuint)) GPA("glXCopyContext");
 		qglXSwapBuffers	= (void(*)(Display*, GLXDrawable)) GPA("glXSwapBuffers");
+		qglXGetConfig = (int(*)(Display *dpy, XVisualInfo *vis, int attrib, int *value)) GPA("glXGetConfig");
 
 		return true;
 	}
@@ -1174,6 +1258,7 @@ void GLimp_EndFrame (void)
  * all.
  */
 void UpdateHardwareGamma() {
+#ifdef HAVE_XF86_VIDMODE
 	XF86VidModeGamma gamma;
 	float g;
 
@@ -1184,6 +1269,7 @@ void UpdateHardwareGamma() {
 	gamma.blue = oldgamma.blue * g;
 	ri.Con_Printf(PRINT_ALL, "Setting gamma to %f\n", g);
 	XF86VidModeSetGamma(dpy, scrnum, &gamma);
+#endif // HAVE_XF86_VIDMODE     
 }
 
 /*

@@ -2,7 +2,7 @@
 
 SUBDIRS = . baseq2 ctf xatrix rogue
 
-std_cflags = -Wall -Werror -pipe @OPT_CFLAGS@
+std_cflags = -Wall -pipe @OPT_CFLAGS@
 module_ldflags = -module -avoid-version -rpath $(pkglibdir)
 
 bin_PROGRAMS = quake2
@@ -44,13 +44,17 @@ else
 QUAKE2_ASM=
 endif
 
+if BUILD_SDLQUAKE2
+SOUND = cd_sdl.c snd_sdl.c snd_dma.c snd_mix.c snd_mem.c
+else
+SOUND = cd.c snd.c snd_dma.c snd_mix.c snd_mem.c
+endif
+
 quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c q_glob.c net_udp.c \
 		\
 		cl_cin.c cl_ents.c cl_fx.c cl_input.c cl_inv.c \
 		cl_main.c cl_parse.c cl_pred.c cl_tent.c cl_scrn.c \
 		cl_view.c cl_newfx.c console.c keys.c menu.c qmenu.c \
-		\
-		snd_dma.c snd_mix.c snd_mem.c \
 		\
 		checksum.c cmd.c cmodel.c common.c crc.c cvar.c \
 		files.c mdfour.c net_chan.c \
@@ -58,20 +62,26 @@ quake2_SOURCES = main.c q_sh.c vid_menu.c vid_so.c q_glob.c net_udp.c \
 		sv_ccmds.c sv_ents.c sv_game.c sv_init.c sv_main.c \
 		sv_send.c sv_user.c sv_world.c \
 		\
-		cd.c snd.c \
-		\
 		q_shared.c pmove.c \
 		\
 		m_flash.c \
 		\
-		$(QUAKE2_ASM)
+		$(QUAKE2_ASM) $(SOUND)
 
+if BUILD_SDLQUAKE2
+quake2_CFLAGS = $(std_cflags) @INCLTDL@ @PTHREAD_CFLAGS@ @SDL_CFLAGS@
+else
 quake2_CFLAGS = $(std_cflags) @INCLTDL@ @PTHREAD_CFLAGS@
+endif
 # the macro puts -pthread into cflags, but we want to link
 # with this flag too, so stick it into the ldflags if it's there...
 # extra cflags at link time can't hurt
 quake2_LDFLAGS = @PTHREAD_CFLAGS@
-quake2_LDADD = @PTHREAD_LIBS@ @LIBLTDL@ @OSS_LIBS@ -lm
+if BUILD_SDLQUAKE2
+quake2_LDADD = @PTHREAD_LIBS@ @LIBLTDL@ @OSS_LIBS@ @SDL_LIBS@ @SYSTEM_LIBS@ -lm
+else
+quake2_LDADD = @PTHREAD_LIBS@ @LIBLTDL@ @OSS_LIBS@ @SYSTEM_LIBS@ -lm
+endif
 
 # ref_glx
 if BUILD_GLX

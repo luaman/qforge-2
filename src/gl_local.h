@@ -27,20 +27,20 @@
 #include <stdio.h>
 
 #include <GL/gl.h>
+#ifdef HAVE_OPENGL_GLEXT
 #include <GL/glext.h>
+#endif // HAVE_OPENGL_GLEXT
 #include <math.h>
 
 #ifndef _WIN32
 char *strlwr (char *s);
 #endif
 
-/*
-#ifndef __linux__
+#ifdef __sun__
 # ifndef GL_COLOR_INDEX8_EXT
 #  define GL_COLOR_INDEX8_EXT GL_COLOR_INDEX
 # endif
 #endif
-*/
 
 #include "ref.h"
 

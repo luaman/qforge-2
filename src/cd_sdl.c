@@ -27,8 +27,8 @@
 */
 
 #include <stdio.h>
-#include "SDL.h"
-#include "../client/client.h"
+#include <SDL.h>
+#include "client.h"
 
 static qboolean cdValid = false;
 static qboolean initialized = false;

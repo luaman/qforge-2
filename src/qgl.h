@@ -30,7 +30,9 @@
 #endif
 
 #include <GL/gl.h>
+#ifdef HAVE_OPENGL_GLEXT
 #include <GL/glext.h>
+#endif // HAVE_OPENGL_GLEXT
 
 qboolean QGL_Init( const char *dllname );
 void     QGL_Shutdown( void );
@@ -461,8 +463,8 @@ extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
 #define GL_TEXTURE0_SGIS					0x835E
 #define GL_TEXTURE1_SGIS					0x835F
 
-/*
-#if 0 // FIXME: these are in glext.h, delete after testing
+
+#ifndef HAVE_OPENGL_GLEXT // FIXME: these are in glext.h, delete after testing
 // extension constants
 #define GL_POINT_SIZE_MIN_EXT				0x8126
 #define GL_POINT_SIZE_MAX_EXT				0x8127
@@ -475,11 +477,21 @@ extern void (*qgl3DfxSetPaletteEXT)(GLuint *);
 #define GL_SHARED_TEXTURE_PALETTE_EXT		0x81FB
 #endif
 
-#define GL_TEXTURE0_ARB						0x84C0
-#define GL_TEXTURE1_ARB						0x84C1
+#ifdef __sun__
+#ifdef GL_DISTANCE_ATTENUATION_ARB
+#define GL_DISTANCE_ATTENUATION_EXT GL_DISTANCE_ATTENUATION_ARB
+#endif // GL_DISTANCE_ATTENUATION_ARB
+#endif // __sun__
 
-#endif // FIXME: end of glext.h defines
-*/
+#ifndef GL_TEXTURE0_ARB
+#define GL_TEXTURE0_ARB						0x84C0
+#endif
+#ifndef GL_TEXTURE1_ARB
+#define GL_TEXTURE1_ARB						0x84C1
+#endif
+
+#endif // HAVE_OPENGL_GLEXT, end of glext.h defines
+
 
 extern int GL_Texture0, GL_Texture1;
 

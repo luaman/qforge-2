@@ -55,7 +55,7 @@ void *Hunk_Begin (int maxsize)
 	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 #elif defined(__FreeBSD__) || defined(__bsd__) || defined(__NetBSD__)
 	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0);
-#elif defined(sun) || defined(__sgi)
+#elif defined(__sun__) || defined(__sgi)
 	membase = malloc(maxhunksize);
 #endif
 	if (membase == NULL || membase == (byte *)-1)
@@ -79,7 +79,7 @@ void *Hunk_Alloc (int size)
 	return buf;
 }
 
-#if defined(__linux__) || defined(sun)
+#if defined(__linux__) || defined(__sun__)
 int Hunk_End (void)
 {
 	byte *n;
@@ -104,7 +104,7 @@ int Hunk_End (void)
 
 #ifdef __linux__
 	n = mremap(membase, maxhunksize, curhunksize + sizeof(int), 0);
-#else /* sun */
+#else /* __sun__ */
 	n = realloc(membase, curhunksize);
 #endif
 	if (n != membase)
@@ -147,9 +147,8 @@ void Hunk_Free (void *base)
 
 	if (base) {
 /* merged in from q_shsolaris.c -- jaq */
-#ifdef sun
-		/* FIXME: I'm not sure that 'sun' is the correct define -- jaq */
-		free(base);
+#ifdef __sun__
+		/* free(base); FIXME: It segfaults here. doesn't happen with icculus. Coyote */
 #else
 		m = ((byte *)base) - sizeof(int);
 	#ifdef __sgi
@@ -158,7 +157,7 @@ void Hunk_Free (void *base)
 		if (munmap(m, *((int *)m)))
 			Sys_Error("Hunk_Free: munmap failed (%d:%s)", errno, strerror(errno));
 	#endif /* __sgi */
-#endif /* sun */
+#endif /* __sun__ */
 	}
 }
 

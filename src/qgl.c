@@ -70,7 +70,7 @@ static FILE * log_fp = NULL;
 #endif
 
 /* merged in from qgl_bsd.c -- jaq */
-#if defined(__bsd__) || defined(__FreeBSD__) || defined(__NetBSD__)
+#if defined(__bsd__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__sun__)
 /*
 //FX Mesa Functions
 fxMesaContext (*qfxMesaCreateContext)(GLuint win, GrScreenResolution_t, GrScreenRefresh_t, const GLint attribList[]);
@@ -90,6 +90,7 @@ void (*qglXDestroyContext)( Display *dpy, GLXContext ctx );
 Bool (*qglXMakeCurrent)( Display *dpy, GLXDrawable drawable, GLXContext ctx);
 void (*qglXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, GLuint mask );
 void (*qglXSwapBuffers)( Display *dpy, GLXDrawable drawable );
+int (*qglXGetConfig)( Display *dpy, XVisualInfo *vis, int attrib, int *value);
 #endif
 
 void ( APIENTRY * qglAccum )(GLenum op, GLfloat value);
@@ -3035,11 +3036,12 @@ void QGL_Shutdown( void )
 	qglXMakeCurrent              = NULL;
 	qglXCopyContext              = NULL;
 	qglXSwapBuffers              = NULL;
+	qglXGetConfig                = NULL;
 #endif
 }
 
 /* merged in from qgl_bsd.c -- jaq */
-#if defined(__linux__) || defined (__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#if defined(__linux__) || defined (__FreeBSD__) || defined(__NetBSD__) || defined (__sun__)
 #define GPA( a ) dlsym( glw_state.OpenGLLib, a )
 
 void *qwglGetProcAddress(char *symbol)
@@ -3438,7 +3440,7 @@ qboolean QGL_Init( const char *dllname )
 	qglVertexPointer             = 	dllVertexPointer             = GPA( "glVertexPointer" );
 	qglViewport                  = 	dllViewport                  = GPA( "glViewport" );
 /* merged in from qgl_bsd.c -- jaq */
-#if defined(__bsd__) || defined(__FreeBSD__) || defined(__NetBSD__)
+#if defined(__bsd__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__sun__)
 /*
 	qfxMesaCreateContext         =  GPA("fxMesaCreateContext");
 	qfxMesaCreateBestContext     =  GPA("fxMesaCreateBestContext");
@@ -3454,6 +3456,7 @@ qboolean QGL_Init( const char *dllname )
 	qglXMakeCurrent              =  GPA("glXMakeCurrent");
 	qglXCopyContext              =  GPA("glXCopyContext");
 	qglXSwapBuffers              =  GPA("glXSwapBuffers");
+	qglXGetConfig                =  GPA("glXGetConfig");
 #endif
 
 	qglLockArraysEXT = 0;

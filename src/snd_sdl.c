@@ -25,10 +25,10 @@
 	$Id$
 */
 
-#include "SDL.h"
+#include <SDL.h>
 
-#include "../client/client.h"
-#include "../client/snd_loc.h"
+#include "client.h"
+#include "snd_loc.h"
 
 static int  snd_inited;
 static dma_t *shm;
