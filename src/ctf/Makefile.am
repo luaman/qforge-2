@@ -30,5 +30,5 @@ game_so_SOURCES = \
 			q_shared.c
 
 AM_CFLAGS = -fPIC -Wall -Werror -pipe
-AM_CPPFLAGS = -I../../src -I..
+AM_CPPFLAGS = -I..
 LDFLAGS = -shared

@@ -1,8 +1,8 @@
 # $Id$
 
-# Process this file with automake to create Makefile.in
-
-SUBDIRS = .
+# swap comments to build the modpacks
+#SUBDIRS = . baseq2 ctf
+SUBDIRS = . baseq2 ctf xatrix rogue
 
 bin_PROGRAMS = quake2 ref_glx.so ref_softx.so
 
@@ -95,7 +95,6 @@ ref_softx_so_SOURCES = $(REF_SOFT_COMMON) rw_x11.c
 #ref_softsdl_so_SOURCES = $(REF_SOFT_COMMON) rw_sdl.c
 
 AM_CFLAGS = -Wall -Werror -pipe
-AM_CPPFLAGS = -I../game
 
 quake2_LDFLAGS = -lm -ldl -lpthread
 
