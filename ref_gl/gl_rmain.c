@@ -1495,6 +1495,7 @@ void R_BeginFrame( float camera_separation )
 	qglDisable (GL_CULL_FACE);
 	qglDisable (GL_BLEND);
 	qglEnable (GL_ALPHA_TEST);
+	qglEnable (GL_TEXTURE_2D);
 	qglColor4f (1,1,1,1);
 
 	/*
