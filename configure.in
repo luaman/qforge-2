@@ -77,9 +77,7 @@ AC_CHECK_LIB([ossaudio], [_oss_ioctl], [OSS_LIBS="-lossaudio"])
 AC_SUBST(OSS_LIBS)
 
 dnl Check for POSIX threads
-ACX_PTHREAD(,AC_MSG_ERROR([
-*** POSIX threads required, but no threading library was found!
-]))
+ACX_PTHREAD(,AC_MSG_ERROR(["POSIX threads required!"]))
 
 dnl -----------------
 dnl Check for SVGAlib
@@ -115,8 +113,8 @@ if test "x${ac_with_svgalib}" != xno ; then
 	# test for the library first, for people who may have the libs
 	# installed but no headers
 	AC_CHECK_LIB(vga, vga_getmousetype,
-		HAVE_SVGALIB="maybe",
-		HAVE_SVGALIB="no",
+		HAVE_SVGALIB=maybe,
+		HAVE_SVGALIB=no,
 		[ $SVGALIB_LIBS ]
 	)
 
@@ -301,15 +299,11 @@ if test "x$enable_sdl" != xno; then
 	AC_SUBST(HAVE_SDL)
 fi
 
-#AC_CHECK_LIB(GL, glBegin)
-# FIXME: Replace `main' with a function in `-lX11':
-#AC_CHECK_LIB(X11, [main])
-# FIXME: Replace `main' with a function in `-lXext':
-#AC_CHECK_LIB([Xext], [main])
-# FIXME: Replace `main' with a function in `-lXxf86dga':
-#AC_CHECK_LIB([Xxf86dga], [main])
-# FIXME: Replace `main' with a function in `-lXxf86vm':
-#AC_CHECK_LIB([Xxf86vm], [main])
+dnl ------------------------
+dnl Check for MPG123 library
+dnl ------------------------
+
+
 
 dnl -----------------------
 dnl Checks for header files
