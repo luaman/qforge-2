@@ -24,6 +24,12 @@ AC_DEFINE_UNQUOTED(BUILDHOST, "${target_cpu}-${target_os}",
 AC_SUBST(PROGRAM)
 AC_SUBST(VERSION)
 
+dnl ----------------------------------
+dnl Overall configuration success flag
+dnl ----------------------------------
+
+quake2_config_ok=yes
+
 dnl -------------------
 dnl Checks for programs
 dnl -------------------
@@ -49,6 +55,7 @@ dnl --------------------
 dnl Checks for libraries
 dnl --------------------
 
+dnl Solaris networking libraries
 AC_PATH_PROG(unamepath, uname)
 if test "_$unamepath" = _; then
 	system="unknown"
@@ -518,10 +525,19 @@ AM_CONDITIONAL(BUILD_SDLGL, test "x$BUILD_SDLGL" = xyes)
 
 AC_SUBST(VID_REFS)
 
-dnl -----------
-dnl Dump it out
-dnl -----------
+dnl -----------------------------------------------------------
+dnl Configuraton tests complete -- provide a summary of results
+dnl -----------------------------------------------------------
 
+if test $quake2_config_ok = no ; then
+
+	AC_MSG_RESULT([
+doing nothing just now
+])
+
+else
+
+dnl Dump it out
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
@@ -538,6 +554,26 @@ AC_OUTPUT
 
 VID_REFS=`echo $VID_REFS | sed -e 's/ref_//g' -e 's/\.la//g'`
 AC_MSG_RESULT([
-	Video refreshers: ${VID_REFS- none}
-	Platform: ${host}
+Quake2Forge $VERSION: Automatic configuration OK.
+
+  Configuration summary:
+
+    Video refreshers: ${VID_REFS- none}
+    Platform: ${host}
+
+  Installation directories:
+
+    Program: ........... ${prefix}/bin
+    Audio/Video plugins: $PKGLIBDIR
+    Game data: ......... $PKGDATADIR
+
+Type 'make' to compile Quake2Forge.
+
+Type 'make install' to install Quake2Forge.  Game data needs to be
+installed in the game data directory shown above, before the game
+can be played.
+
+Happy fragging!
 ])
+
+fi
