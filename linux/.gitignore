@@ -1,3 +1,6 @@
 *.d
+*.map
 debugi386
+debugi386-glibc
 releasei386
+releasei386-glibc

@@ -1,2 +1,1 @@
-zip -9 -r code . 
-
+zip -9r code . 
