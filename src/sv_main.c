@@ -782,7 +782,8 @@ void SV_Frame (int msec)
 	SV_ReadPackets ();
 
 	// move autonomous things around if enough time has passed
-	if (!sv_timedemo->value && svs.realtime < sv.time)
+	if ((Cvar_VariableValue("deathmatch") || !sv_timedemo->value)
+		&& svs.realtime < sv.time)
 	{
 		// never let the time get too far off
 		if (sv.time - svs.realtime > 100)
@@ -969,7 +970,10 @@ void SV_Init (void)
 	zombietime = Cvar_Get ("zombietime", "2", 0);
 	sv_showclamp = Cvar_Get ("showclamp", "0", 0);
 	sv_paused = Cvar_Get ("paused", "0", 0);
-	sv_timedemo = Cvar_Get ("timedemo", "0", 0);
+	
+	if(dedicated->value) sv_timedemo = Cvar_Get ("timedemo", "0", CVAR_NOSET);
+	else sv_timedemo = Cvar_Get ("timedemo", "0", 0);
+	
 	sv_enforcetime = Cvar_Get ("sv_enforcetime", "0", 0);
 	allow_download = Cvar_Get ("allow_download", "1", CVAR_ARCHIVE);
 	allow_download_players  = Cvar_Get ("allow_download_players", "0", CVAR_ARCHIVE);
