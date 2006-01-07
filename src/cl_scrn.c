@@ -156,8 +156,8 @@ void SCR_DrawDebugGraph (void)
 
 	x = scr_vrect.x;
 	y = scr_vrect.y+scr_vrect.height;
-	re.DrawFill (x, y-scr_graphheight->value,
-		w, scr_graphheight->value, 8);
+	//re.DrawFill (x, y-scr_graphheight->value,
+		//w, scr_graphheight->value, 8);
 
 	for (a=0 ; a<w ; a++)
 	{
@@ -418,7 +418,7 @@ void SCR_Init (void)
 	scr_netgraph = Cvar_Get ("netgraph", "0", 0);
 	scr_timegraph = Cvar_Get ("timegraph", "0", 0);
 	scr_debuggraph = Cvar_Get ("debuggraph", "0", 0);
-	scr_graphheight = Cvar_Get ("graphheight", "32", 0);
+	scr_graphheight = Cvar_Get ("graphheight", "24", 0);
 	scr_graphscale = Cvar_Get ("graphscale", "1", 0);
 	scr_graphshift = Cvar_Get ("graphshift", "0", 0);
 	scr_drawall = Cvar_Get ("scr_drawall", "0", 0);
@@ -1365,6 +1365,12 @@ void SCR_UpdateScreen (void)
 			SCR_TileClear ();
 
 			V_RenderView ( separation[i] );
+			
+			if (scr_timegraph->value)  //update and draw netgraph behind everything else
+				SCR_DebugGraph (cls.frametime*300, 0);
+
+			if (scr_debuggraph->value || scr_timegraph->value || scr_netgraph->value)
+				SCR_DrawDebugGraph ();
 
 			SCR_DrawStats ();
 			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & 1)
@@ -1384,16 +1390,10 @@ void SCR_UpdateScreen (void)
 				sprintf(s, "%3.0ffps", 1/cls.frametime);
 				DrawString(viddef.width-64,0,s);
 			}
+			
+			SCR_DrawConsole ();	
 
-			if (scr_timegraph->value)
-				SCR_DebugGraph (cls.frametime*300, 0);
-
-			if (scr_debuggraph->value || scr_timegraph->value || scr_netgraph->value)
-				SCR_DrawDebugGraph ();
-
-			SCR_DrawPause ();
-
-			SCR_DrawConsole ();
+			SCR_DrawPause ();	
 
 			M_Draw ();
 
