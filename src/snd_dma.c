@@ -675,7 +675,6 @@ struct sfx_s *S_RegisterSexedSound (entity_state_t *ent, char *base)
 	int				n;
 	char			*p;
 	struct sfx_s	*sfx;
-	FILE			*f;
 	char			model[MAX_QPATH];
 	char			sexedFilename[MAX_QPATH];
 	char			maleFilename[MAX_QPATH];
@@ -696,29 +695,18 @@ struct sfx_s *S_RegisterSexedSound (entity_state_t *ent, char *base)
 		}
 	}
 	// if we can't figure it out, they're male
-	if (!model[0])
-		strcpy(model, "male");
+	if (!model[0]) strcpy(model, "male");
 
 	// see if we already know of the model specific sound
 	Com_sprintf (sexedFilename, sizeof(sexedFilename), "#players/%s/%s", model, base+1);
 	sfx = S_FindName (sexedFilename, false);
 
-	if (!sfx)
-	{
-		// no, so see if it exists
-		FS_FOpenFile (&sexedFilename[1], &f);
-		if (f)
-		{
-			// yes, close the file and register it
-			FS_FCloseFile (f);
-			sfx = S_RegisterSound (sexedFilename);
-		}
-		else
-		{
-			// no, revert to the male sound in the pak0.pak
-			Com_sprintf (maleFilename, sizeof(maleFilename), "player/%s/%s", "male", base+1);
-			sfx = S_AliasName (sexedFilename, maleFilename);
-		}
+	if (!sfx){  //not yet registered, so try model specific sound
+		sfx = S_RegisterSound (sexedFilename);
+	}
+	if (!sfx) {  //that didn't work, so use male, and alias it for future calls
+		Com_sprintf (maleFilename, sizeof(maleFilename), "player/male/%s", base+1);
+		sfx = S_AliasName (sexedFilename, maleFilename);
 	}
 
 	return sfx;

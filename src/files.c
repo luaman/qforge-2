@@ -85,12 +85,21 @@ searchpath_t	*fs_base_searchpaths;	// without gamedirs
 
 /*
 
-All of Quake's data access is through a hierchal file system, but the contents of the file system can be transparently merged from several sources.
+All of Quake's data access is through a hierchal file system, but the contents 
+of the file system can be transparently merged from several sources.
 
-The "base directory" is the path to the directory holding the quake.exe and all game directories.  The sys_* files pass this to host_init in quakeparms_t->basedir.  This can be overridden with the "-basedir" command line parm to allow code debugging in a different directory.  The base directory is
-only used during filesystem initialization.
+The "base directory" is the path to the directory holding the quake.exe and 
+all game directories.  The sys_* files pass this to host_init in quakeparms_t->basedir.
+This can be overridden with the "-basedir" command line parm to allow code 
+debugging in a different directory.  The base directory is only used during 
+filesystem initialization.
 
-The "game directory" is the first tree on the search path and directory that all generated files (savegames, screenshots, demos, config files) will be saved to.  This can be overridden with the "-game" command line parameter.  The game directory can never be changed while quake is executing.  This is a precacution against having a malicious server instruct clients to write files over areas they shouldn't.
+The "game directory" is the first tree on the search path and directory that all 
+generated files (savegames, screenshots, demos, config files) will be saved to.  
+This can be overridden with the "-game" command line parameter.  The game 
+directory can never be changed while quake is executing.  This is a precacution 
+against having a malicious server instruct clients to write files over areas they 
+shouldn't.
 
 */
 
@@ -721,7 +730,8 @@ void FS_SetGamedir (char *dir)
 		Cvar_FullSet ("gamedir", dir, CVAR_SERVERINFO|CVAR_NOSET);
 		if (fs_cddir->string[0])
 			FS_AddGameDirectory (va("%s/%s", fs_cddir->string, dir) );
-		FS_AddGameDirectory (va("%s/%s", fs_basedir->string, dir) );
+		FS_AddGameDirectory (va(PKGLIBDIR"/%s", dir));
+		FS_AddGameDirectory (va(PKGDATADIR"/%s", dir));
 		FS_AddHomeAsGameDirectory (dir);
 	}
 }
@@ -940,7 +950,16 @@ void FS_InitFilesystem (void)
 	// allows the game to run from outside the data tree
 	//
 	fs_basedir = Cvar_Get ("basedir", ".", CVAR_NOSET);
-
+	
+	#ifndef _WIN32
+	//export q2 home
+	
+	if(fs_basedir->string && strcmp(fs_basedir->string, "."))
+		setenv("QUAKE2_HOME", fs_basedir->string, 0);
+	else setenv("QUAKE2_HOME", PKGDATADIR, 0);
+	
+	#endif
+	
 	//
 	// cddir <path>
 	// Logically concatenates the cddir after the basedir for 
