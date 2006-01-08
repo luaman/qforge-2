@@ -25,18 +25,16 @@
 #include "client.h"
 #include "snd_loc.h"
 
+#define BUFFER_SAMPLES 4096
+#define SUBMISSION_CHUNK BUFFER_SAMPLES / 2
+
 static snd_pcm_t *pcm_handle;
 static snd_pcm_hw_params_t *hw_params;
 
-static snd_pcm_uframes_t period_size;
-static snd_pcm_uframes_t buffer_size;
-
-static int periods;
-
-static int period_bytes;
-static int buffer_bytes;
-
 static struct sndinfo * si;
+
+static int sample_bytes;
+static int buffer_bytes;
 
 /*
 *  The sample rates which will be attempted.
@@ -149,45 +147,29 @@ qboolean SNDDMA_Init(struct sndinfo *s){
 		return false;
 	}
 	
+	if((err = snd_pcm_hw_params_set_period_size(pcm_handle, hw_params,
+			BUFFER_SAMPLES / si->dma->channels, 0)) < 0){
+		si->Com_Printf("ALSA: cannot set period size (%s)\n", snd_strerror(err));
+		snd_pcm_hw_params_free(hw_params);
+		return false;
+	}
+	
 	if((err = snd_pcm_hw_params(pcm_handle, hw_params)) < 0){  //set params
 		si->Com_Printf("ALSA: cannot set params(%s)\n", snd_strerror(err));
 		snd_pcm_hw_params_free(hw_params);
 		return false;
 	}
 	
-	if((err = snd_pcm_hw_params_get_period_size(hw_params, &period_size, 0)) < 0){
-		si->Com_Printf("ALSA: cannot get period size(%s)\n", snd_strerror(err));
-		snd_pcm_hw_params_free(hw_params);
-		return false;
-	}
-
-	if((err = snd_pcm_hw_params_get_buffer_size(hw_params, &buffer_size)) < 0){
-		si->Com_Printf("ALSA snd error, cannot get buffer size(%s)\n", snd_strerror(err));
-		snd_pcm_hw_params_free(hw_params);
-		return false;
-	}
-	
-	if((err = snd_pcm_hw_params_get_periods(hw_params, &periods, 0)) < 0){
-		si->Com_Printf("ALSA: cannot get periods(%s)\n", snd_strerror(err));
-		snd_pcm_hw_params_free(hw_params);
-		return false;
-	}
-	
-	period_bytes = period_size * si->dma->channels * si->dma->samplebits / 8;
-	buffer_bytes = buffer_size * si->dma->channels * si->dma->samplebits / 8;
+	sample_bytes = si->dma->samplebits / 8;
+	buffer_bytes = BUFFER_SAMPLES * sample_bytes;
 	
 	si->dma->buffer = malloc(buffer_bytes);  //allocate pcm frame buffer
 	memset(si->dma->buffer, 0, buffer_bytes);
 	
 	si->dma->samplepos = 0;
 	
-	si->dma->samples = buffer_size * si->dma->channels;
-	si->dma->submission_chunk = period_size * si->dma->channels;
-	
-	si->Com_Printf("period size is %d (%d bytes)\n"
-		"buffer size is %d (%d bytes)\n%d periods\n", (int)period_size, 
-		period_bytes, (int)buffer_size, buffer_bytes, periods
-	);
+	si->dma->samples = BUFFER_SAMPLES;
+	si->dma->submission_chunk = SUBMISSION_CHUNK;
 	
 	snd_pcm_prepare(pcm_handle);
 	
@@ -224,28 +206,29 @@ void SNDDMA_Shutdown(void){
 *  Writes the dma buffer to the ALSA pcm device.
 */
 void SNDDMA_Submit(void){
-	int w;
+	int s, w, frames;
 	void *start;
 	
 	if(!si->dma->buffer)
 		return;
 	
-	start = (void *)&si->dma->buffer[si->dma->samplepos];
+	s = si->dma->samplepos * sample_bytes;
+	start = (void *)&si->dma->buffer[s];
 	
-	if((w = snd_pcm_writei(pcm_handle, start, period_size)) < 0){  //xrun
-		//si->Com_Printf("ALSA: buffer underrun(%s)\n", snd_strerror(w));
-		snd_pcm_prepare(pcm_handle);
+	frames = si->dma->submission_chunk / si->dma->channels;
+	
+	if((w = snd_pcm_writei(pcm_handle, start, frames)) < 0){  //write to card
+		snd_pcm_prepare(pcm_handle);  //xrun occured
+		return;
 	}
-	else {  //mark progress
-		//si->Com_Printf("wrote %d frames\n", w);
-		si->dma->samplepos += w * si->dma->channels;
-		
-		if(si->dma->samplepos >= si->dma->samples)
-			si->dma->samplepos = 0;  //wrap
-	}
+	
+	si->dma->samplepos += w * si->dma->channels;  //mark progress
+	
+	if(si->dma->samplepos >= si->dma->samples)
+		si->dma->samplepos = 0;  //wrap buffer
 }
 
 /*
-*  No clue :)
+*  Callback provided by the engine in case we need it.  We don't.
 */
 void SNDDMA_BeginPainting(void){}
