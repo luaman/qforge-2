@@ -1,23 +1,23 @@
 /* $Id$
- *
- * Copyright (C) 1997-2001 Id Software, Inc.
- * Copyright (c) 2002 The Quakeforge Project.
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * 
- * See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+*
+* Copyright(C) 1997-2001 Id Software, Inc.
+* Copyright(c) 2002 The Quakeforge Project.
+* 
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or(at your option) any later version.
+* 
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+* 
+* See the GNU General Public License for more details.
+* 
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*/
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -52,74 +52,72 @@
 static unsigned char scantokey[128];
 Key_Event_fp_t Key_Event_fp;
 
-static void keyhandler(int scancode, int state)
-{
+static void keyhandler(int scancode, int state){
 	int sc;
-
+	
 	sc = scancode & 0x7f;
-//ri.Con_Printf(PRINT_ALL, "scancode=%x (%d%s)\n", scancode, sc, scancode&0x80?"+128":"");
+	//ri.Con_Printf(PRINT_ALL, "scancode=%x(%d%s)\n", scancode, sc, scancode&0x80?"+128":"");
 	Key_Event_fp(scantokey[sc], state == KEY_EVENTPRESS);
 }
 
-void KBD_Init(Key_Event_fp_t fp)
-{
+void KBD_Init(Key_Event_fp_t fp){
 	int i;
-
+	
 	Key_Event_fp = fp;
-
-	for (i=0 ; i<128 ; i++)
+	
+	for(i = 0; i < 128; i++)
 		scantokey[i] = ' ';
-
-	scantokey[  1] = K_ESCAPE;
-	scantokey[  2] = '1';
-	scantokey[  3] = '2';
-	scantokey[  4] = '3';
-	scantokey[  5] = '4';
-	scantokey[  6] = '5';
-	scantokey[  7] = '6';
-	scantokey[  8] = '7';
-	scantokey[  9] = '8';
+		
+	scantokey[ 1] = K_ESCAPE;
+	scantokey[ 2] = '1';
+	scantokey[ 3] = '2';
+	scantokey[ 4] = '3';
+	scantokey[ 5] = '4';
+	scantokey[ 6] = '5';
+	scantokey[ 7] = '6';
+	scantokey[ 8] = '7';
+	scantokey[ 9] = '8';
 	scantokey[ 10] = '9';
 	scantokey[ 11] = '0';
 	scantokey[ 12] = '-';
 	scantokey[ 13] = '=';
 	scantokey[ 14] = K_BACKSPACE;
 	scantokey[ 15] = K_TAB;
-	scantokey[ 16] = 'q';       
-	scantokey[ 17] = 'w';       
-	scantokey[ 18] = 'e';       
-	scantokey[ 19] = 'r';       
-	scantokey[ 20] = 't';       
-	scantokey[ 21] = 'y';       
-	scantokey[ 22] = 'u';       
-	scantokey[ 23] = 'i';       
-	scantokey[ 24] = 'o';       
-	scantokey[ 25] = 'p';       
+	scantokey[ 16] = 'q';
+	scantokey[ 17] = 'w';
+	scantokey[ 18] = 'e';
+	scantokey[ 19] = 'r';
+	scantokey[ 20] = 't';
+	scantokey[ 21] = 'y';
+	scantokey[ 22] = 'u';
+	scantokey[ 23] = 'i';
+	scantokey[ 24] = 'o';
+	scantokey[ 25] = 'p';
 	scantokey[ 26] = '[';
 	scantokey[ 27] = ']';
 	scantokey[ 28] = K_ENTER;
 	scantokey[ 29] = K_CTRL; //left
 	scantokey[ 30] = 'a';
-	scantokey[ 31] = 's';       
-	scantokey[ 32] = 'd';       
-	scantokey[ 33] = 'f';       
-	scantokey[ 34] = 'g';       
-	scantokey[ 35] = 'h';       
-	scantokey[ 36] = 'j';       
-	scantokey[ 37] = 'k';       
-	scantokey[ 38] = 'l';       
+	scantokey[ 31] = 's';
+	scantokey[ 32] = 'd';
+	scantokey[ 33] = 'f';
+	scantokey[ 34] = 'g';
+	scantokey[ 35] = 'h';
+	scantokey[ 36] = 'j';
+	scantokey[ 37] = 'k';
+	scantokey[ 38] = 'l';
 	scantokey[ 39] = ';';
 	scantokey[ 40] = '\'';
 	scantokey[ 41] = '`';
 	scantokey[ 42] = K_SHIFT; //left
 	scantokey[ 43] = '\\';
-	scantokey[ 44] = 'z';       
-	scantokey[ 45] = 'x';  
+	scantokey[ 44] = 'z';
+	scantokey[ 45] = 'x';
 	scantokey[ 46] = 'c';
-	scantokey[ 47] = 'v';       
+	scantokey[ 47] = 'v';
 	scantokey[ 48] = 'b';
-	scantokey[ 49] = 'n';       
-	scantokey[ 50] = 'm';       
+	scantokey[ 49] = 'n';
+	scantokey[ 50] = 'm';
 	scantokey[ 51] = ',';
 	scantokey[ 52] = '.';
 	scantokey[ 53] = '/';
@@ -162,7 +160,7 @@ void KBD_Init(Key_Event_fp_t fp)
 	scantokey[ 98] = K_KP_SLASH;
 	scantokey[ 99] = K_F12; // print screen, bind to screenshot by default
 	scantokey[100] = K_ALT; // right
-
+	
 	scantokey[101] = K_PAUSE; // break
 	scantokey[102] = K_HOME;
 	scantokey[103] = K_UPARROW;
@@ -174,23 +172,21 @@ void KBD_Init(Key_Event_fp_t fp)
 	scantokey[109] = K_PGDN;
 	scantokey[110] = K_INS;
 	scantokey[111] = K_DEL;
-
+	
 	scantokey[119] = K_PAUSE;
-
-	if (keyboard_init())
+	
+	if(keyboard_init())
 		Sys_Error("keyboard_init() failed");
 	keyboard_seteventhandler(keyhandler);
 	keyboard_translatekeys(DONT_CATCH_CTRLC);
 }
 
-void KBD_Update(void)
-{
-	while (keyboard_update())
+void KBD_Update(void){
+	while(keyboard_update())
 		;
 }
 
-void KBD_Close(void)
-{
+void KBD_Close(void){
 	keyboard_close();
 }
 
@@ -226,119 +222,111 @@ static cvar_t *m_pitch;
 static cvar_t *m_forward;
 static cvar_t *freelook;
 
-static void Force_CenterView_f (void)
-{
+static void Force_CenterView_f(void){
 	in_state->viewangles[PITCH] = 0;
 }
 
-static void RW_IN_MLookDown (void) 
-{ 
-	mlooking = true; 
+static void RW_IN_MLookDown(void){
+	mlooking = true;
 }
 
-static void RW_IN_MLookUp (void) 
-{
+static void RW_IN_MLookUp(void){
 	mlooking = false;
-	in_state->IN_CenterView_fp ();
+	in_state->IN_CenterView_fp();
 }
 
 #if 0 /* old definition */
-static void mousehandler(int buttonstate, int dx, int dy)
-{
+static void mousehandler(int buttonstate, int dx, int dy){
 	mouse_buttonstate = buttonstate;
 	mx += dx;
 	my += dy;
 }
 #else /* drx is assumed to be the mouse wheel */
-static void mousehandler(int buttonstate, int dx, int dy, int dz, int drx, int dry, int drz) {
-    mouse_buttonstate = buttonstate;
-    mx += dx;
-    my += dy;
-	
-    mwheel = drx;
+static void mousehandler(int buttonstate, int dx, int dy, int dz, int drx, int dry, int drz){
+	mouse_buttonstate = buttonstate;
+	mx += dx;
+	my += dy;
+
+	mwheel = drx;
 }
 #endif
 
-void RW_IN_Init(in_state_t *in_state_p)
-{
+void RW_IN_Init(in_state_t *in_state_p){
 	in_state = in_state_p;
-
+	
 	// mouse variables
-	m_filter = ri.Cvar_Get ("m_filter", "0", 0);
-    in_mouse = ri.Cvar_Get ("in_mouse", "1", CVAR_ARCHIVE);
-	freelook = ri.Cvar_Get( "freelook", "0", 0 );
-	lookstrafe = ri.Cvar_Get ("lookstrafe", "0", 0);
-	sensitivity = ri.Cvar_Get ("sensitivity", "3", 0);
-	m_pitch = ri.Cvar_Get ("m_pitch", "0.022", 0);
-	m_yaw = ri.Cvar_Get ("m_yaw", "0.022", 0);
-	m_forward = ri.Cvar_Get ("m_forward", "1", 0);
-	m_side = ri.Cvar_Get ("m_side", "0.8", 0);
-
-	ri.Cmd_AddCommand ("+mlook", RW_IN_MLookDown);
-	ri.Cmd_AddCommand ("-mlook", RW_IN_MLookUp);
-
-	ri.Cmd_AddCommand ("force_centerview", Force_CenterView_f);
-
+	m_filter = ri.Cvar_Get("m_filter", "0", 0);
+	in_mouse = ri.Cvar_Get("in_mouse", "1", CVAR_ARCHIVE);
+	freelook = ri.Cvar_Get( "freelook", "0", 0);
+	lookstrafe = ri.Cvar_Get("lookstrafe", "0", 0);
+	sensitivity = ri.Cvar_Get("sensitivity", "3", 0);
+	m_pitch = ri.Cvar_Get("m_pitch", "0.022", 0);
+	m_yaw = ri.Cvar_Get("m_yaw", "0.022", 0);
+	m_forward = ri.Cvar_Get("m_forward", "1", 0);
+	m_side = ri.Cvar_Get("m_side", "0.8", 0);
+	
+	ri.Cmd_AddCommand("+mlook", RW_IN_MLookDown);
+	ri.Cmd_AddCommand("-mlook", RW_IN_MLookUp);
+	
+	ri.Cmd_AddCommand("force_centerview", Force_CenterView_f);
+	
 	mouse_buttons = 3;
-
-	if (vga_getmousetype() == MOUSE_NONE) {
-	    ri.Con_Printf(PRINT_ALL, "No mouse found\n");
-	    UseMouse = false;
+	
+	if(vga_getmousetype() == MOUSE_NONE){
+		ri.Con_Printf(PRINT_ALL, "No mouse found\n");
+		UseMouse = false;
 	} else {
-	    vga_setmousesupport(1);
-	    mouse_seteventhandler((__mouse_handler) mousehandler);
+		vga_setmousesupport(1);
+		mouse_seteventhandler((__mouse_handler) mousehandler);
 	}
 }
 
-void RW_IN_Shutdown(void)
-{
-}
+void RW_IN_Shutdown(void){}
 
 /*
 ===========
 IN_Commands
 ===========
 */
-void RW_IN_Commands (void)
-{
-	if (!UseMouse)
+void RW_IN_Commands(void){
+	if(!UseMouse)
 		return;
-
+		
 	// poll mouse values
 	mouse_update();
-
+	
 	// perform button actions
-	if ((mouse_buttonstate & MOUSE_LEFTBUTTON) &&
-		!(mouse_oldbuttonstate & MOUSE_LEFTBUTTON))
-		in_state->Key_Event_fp (K_MOUSE1, true);
-	else if (!(mouse_buttonstate & MOUSE_LEFTBUTTON) &&
-		(mouse_oldbuttonstate & MOUSE_LEFTBUTTON))
-		in_state->Key_Event_fp (K_MOUSE1, false);
-
-	if ((mouse_buttonstate & MOUSE_RIGHTBUTTON) &&
-		!(mouse_oldbuttonstate & MOUSE_RIGHTBUTTON))
-		in_state->Key_Event_fp (K_MOUSE2, true);
-	else if (!(mouse_buttonstate & MOUSE_RIGHTBUTTON) &&
-		(mouse_oldbuttonstate & MOUSE_RIGHTBUTTON))
-		in_state->Key_Event_fp (K_MOUSE2, false);
-
-	if ((mouse_buttonstate & MOUSE_MIDDLEBUTTON) &&
-		!(mouse_oldbuttonstate & MOUSE_MIDDLEBUTTON))
-		in_state->Key_Event_fp (K_MOUSE3, true);
-	else if (!(mouse_buttonstate & MOUSE_MIDDLEBUTTON) &&
-		(mouse_oldbuttonstate & MOUSE_MIDDLEBUTTON))
-		in_state->Key_Event_fp (K_MOUSE3, false);
-
+	if((mouse_buttonstate & MOUSE_LEFTBUTTON) &&
+			!(mouse_oldbuttonstate & MOUSE_LEFTBUTTON))
+		in_state->Key_Event_fp(K_MOUSE1, true);
+	else if(!(mouse_buttonstate & MOUSE_LEFTBUTTON) &&
+			(mouse_oldbuttonstate & MOUSE_LEFTBUTTON))
+		in_state->Key_Event_fp(K_MOUSE1, false);
+		
+	if((mouse_buttonstate & MOUSE_RIGHTBUTTON) &&
+			!(mouse_oldbuttonstate & MOUSE_RIGHTBUTTON))
+		in_state->Key_Event_fp(K_MOUSE2, true);
+	else if(!(mouse_buttonstate & MOUSE_RIGHTBUTTON) &&
+			(mouse_oldbuttonstate & MOUSE_RIGHTBUTTON))
+		in_state->Key_Event_fp(K_MOUSE2, false);
+		
+	if((mouse_buttonstate & MOUSE_MIDDLEBUTTON) &&
+			!(mouse_oldbuttonstate & MOUSE_MIDDLEBUTTON))
+		in_state->Key_Event_fp(K_MOUSE3, true);
+	else if(!(mouse_buttonstate & MOUSE_MIDDLEBUTTON) &&
+			(mouse_oldbuttonstate & MOUSE_MIDDLEBUTTON))
+		in_state->Key_Event_fp(K_MOUSE3, false);
+		
 	mouse_oldbuttonstate = mouse_buttonstate;
 	
-	if (mwheel < 0) {
-	    in_state->Key_Event_fp (K_MWHEELUP, true);
-	    in_state->Key_Event_fp (K_MWHEELUP, false);
+	if(mwheel < 0){
+		in_state->Key_Event_fp(K_MWHEELUP, true);
+		in_state->Key_Event_fp(K_MWHEELUP, false);
 	}
-	if (mwheel > 0) {
-	    in_state->Key_Event_fp (K_MWHEELDOWN, true);
-	    in_state->Key_Event_fp (K_MWHEELDOWN, false);
-	}	
+	if(mwheel > 0){
+		in_state->Key_Event_fp(K_MWHEELDOWN, true);
+		in_state->Key_Event_fp(K_MWHEELDOWN, false);
+	}
 	mwheel = 0;
 }
 
@@ -347,60 +335,49 @@ void RW_IN_Commands (void)
 IN_Move
 ===========
 */
-void RW_IN_Move (usercmd_t *cmd)
-{
-	if (!UseMouse)
+void RW_IN_Move(usercmd_t *cmd){
+	if(!UseMouse)
 		return;
-
+		
 	// poll mouse values
 	mouse_update();
-
-	if (m_filter->value)
-	{
-		mouse_x = (mx + old_mouse_x) * 0.5;
-		mouse_y = (my + old_mouse_y) * 0.5;
-	}
-	else
-	{
+	
+	if(m_filter->value){
+		mouse_x =(mx + old_mouse_x) * 0.5;
+		mouse_y =(my + old_mouse_y) * 0.5;
+	} else {
 		mouse_x = mx;
 		mouse_y = my;
 	}
 	old_mouse_x = mx;
 	old_mouse_y = my;
-
-	if (!mx && !my)
+	
+	if(!mx && !my)
 		return;
-
+		
 	mx = my = 0; // clear for next update
-
+	
 	mouse_x *= sensitivity->value;
 	mouse_y *= sensitivity->value;
-
-// add mouse X/Y movement to cmd
-	if ( (*in_state->in_strafe_state & 1) || 
-		(lookstrafe->value && mlooking ))
+	
+	// add mouse X/Y movement to cmd
+	if((*in_state->in_strafe_state & 1) ||
+			(lookstrafe->value && mlooking))
 		cmd->sidemove += m_side->value * mouse_x;
 	else
 		in_state->viewangles[YAW] -= m_yaw->value * mouse_x;
-
-	if ( (mlooking || freelook->value) && 
-		!(*in_state->in_strafe_state & 1))
-	{
+		
+	if((mlooking || freelook->value) &&
+			!(*in_state->in_strafe_state & 1)){
 		in_state->viewangles[PITCH] += m_pitch->value * mouse_y;
-	}
-	else
-	{
+	} else {
 		cmd->forwardmove -= m_forward->value * mouse_y;
 	}
 }
 
-void RW_IN_Frame (void)
-{
-}
+void RW_IN_Frame(void){}
 
-void RW_IN_Activate(void)
-{
-}
+void RW_IN_Activate(void){}
 
 
 

@@ -1,25 +1,25 @@
 /* $Id$
- *
- * Include file for asm driver interface.
- *
- * Copyright (C) 1997-2001 Id Software, Inc.
- * Copyright (c) 2002 The Quakeforge Project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * 
- * See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+*
+* Include file for asm driver interface.
+*
+* Copyright(C) 1997-2001 Id Software, Inc.
+* Copyright(c) 2002 The Quakeforge Project.
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or(at your option) any later version.
+* 
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+* 
+* See the GNU General Public License for more details.
+* 
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*/
 
 //
 // !!! note that this file must match the corresponding C structures in
@@ -36,17 +36,17 @@
 #define	CYCLE	128
 
 // !!! if this is changed, it must be changed in r_shared.h too !!!
-#define	MAXHEIGHT	1024
+#define	MAXHEIGHT	1024 
 /* #define MAXHEIGHT 1200 -- from ref_soft definition */
 
-// !!! if this is changed, it must be changed in quakedef.h too !!! (or qcommon.h)
+// !!! if this is changed, it must be changed in quakedef.h too !!!(or qcommon.h)
 #define CACHE_SIZE	32		// used to align key data structures
 
 // particle_t structure
 // !!! if this is changed, it must be changed in d_iface.h too !!!
 // driver-usable fields
 #define pt_org				0
-#define pt_color			12
+#define pt_color			12 
 // drivers never touch the following fields
 #define pt_next				16
 #define pt_vel				20
@@ -60,8 +60,8 @@
 // finalvert_t structure
 // !!! if this is changed, it must be changed in d_iface.h too !!!
 #define fv_v				0	// !!! if this is moved, cases where the !!!
-								// !!! address of this field is pushed in !!!
-								// !!! d_polysa.s must be changed !!!
+// !!! address of this field is pushed in !!!
+// !!! d_polysa.s must be changed !!!
 #define fv_flags			24
 #define fv_reserved			28
 #define fv_size				32

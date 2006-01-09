@@ -1,10 +1,10 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+Copyright(C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+of the License, or(at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -29,15 +29,17 @@ typedef struct pmenuhnd_s {
 	int cur;
 	int num;
 	void *arg;
-} pmenuhnd_t;
+}
+pmenuhnd_t;
 
-typedef void (*SelectFunc_t)(edict_t *ent, pmenuhnd_t *hnd);
+typedef void(*SelectFunc_t)(edict_t *ent, pmenuhnd_t *hnd);
 
 typedef struct pmenu_s {
 	char *text;
 	int align;
 	SelectFunc_t SelectFunc;
-} pmenu_t;
+}
+pmenu_t;
 
 pmenuhnd_t *PMenu_Open(edict_t *ent, pmenu_t *entries, int cur, int num, void *arg);
 void PMenu_Close(edict_t *ent);
