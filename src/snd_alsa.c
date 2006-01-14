@@ -31,6 +31,9 @@
 static snd_pcm_t *pcm_handle;
 static snd_pcm_hw_params_t *hw_params;
 
+static snd_pcm_uframes_t period_size;
+static snd_pcm_uframes_t buffer_size;
+
 static struct sndinfo * si;
 
 static int sample_bytes;
@@ -40,9 +43,9 @@ static int buffer_bytes;
 *  The sample rates which will be attempted.
 */
 static int RATES[] = {
-						 44100, 22050, 11025, 8000
-					 };
-                     
+						44100, 22050, 11025, 8000
+					};
+
 /*
 *  Initialize ALSA pcm device, and bind it to sndinfo.
 */
@@ -149,9 +152,20 @@ qboolean SNDDMA_Init(struct sndinfo *s){
 		return false;
 	}
 	
-	if((err = snd_pcm_hw_params_set_period_size(pcm_handle, hw_params,
-			   BUFFER_SAMPLES / si->dma->channels, 0)) < 0){
-		si->Com_Printf("ALSA: cannot set period size(%s)\n", snd_strerror(err));
+	period_size = BUFFER_SAMPLES / 2 / si->dma->channels;
+	
+	if((err = snd_pcm_hw_params_set_period_size_near(pcm_handle,
+			hw_params, &period_size, 0)) < 0){
+		si->Com_Printf("ALSA: cannot set period size near(%s)\n", snd_strerror(err));
+		snd_pcm_hw_params_free(hw_params);
+		return false;
+	}
+	
+	buffer_size = period_size * 2;
+	
+	if((err = snd_pcm_hw_params_set_buffer_size_near(pcm_handle,
+			hw_params, &buffer_size)) < 0){
+		si->Com_Printf("ALSA: cannot set buffer size near(%s)\n", snd_strerror(err));
 		snd_pcm_hw_params_free(hw_params);
 		return false;
 	}
