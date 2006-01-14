@@ -719,9 +719,18 @@ Creates a filelink_t
 */
 void FS_Link_f(void){
 	filelink_t	*l, **prev;
+	char *from;
 	
 	if(Cmd_Argc() != 3){
 		Com_Printf("USAGE: link <from> <to>\n");
+		return;
+	}
+	
+	from = Cmd_Argv(1);
+	
+	// jail link sources to gamedir
+	if(strstr(from, "..") || *from == '/' || *from == '.'){
+		Com_Printf("Illegal path name %s\n", from);
 		return;
 	}
 	
