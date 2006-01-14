@@ -355,7 +355,7 @@ void RW_IN_Init(in_state_t *in_state_p){
 #endif
 	
 	// mouse variables
-	_windowed_mouse = ri.Cvar_Get( "_windowed_mouse", "0", CVAR_ARCHIVE);
+	_windowed_mouse = ri.Cvar_Get( "_windowed_mouse", "1", CVAR_ARCHIVE);
 #ifdef HAVE_JOYSTICK
 	
 	in_joystick = ri.Cvar_Get("in_joystick", "1", CVAR_ARCHIVE);

@@ -72,7 +72,7 @@ static menuslider_s	s_brightness_slider[2];
 static menulist_s s_fs_box[2];
 static menulist_s s_stipple_box;
 static menulist_s s_paletted_texture_box;
-static menulist_s s_windowed_mouse;
+static menulist_s s_windowed_mouse[2];
 static menuaction_s	s_apply_action[2];
 static menuaction_s	s_defaults_action[2];
 
@@ -139,7 +139,7 @@ static void ApplyChanges( void *unused){
 	Cvar_SetValue( "gl_ext_palettedtexture", s_paletted_texture_box.curvalue);
 	Cvar_SetValue( "sw_mode", s_mode_list[SOFTWARE_MENU].curvalue);
 	Cvar_SetValue( "gl_mode", s_mode_list[OPENGL_MENU].curvalue);
-	Cvar_SetValue( "_windowed_mouse", s_windowed_mouse.curvalue);
+	Cvar_SetValue( "_windowed_mouse", s_windowed_mouse[s_current_menu_index].curvalue);
 	
 	switch( s_ref_list[s_current_menu_index].curvalue){
 		case REF_SOFT:
@@ -257,7 +257,7 @@ void VID_MenuInit( void){
 		sw_stipplealpha = Cvar_Get( "sw_stipplealpha", "0", CVAR_ARCHIVE);
 		
 	if( !_windowed_mouse)
-		_windowed_mouse = Cvar_Get( "_windowed_mouse", "0", CVAR_ARCHIVE);
+		_windowed_mouse = Cvar_Get( "_windowed_mouse", "1", CVAR_ARCHIVE);
 		
 	s_mode_list[SOFTWARE_MENU].curvalue = sw_mode->value;
 	s_mode_list[OPENGL_MENU].curvalue = gl_mode->value;
@@ -352,16 +352,23 @@ void VID_MenuInit( void){
 		s_fs_box[i].itemnames = yesno_names;
 		s_fs_box[i].curvalue = vid_fullscreen->value;
 		
+		s_windowed_mouse[i].generic.type = MTYPE_SPINCONTROL;
+		s_windowed_mouse[i].generic.x = 0;
+		s_windowed_mouse[i].generic.y = (i == SOFTWARE_MENU ? 70 : 80);
+		s_windowed_mouse[i].generic.name = "windowed mouse";
+		s_windowed_mouse[i].curvalue = _windowed_mouse->value;
+		s_windowed_mouse[i].itemnames = yesno_names;
+		
 		s_defaults_action[i].generic.type = MTYPE_ACTION;
 		s_defaults_action[i].generic.name = "reset to default";
 		s_defaults_action[i].generic.x = 0;
-		s_defaults_action[i].generic.y = 90;
+		s_defaults_action[i].generic.y = (i == SOFTWARE_MENU ? 90 : 100);
 		s_defaults_action[i].generic.callback = ResetDefaults;
 		
 		s_apply_action[i].generic.type = MTYPE_ACTION;
 		s_apply_action[i].generic.name = "apply";
 		s_apply_action[i].generic.x = 0;
-		s_apply_action[i].generic.y = 100;
+		s_apply_action[i].generic.y = (i == SOFTWARE_MENU ? 100 : 110);
 		s_apply_action[i].generic.callback = ApplyChanges;
 	}
 	
@@ -371,13 +378,6 @@ void VID_MenuInit( void){
 	s_stipple_box.generic.name	= "stipple alpha";
 	s_stipple_box.curvalue = sw_stipplealpha->value;
 	s_stipple_box.itemnames = yesno_names;
-	
-	s_windowed_mouse.generic.type = MTYPE_SPINCONTROL;
-	s_windowed_mouse.generic.x = 0;
-	s_windowed_mouse.generic.y = 72;
-	s_windowed_mouse.generic.name = "windowed mouse";
-	s_windowed_mouse.curvalue = _windowed_mouse->value;
-	s_windowed_mouse.itemnames = yesno_names;
 	
 	s_tq_slider.generic.type	= MTYPE_SLIDER;
 	s_tq_slider.generic.x	= 0;
@@ -400,7 +400,9 @@ void VID_MenuInit( void){
 	Menu_AddItem( &s_software_menu,( void *) &s_brightness_slider[SOFTWARE_MENU]);
 	Menu_AddItem( &s_software_menu,( void *) &s_fs_box[SOFTWARE_MENU]);
 	Menu_AddItem( &s_software_menu,( void *) &s_stipple_box);
-	Menu_AddItem( &s_software_menu,( void *) &s_windowed_mouse);
+	Menu_AddItem( &s_software_menu,( void *) &s_windowed_mouse[SOFTWARE_MENU]);
+	Menu_AddItem( &s_software_menu,( void *) &s_defaults_action[SOFTWARE_MENU]);
+	Menu_AddItem( &s_software_menu,( void *) &s_apply_action[SOFTWARE_MENU]);
 	
 	Menu_AddItem( &s_opengl_menu,( void *) &s_ref_list[OPENGL_MENU]);
 	Menu_AddItem( &s_opengl_menu,( void *) &s_mode_list[OPENGL_MENU]);
@@ -409,9 +411,7 @@ void VID_MenuInit( void){
 	Menu_AddItem( &s_opengl_menu,( void *) &s_fs_box[OPENGL_MENU]);
 	Menu_AddItem( &s_opengl_menu,( void *) &s_tq_slider);
 	Menu_AddItem( &s_opengl_menu,( void *) &s_paletted_texture_box);
-	
-	Menu_AddItem( &s_software_menu,( void *) &s_defaults_action[SOFTWARE_MENU]);
-	Menu_AddItem( &s_software_menu,( void *) &s_apply_action[SOFTWARE_MENU]);
+	Menu_AddItem( &s_opengl_menu,( void *) &s_windowed_mouse[OPENGL_MENU]);
 	Menu_AddItem( &s_opengl_menu,( void *) &s_defaults_action[OPENGL_MENU]);
 	Menu_AddItem( &s_opengl_menu,( void *) &s_apply_action[OPENGL_MENU]);
 	
