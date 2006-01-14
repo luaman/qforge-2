@@ -182,7 +182,7 @@ void CompleteCommand(void){
 		cvar = Cvar_CompleteVariable(partial);  //so try cvars
 		
 		if(cvar){  //found something
-			if(!strcmp(cvar, partial)) cmd = cvar;  //exact cvar match
+			if(!cmd || !strcmp(cvar, partial)) cmd = cvar;  //exact cvar match or no cmd
 			else cmd = NULL;  //no exact match, partial for both
 		}
 	}
