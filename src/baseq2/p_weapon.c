@@ -224,6 +224,11 @@ void NoAmmoWeaponChange(edict_t *ent){
 		ent->client->newweapon = FindItem("hyperblaster");
 		return;
 	}
+	if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("rockets"))]
+			&&  ent->client->pers.inventory[ITEM_INDEX(FindItem("rocket launcher"))]){
+		ent->client->newweapon = FindItem ("rocket launcher");
+		return;
+	}
 	if( ent->client->pers.inventory[ITEM_INDEX(FindItem("bullets"))]
 			&& ent->client->pers.inventory[ITEM_INDEX(FindItem("chaingun"))]){
 		ent->client->newweapon = FindItem("chaingun");
