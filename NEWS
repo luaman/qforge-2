@@ -1,6 +1,47 @@
 NEWS for quake2
 ===============
 
+0.4 (Whenever)
+---
+
+* New ALSA sound driver.  See Bug#27.
+* Netgraph is slightly smaller, with transparent background, and is drawn
+  behind the players stats.  See Bug#4.
+* Netgraph no longer breaks transparent console.  See Bug#4.
+* fs_basedir now honors PKGDATADIR and PKGLIBDIR, so mods can be 
+  installed like everyone is used to (e.g. /usr/local/share/quake2/ctf)
+  See Bug#8.
+* fs_gamedir is exported to environment as QUAKE2_HOME on startup.
+  Mods may safely use this variable to perform file io in their respective
+  homes.
+* Timedemo is disabled in deathmatch mode, and readonly in dedicated
+  mode.  Timedemo in dm is not only stupid, but it can crash the server :)
+  See Bug#28.
+* The rocket launcher is now eligible for selection when a player runs 
+  out of ammo.  It was previously skipped.  This is a long-standing bug
+  from id's original game source.  Affects both ctf and baseq2 games.
+  See Bug#29.
+* FS_OpenFile now ensures a file is a regular file before returning it.  This
+  fixes a known server crash (e.g. cmd download maps)  See Bug#30.
+* Fixed Win32 path bug in download command that could allow retrieval
+  of sensitive information (e.g. cmd download \/server.cfg).  See Bug#30.
+* Fixed unchecked strcpy in Cmd_TokenizeString which could allow
+  arbitrary code execution.  See Bug#30.
+* link command is now jailed to fs_gamedir, fixing an exploit to allow
+  random filesystem access to players with rcon (e.g. rcon link /etc foo;
+  download foo/passwd).  See Bug#30.
+* Fixed unchecked memcpy in Cbuf_Execute which could allow arbitrary
+  code execution.  See Bug#30.
+* Unix-like cmd/cvar completion.  All potential matches for commands
+  and cvars are printed on tab.  Nothing is appended to the input buffer
+  unless it is an exact, or only, match.  Commands are printed in green,
+  cvars in white.
+* A toggle option for _windowed_mouse is now available in the OpenGL
+  video menu.  The cvar is defaulted to "1" for glx and sdl_* renderers,
+  as it helps some configurations (read: NVidia).  See Bug#12.
+* configure.in no longer globbers OpenGL and SVGALib CFLAGS.  This
+  was causing problems on FreeBSD.  See Bug#25.
+
 0.3 (16/03/04)
 ---
 
