@@ -182,7 +182,7 @@ Cbuf_Execute
 void Cbuf_Execute(void){
 	int	i;
 	char	*text;
-	char	line[1024];
+	char	line[MAX_STRING_CHARS];
 	int	quotes;
 	
 	alias_count = 0;		// don't allow infinite alias loops
@@ -395,7 +395,7 @@ Creates a new command that executes a command string(possibly; seperated)
 */
 void Cmd_Alias_f(void){
 	cmdalias_t	*a;
-	char	cmd[1024];
+	char	cmd[MAX_STRING_CHARS];
 	int	i, c;
 	char	*s;
 	
@@ -607,7 +607,7 @@ void Cmd_TokenizeString(char *text, qboolean macroExpand){
 		if(cmd_argc == 1){
 			int	l;
 			
-			strcpy(cmd_args, text);
+			strncpy(cmd_args, text, MAX_STRING_CHARS);
 			
 			// strip off any trailing whitespace
 			l = strlen(cmd_args) - 1;
@@ -628,7 +628,6 @@ void Cmd_TokenizeString(char *text, qboolean macroExpand){
 			cmd_argc++;
 		}
 	}
-	
 }
 
 
