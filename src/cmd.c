@@ -201,6 +201,10 @@ void Cbuf_Execute(void){
 				break;
 		}
 		
+		if(i > MAX_STRING_CHARS){  //length check each command
+			Com_Printf("Command exceeded %i chars, discarded\n", MAX_STRING_CHARS);
+			return;
+		}
 		
 		memcpy(line, text, i);
 		line[i] = 0;
@@ -708,32 +712,43 @@ Cmd_CompleteCommand
 ============
 */
 char *Cmd_CompleteCommand(char *partial){
-	cmd_function_t	*cmd;
-	int	len;
-	cmdalias_t	*a;
+	cmd_function_t *cmd;
+	cmdalias_t *a;
+	char *match = NULL;
+	int len;
 	
 	len = strlen(partial);
 	
 	if(!len)
 		return NULL;
 		
-	// check for exact match
+	// check for exact match in commands
 	for(cmd = cmd_functions; cmd; cmd = cmd->next)
 		if(!strcmp(partial, cmd->name))
 			return cmd->name;
+	
+	// and then aliases
 	for(a = cmd_alias; a; a = a->next)
 		if(!strcmp(partial, a->name))
 			return a->name;
-			
-	// check for partial match
-	for(cmd = cmd_functions; cmd; cmd = cmd->next)
-		if(!strncmp(partial, cmd->name, len))
-			return cmd->name;
-	for(a = cmd_alias; a; a = a->next)
-		if(!strncmp(partial, a->name, len))
-			return a->name;
-			
-	return NULL;
+	
+	// check for partial matches in commands
+	for(cmd = cmd_functions; cmd; cmd = cmd->next){
+		if(!strncmp(partial, cmd->name, len)){
+			Com_Printf("%c%s\n", (char)1, cmd->name);
+			match = cmd->name;
+		}
+	}
+	
+	// and then aliases
+	for(a = cmd_alias; a; a = a->next){
+		if(!strncmp(partial, a->name, len)){
+			Com_Printf("%c%s\n", (char)1, a->name);
+			match = a->name;
+		}
+	}
+	
+	return match;
 }
 
 

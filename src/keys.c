@@ -167,16 +167,27 @@ keyname_t keynames[] = {
 */
 
 void CompleteCommand(void){
-	char	*cmd, *s;
+	char	*cmd, *cvar, *partial;
 	
-	s = key_lines[edit_line] + 1;
-	if(*s == '\\' || *s == '/')
-		s++;
+	partial = key_lines[edit_line] + 1;
+	if(*partial == '\\' || *partial == '/')
+		partial++;
+	
+	if(!*partial) return;  //lets start with at least something
+	
+	cmd = Cmd_CompleteCommand(partial);  //partial command lookup
+	
+	if(!cmd || strcmp(cmd, partial)){  //not exact command match
 		
-	cmd = Cmd_CompleteCommand(s);
-	if(!cmd)
-		cmd = Cvar_CompleteVariable(s);
-	if(cmd){
+		cvar = Cvar_CompleteVariable(partial);  //so try cvars
+		
+		if(cvar){  //found something
+			if(!strcmp(cvar, partial)) cmd = cvar;  //exact cvar match
+			else cmd = NULL;  //no exact match, partial for both
+		}
+	}
+	
+	if(cmd){  //found something
 		key_lines[edit_line][1] = '/';
 		strcpy(key_lines[edit_line] + 2, cmd);
 		key_linepos = strlen(cmd) + 2;
