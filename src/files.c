@@ -22,6 +22,8 @@
 * 02111-1307, USA.
 */
 
+#include <sys/stat.h>
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -199,7 +201,7 @@ FS_FOpenFile
 Finds the file in the search path.
 returns filesize and an open FILE *
 Used for streaming data out of either a pak file or
-a seperate file.
+a seperate file.<
 ===========
 */
 int file_from_pak = 0;
@@ -207,6 +209,7 @@ int file_from_pak = 0;
 int FS_FOpenFile(char *filename, FILE **file){
 	searchpath_t	*search;
 	char	netpath[MAX_OSPATH];
+	struct stat sbuf;
 	pack_t	*pak;
 	int	i;
 	filelink_t	*link;
@@ -250,10 +253,12 @@ int FS_FOpenFile(char *filename, FILE **file){
 			
 			Com_sprintf(netpath, sizeof(netpath), "%s/%s", search->filename, filename);
 			
-			*file = fopen(netpath, "rb");
-			if(!*file)
+			if(stat(netpath, &sbuf) == -1 || !S_ISREG(sbuf.st_mode))
 				continue;
-				
+			
+			if((*file = fopen(netpath, "rb")) == NULL)
+				continue;
+			
 			Com_DPrintf("FindFile: %s\n", netpath);
 			
 			return FS_filelength(*file);
