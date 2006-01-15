@@ -60,7 +60,7 @@ Sends text across to be displayed if the level passes
 */
 void SV_ClientPrintf(client_t *cl, int level, char *fmt, ...){
 	va_list	argptr;
-	char	string[1024];
+	char	string[MAX_STRING_CHARS];
 	
 	if(level < cl->messagelevel)
 		return;
@@ -83,7 +83,7 @@ Sends text to all active clients
 */
 void SV_BroadcastPrintf(int level, char *fmt, ...){
 	va_list	argptr;
-	char	string[2048];
+	char	string[MAX_STRING_CHARS];
 	client_t	*cl;
 	int	i;
 	
@@ -93,13 +93,13 @@ void SV_BroadcastPrintf(int level, char *fmt, ...){
 	
 	// echo to console
 	if(dedicated->value){
-		char	copy[1024];
-		int	i;
+		char	copy[MAX_STRING_CHARS];
+		int	j;
 		
 		// mask off high bits
-		for(i = 0; i < 1023 && string[i]; i++)
-			copy[i] = string[i] & 127;
-		copy[i] = 0;
+		for(j = 0; j < MAX_STRING_CHARS - 1 && string[j]; j++)
+			copy[j] = string[j] & 127;
+		copy[j] = 0;
 		Com_Printf("%s", copy);
 	}
 	
@@ -123,7 +123,7 @@ Sends text to all active clients
 */
 void SV_BroadcastCommand(char *fmt, ...){
 	va_list	argptr;
-	char	string[1024];
+	char	string[MAX_STRING_CHARS];
 	
 	if(!sv.state)
 		return;

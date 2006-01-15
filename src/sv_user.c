@@ -358,7 +358,6 @@ The client is going to disconnect, so remove the connection immediately
 =================
 */
 void SV_Disconnect_f(void){
-	//	SV_EndRedirect();
 	SV_DropClient(sv_client);
 }
 
@@ -371,7 +370,22 @@ Dumps the serverinfo info string
 ==================
 */
 void SV_ShowServerinfo_f(void){
-	Info_Print(Cvar_Serverinfo());
+	cvar_t *cvar;
+	char line[MAX_STRING_CHARS];
+	
+	if(!sv_client){  //print to server console
+		Info_Print(Cvar_Serverinfo());
+		return;
+	}
+	
+	for(cvar = cvar_vars; cvar; cvar = cvar->next){
+		
+		if(!(cvar->flags & CVAR_SERVERINFO))
+			continue;  //only print serverinfo cvars
+			
+		snprintf(line, MAX_STRING_CHARS, "%s %s\n", cvar->name, cvar->string);
+		SV_ClientPrintf(sv_client, PRINT_MEDIUM, line);
+	}
 }
 
 
@@ -379,7 +393,7 @@ void SV_Nextserver(void){
 	char	*v;
 	
 	//ZOID, ss_pic can be nextserver'd in coop mode
-	if(sv.state == ss_game ||(sv.state == ss_pic && !Cvar_VariableValue("coop")))
+	if(sv.state == ss_game ||(sv.state == ss_pic && !coop->value))
 		return;		// can't nextserver while playing a normal game
 		
 	svs.spawncount++;	// make sure another doesn't sneak in

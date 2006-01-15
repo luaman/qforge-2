@@ -871,7 +871,6 @@ void SV_UserinfoChanged(client_t *cl){
 	if(strlen(val)){
 		cl->messagelevel = atoi(val);
 	}
-	
 }
 
 
