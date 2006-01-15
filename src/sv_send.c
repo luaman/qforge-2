@@ -466,7 +466,7 @@ void SV_SendClientMessages(void){
 	
 	// read the next demo message if needed
 	if(sv.state == ss_demo && sv.demofile){
-		if(sv_paused->value)
+		if(paused->value)
 			msglen = 0;
 		else {
 			// get the next message

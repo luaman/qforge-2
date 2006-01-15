@@ -115,7 +115,7 @@ void SV_CheckForSavegame(void){
 	if(sv_noreload->value)
 		return;
 		
-	if(Cvar_VariableValue("deathmatch"))
+	if(deathmatch->value)
 		return;
 		
 	Com_sprintf(name, sizeof(name), "%s/save/current/%s.sav", FS_Gamedir(), sv.name);
@@ -183,7 +183,7 @@ void SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate, 
 	
 	// save name for levels that don't set message
 	strcpy(sv.configstrings[CS_NAME], server);
-	if(Cvar_VariableValue("deathmatch")){
+	if(deathmatch->value){
 		sprintf(sv.configstrings[CS_AIRACCEL], "%g", sv_airaccelerate->value);
 		pm_airaccelerate = sv_airaccelerate->value;
 	} else {
@@ -287,7 +287,7 @@ void SV_InitGame(void){
 	
 	svs.initialized = true;
 	
-	if(Cvar_VariableValue("coop") && Cvar_VariableValue("deathmatch")){
+	if(coop->value && deathmatch->value){
 		Com_Printf("Deathmatch and Coop both set, disabling Coop\n");
 		Cvar_FullSet("coop", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	}
@@ -300,29 +300,24 @@ void SV_InitGame(void){
 	}
 	
 	// init clients
-	if(Cvar_VariableValue("deathmatch")){
+	if(deathmatch->value){
 		if(maxclients->value <= 1)
 			Cvar_FullSet("maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);
 		else if(maxclients->value > MAX_CLIENTS)
 			Cvar_FullSet("maxclients", va("%i", MAX_CLIENTS), CVAR_SERVERINFO | CVAR_LATCH);
-	} else if(Cvar_VariableValue("coop")){
+	} else if(coop->value){
 		if(maxclients->value <= 1 || maxclients->value > 4)
 			Cvar_FullSet("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
 #ifdef COPYPROTECT
-			
 		if(!sv.attractloop && !dedicated->value)
 			Sys_CopyProtect();
 #endif
-			
-	} else	// non-deathmatch, non-coop is one player
-	{
+	} else {  // non-deathmatch, non-coop is one player
 		Cvar_FullSet("maxclients", "1", CVAR_SERVERINFO | CVAR_LATCH);
 #ifdef COPYPROTECT
-		
 		if(!sv.attractloop)
 			Sys_CopyProtect();
 #endif
-			
 	}
 	
 	svs.spawncount = rand();

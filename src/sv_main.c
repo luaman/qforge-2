@@ -29,8 +29,11 @@ netadr_t	master_adr[MAX_MASTERS];	// address of group servers
 
 client_t	*sv_client;			// current client
 
-cvar_t	*sv_paused;
-cvar_t	*sv_timedemo;
+cvar_t *deathmatch;
+cvar_t *coop;
+
+cvar_t	*paused;
+cvar_t	*timedemo;
 
 cvar_t	*sv_enforcetime;
 
@@ -49,11 +52,11 @@ cvar_t *sv_airaccelerate;
 
 cvar_t	*sv_noreload;			// don't reload level state when reentering
 
-cvar_t	*maxclients;			// FIXME: rename sv_maxclients
+cvar_t	*maxclients;
 cvar_t	*sv_showclamp;
 
 cvar_t	*hostname;
-cvar_t	*public_server;			// should heartbeats be sent
+cvar_t	*public;			// should heartbeats be sent
 
 cvar_t	*sv_reconnect_limit;	// minimum seconds between connect messages
 
@@ -407,7 +410,7 @@ Redirect all printfs
 */
 void SVC_RemoteCommand(void){
 	int	i;
-	char	remaining[1024];
+	char	remaining[MAX_STRING_CHARS];
 	
 	i = Rcon_Validate();
 	
@@ -685,7 +688,7 @@ void SV_RunGameFrame(void){
 	sv.time = sv.framenum * 100;
 	
 	// don't run if paused
-	if(!sv_paused->value || maxclients->value > 1){
+	if(!paused->value || maxclients->value > 1){
 		ge->RunFrame();
 		
 		// never get more than one tic behind
@@ -726,7 +729,7 @@ void SV_Frame(int msec){
 	SV_ReadPackets();
 	
 	// move autonomous things around if enough time has passed
-	if((Cvar_VariableValue("deathmatch") || !sv_timedemo->value)
+	if((deathmatch->value || coop->value || !timedemo->value)
 			&& svs.realtime < sv.time){
 		// never let the time get too far off
 		if(sv.time - svs.realtime > 100){
@@ -776,12 +779,10 @@ void Master_Heartbeat(void){
 	char	*string;
 	int	i;
 	
-	// pgm post3.19 change, cvar pointer not validated before dereferencing
 	if(!dedicated || !dedicated->value)
 		return;		// only dedicated servers send heartbeats
 		
-	// pgm post3.19 change, cvar pointer not validated before dereferencing
-	if(!public_server || !public_server->value)
+	if(!public || !public->value)
 		return;		// a private dedicated game
 		
 	// check for time wraparound
@@ -814,12 +815,10 @@ Informs all masters that this server is going down
 void Master_Shutdown(void){
 	int	i;
 	
-	// pgm post3.19 change, cvar pointer not validated before dereferencing
 	if(!dedicated || !dedicated->value)
 		return;		// only dedicated servers send heartbeats
 		
-	// pgm post3.19 change, cvar pointer not validated before dereferencing
-	if(!public_server || !public_server->value)
+	if(!public || !public->value)
 		return;		// a private dedicated game
 		
 	// send to group master
@@ -890,25 +889,24 @@ void SV_Init(void){
 	
 	rcon_password = Cvar_Get("rcon_password", "", 0);
 	Cvar_Get("skill", "1", 0);
-	Cvar_Get("deathmatch", "0", CVAR_LATCH);
-	Cvar_Get("coop", "0", CVAR_LATCH);
+	deathmatch = Cvar_Get("deathmatch", "0", CVAR_LATCH);
+	coop = Cvar_Get("coop", "0", CVAR_LATCH);
 	Cvar_Get("dmflags", va("%i", DF_INSTANT_ITEMS), CVAR_SERVERINFO);
 	Cvar_Get("fraglimit", "0", CVAR_SERVERINFO);
 	Cvar_Get("timelimit", "0", CVAR_SERVERINFO);
 	Cvar_Get("cheats", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	Cvar_Get("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_NOSET);
-	;
 	maxclients = Cvar_Get("maxclients", "1", CVAR_SERVERINFO | CVAR_LATCH);
 	hostname = Cvar_Get("hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	timeout = Cvar_Get("timeout", "125", 0);
 	zombietime = Cvar_Get("zombietime", "2", 0);
 	sv_showclamp = Cvar_Get("showclamp", "0", 0);
-	sv_paused = Cvar_Get("paused", "0", 0);
+	paused = Cvar_Get("paused", "0", 0);
 	
 	if(dedicated->value)
-		sv_timedemo = Cvar_Get("timedemo", "0", CVAR_NOSET);
+		timedemo = Cvar_Get("timedemo", "0", CVAR_NOSET);
 	else
-		sv_timedemo = Cvar_Get("timedemo", "0", 0);
+		timedemo = Cvar_Get("timedemo", "0", 0);
 		
 	sv_enforcetime = Cvar_Get("sv_enforcetime", "0", 0);
 	allow_download = Cvar_Get("allow_download", "1", CVAR_ARCHIVE);
@@ -921,7 +919,7 @@ void SV_Init(void){
 	
 	sv_airaccelerate = Cvar_Get("sv_airaccelerate", "0", CVAR_LATCH);
 	
-	public_server = Cvar_Get("public", "0", 0);
+	public = Cvar_Get("public", "0", 0);
 	
 	sv_reconnect_limit = Cvar_Get("sv_reconnect_limit", "3", CVAR_ARCHIVE);
 	

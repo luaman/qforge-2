@@ -583,7 +583,7 @@ void SV_ExecuteClientMessage(client_t *cl){
 					return;
 				}
 				
-				if(!sv_paused->value){
+				if(!paused->value){
 					net_drop = cl->netchan.dropped;
 					if(net_drop < 20){
 					
