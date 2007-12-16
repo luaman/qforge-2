@@ -20,6 +20,8 @@ fi
 # when one can just read the README
 aclocal && \
 autoheader && \
+touch ltconfig && \
 libtoolize --copy --automake && \
 automake --foreign --add-missing --copy && \
+touch depcomp && \
 autoconf

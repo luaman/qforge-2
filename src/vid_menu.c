@@ -224,6 +224,7 @@ void VID_MenuInit( void){
 										   "[1152 768 ]",  /* apple tibook */
 										   "[1280 854 ]",  /* apple tibook */
 										   "[1440 900 ]",  /* apple powerbook g4 17" */
+										   "[1680 1050]",  /* 20" widescreen LCD */
 										   0
 									   };
 	static const char *refs[] = {

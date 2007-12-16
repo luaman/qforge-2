@@ -447,31 +447,30 @@ __declspec( naked) void S_PaintChannelFrom8(channel_t *ch, sfxcache_t *sc, int c
 #else /* HAVE_MASM */
 # ifndef USE_ASM
 void S_PaintChannelFrom8(channel_t *ch, sfxcache_t *sc, int count, int offset){
-	int data;
+	int data, i;
 	int	*lscale, *rscale;
 	unsigned char *sfx;
-	int	i;
 	portable_samplepair_t	*samp;
-											
+
 	if(ch->leftvol > 255)
 		ch->leftvol = 255;
 	if(ch->rightvol > 255)
 		ch->rightvol = 255;
-											
+
 	//ZOID-- >>11 has been changed to >>3, >>11 didn't make much sense
 	//as it would always be zero.
-	lscale = snd_scaletable[ ch->leftvol >> 3];
-	rscale = snd_scaletable[ ch->rightvol >> 3];
-	sfx =(signed char *)sc->data + ch->pos;
-											
+	lscale = snd_scaletable[ch->leftvol >> 3];
+	rscale = snd_scaletable[ch->rightvol >> 3];
+	sfx = (unsigned char *)sc->data + ch->pos;
+
 	samp = &paintbuffer[offset];
-											
+
 	for(i = 0; i < count; i++, samp++){
 		data = sfx[i];
 		samp->left += lscale[data];
 		samp->right += rscale[data];
 	}
-											
+
 	ch->pos += count;
 }
 # endif /* !USE_ASM */
@@ -484,11 +483,11 @@ void S_PaintChannelFrom16(channel_t *ch, sfxcache_t *sc, int count, int offset){
 	signed short *sfx;
 	int	i;
 	portable_samplepair_t	*samp;
-	
+
 	leftvol = ch->leftvol * snd_vol;
 	rightvol = ch->rightvol * snd_vol;
 	sfx =(signed short *)sc->data + ch->pos;
-	
+
 	samp = &paintbuffer[offset];
 	for(i = 0; i < count; i++, samp++){
 		data = sfx[i];
@@ -497,6 +496,6 @@ void S_PaintChannelFrom16(channel_t *ch, sfxcache_t *sc, int count, int offset){
 		samp->left += left;
 		samp->right += right;
 	}
-	
+
 	ch->pos += count;
 }

@@ -166,7 +166,8 @@ vidmode_t vid_modes[] = {
 							{ "Mode 11: 1024x480", 1024, 480, 11 },  /* Sony VAIO Pocketbook */
 							{ "Mode 12: 1152x768", 1152, 768, 12 },  /* Apple TiBook */
 							{ "Mode 13: 1280x854", 1280, 854, 13 },  /* Apple TiBook */
-							{ "Mode 14: 1440x900", 1440, 900, 14 }  /* Apple 17" Powerbook G4 */
+							{ "Mode 14: 1440x900", 1440, 900, 14 },  /* Apple 17" Powerbook G4 */
+							{ "Mode 15: 1680x1050", 1680, 1050, 15 }  /* 20" widescreen LCD */
 						};
                         
 qboolean VID_GetModeInfo( unsigned int *width, unsigned int *height, int mode){

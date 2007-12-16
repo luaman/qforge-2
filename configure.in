@@ -5,6 +5,8 @@ AC_CONFIG_AUX_DIR(.)
 AC_CONFIG_SRCDIR(src/main.c)
 AM_CONFIG_HEADER(config.h)
 
+AM_PROG_AS
+
 AC_CANONICAL_SYSTEM
 AC_DEFINE_UNQUOTED(BUILDHOST, "${target_cpu}-${target_os}", 
 	[Set to the canonical name of the target machine])

@@ -1434,7 +1434,7 @@ void	GL_InitImages(void){
 	Draw_GetPalette();
 	
 	if( qglColorTableEXT){
-		ri.FS_LoadFile( "pics/16to8.dat",(void **)&gl_state.d_16to8table);
+		ri.FS_LoadFile( "pics/16to8.dat",(void **)(char *)&gl_state.d_16to8table);
 		if( !gl_state.d_16to8table)
 			ri.Sys_Error( ERR_FATAL, "Couldn't load pics/16to8.pcx");
 	}
