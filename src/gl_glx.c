@@ -725,13 +725,7 @@ static int XLateKey(XKeyEvent *ev){
 			break;
 			
 		case XK_F11:
-			if( ev->type == KeyPress){
-				if( _windowed_mouse->value){
-					Cvar_SetValue( "_windowed_mouse", 0);
-				} else {
-					Cvar_SetValue( "_windowed_mouse", 1);
-				}
-			}
+			key = K_F11;
 			break;
 			
 		case XK_F12:
